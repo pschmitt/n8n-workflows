@@ -153,7 +153,7 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "name": "🧪 GitHub PR List",
+  "name": "📮 GitHub PR Digest",
   "nodes": [
     {
       "parameters": {},
@@ -409,6 +409,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-02-22T22:12:32.000Z",
-  "versionId": "00127447-54a9-4e7f-aacc-ff20522f02e3"
+  "updatedAt": "2025-02-27T08:27:37.000Z",
+  "versionId": "0ad02ad5-7a77-4abc-b011-f7cb7e2f7c27"
 }
