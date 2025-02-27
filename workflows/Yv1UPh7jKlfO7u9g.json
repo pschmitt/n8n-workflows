@@ -17,22 +17,11 @@
         ]
       ]
     },
-    "HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "Process response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Build GH Query": {
       "main": [
         [
           {
-            "node": "HTTP Request",
+            "node": "Fetch matching PRs",
             "type": "main",
             "index": 0
           }
@@ -127,13 +116,13 @@
             "node": "Create email body",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Convert new PR data to array",
+            "type": "main",
+            "index": 0
           }
         ]
-      ]
-    },
-    "Create email body (legacy)": {
-      "main": [
-        []
       ]
     },
     "Create email body": {
@@ -146,6 +135,33 @@
           }
         ]
       ]
+    },
+    "Subscribe to PR": {
+      "main": [
+        []
+      ]
+    },
+    "Fetch matching PRs": {
+      "main": [
+        [
+          {
+            "node": "Process response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert new PR data to array": {
+      "main": [
+        [
+          {
+            "node": "Subscribe to PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-02-20T15:49:00.768Z",
@@ -153,7 +169,7 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "name": "📮 GitHub PR Digest",
+  "name": "📮 GitHub nixpkgs PR Digest",
   "nodes": [
     {
       "parameters": {},
@@ -165,20 +181,6 @@
       ],
       "id": "26ef73ab-6b0e-49e4-aaa2-413028c79222",
       "name": "When clicking ‘Test workflow’"
-    },
-    {
-      "parameters": {
-        "url": "=https://api.github.com/search/issues?q={{ $json.query }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        280,
-        -200
-      ],
-      "id": "841ef34a-23ad-458c-9738-64d486aaca3d",
-      "name": "HTTP Request"
     },
     {
       "parameters": {
@@ -195,8 +197,8 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1460,
-        -280
+        1380,
+        -360
       ],
       "id": "5614308b-1038-48d8-8eee-84b7dc3e2522",
       "name": "Send Email",
@@ -211,7 +213,7 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "# Define the repository and list of keywords\nrepo = \"nixos/nixpkgs\"\nkeywords = [\n  \"immich\", \n  \"mealie\", \n  \"netbird\", \n  \"paperless-ngx\",\n  \"tailscale\",\n  \"waybar\"\n]\n\n# Construct the query string\nquery = f\"repo:{repo} type:pr is:open in:title (\" + \" OR \".join(keywords) + \")\"\n\nreturn [{\"query\": query}]"
+        "pythonCode": "# Define the repository and list of keywords\nrepo = \"nixos/nixpkgs\"\nkeywords = [\n  \"immich\", \n  \"mealie\", \n  \"netbird\", \n  \"paperless-ngx\",\n  \"tailscale\",\n  \"waybar\"\n]\n\n# Construct the query string\nquery = f\"repo:{repo} type:pr is:open in:title (\" + \" OR \".join(keywords) + \")\"\n\nreturn [\n  {\n    \"query\": query, \n    \"repo_owner\": repo.split(\"/\")[0], \n    \"repo_name\": repo.split(\"/\")[1]\n  }\n]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -260,12 +262,12 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "pr_ids = []\nprs = []\n\nfor item in _json.get(\"items\"):\n  pr_ids.append(item.get(\"id\"))\n  prs.append(item)\n\nreturn {\"json\": {\"pr_ids\": pr_ids, \"prs\": prs}}"
+        "pythonCode": "pr_numbers = []\nprs = []\n\nfor item in _json.get(\"items\"):\n  pr_numbers.append(item.get(\"number\"))\n  prs.append(item)\n\nreturn {\"json\": {\"pr_numbers\": pr_numbers, \"prs\": prs}}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        460,
+        400,
         -200
       ],
       "id": "09d4f2a9-df80-4c60-b084-6c3e0889d455",
@@ -279,8 +281,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        900,
-        -280
+        780,
+        -360
       ],
       "id": "a44b7cc6-6cb6-469f-8d92-9c7d286612e7",
       "name": "Merge"
@@ -310,7 +312,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        640,
+        560,
         -380
       ],
       "id": "d0821aa2-c672-4d59-b72a-850e27916981",
@@ -328,8 +330,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        900,
-        -120
+        780,
+        -200
       ],
       "id": "cc2407f5-19c7-4f84-a5b2-8ec8643ba016",
       "name": "Write cache file"
@@ -342,7 +344,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        640,
+        560,
         -200
       ],
       "id": "c7b5a80c-d441-4358-a861-06703c996315",
@@ -351,13 +353,13 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "cur = _('Process response').first().json\ncached_json = _('Convert cached PR list').first().json\n\ncached = {}\n# we might have not data if the cache file does not exist\nif cached_json and hasattr(cached_json, \"data\"):\n  cached = cached_json.data[0]\n\npr_ids_prev = cached.get(\"pr_ids\", [])\npr_ids_cur = cur.get(\"pr_ids\", [])\n\npr_ids_new = [x for x in pr_ids_cur if x not in pr_ids_prev]\n\nprs_new = [x for x in cur.get(\"prs\", []) if x.get(\"id\") in pr_ids_new]\n\nreturn {\n  \"json\": {\n    \"pr_ids\": {\n      \"prev\": pr_ids_prev,\n      \"cur\": pr_ids_cur,\n      \"diff\": pr_ids_new\n    },\n    \"prs\": prs_new\n  }\n}"
+        "pythonCode": "DEBUG = False\n\ncur = _('Process response').first().json\ncached_json = _('Convert cached PR list').first().json\n\ncached = {}\n# we might have not data if the cache file does not exist\nif cached_json and hasattr(cached_json, \"data\"):\n  cached = cached_json.data[0]\n\n\npr_numbers_prev = [] if DEBUG else cur.get(\"pr_numbers\", [])\npr_numbers_cur = cur.get(\"pr_numbers\", [])\npr_numbers_diff = [x for x in pr_numbers_cur if x not in pr_numbers_prev]\n\n# pr data\nnew_prs_data = [x for x in cur.get(\"prs\", []) if x.get(\"number\") in pr_numbers_diff]\n\nreturn {\n  \"json\": {\n    \"pr_numbers\": {\n      \"prev\": pr_numbers_prev,\n      \"cur\": pr_numbers_cur,\n      \"diff\": pr_numbers_diff\n    },\n    \"prs\": new_prs_data\n  }\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1080,
-        -280
+        960,
+        -360
       ],
       "id": "f85b9678-4efe-4768-9e63-bc443f7ea35f",
       "name": "Compare new and cached PR data"
@@ -365,31 +367,74 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import re\n\n# Retrieve persistent data using global scope\nworkflowStaticData = _getWorkflowStaticData('global')\n\n# Get the list of notified PR IDs; if missing or not a list, initialize it as an empty list.\nnotified_pr_ids = workflowStaticData.get(\"notified_pr_ids\")\nif not notified_pr_ids or not isinstance(notified_pr_ids, list):\n  notified_pr_ids = []\n\nprint(\"Before:\", notified_pr_ids)\n\n# Retrieve the API response from the previous node\nresponse = _input.all()[0].json\npr_list = response.get(\"items\", [])\n\n# Filter out PRs that have already been notified\nnew_pr_list = []\nfor pr in pr_list:\n  pr_id = pr.get(\"id\")\n  if pr_id not in notified_pr_ids:\n    new_pr_list.append(pr)\n    notified_pr_ids.append(pr_id)\n\nprint(\"After:\", notified_pr_ids)\n\n# Update persistent storage using dictionary indexing\nworkflowStaticData[\"notified_pr_ids\"] = notified_pr_ids\n\n# If no new PRs are found, return an empty list to halt downstream nodes.\nif not new_pr_list:\n  return []\n\n# Build the HTML version of the email\nhtml_body = \"\"\"<html>\n<body>\n  <h2>New Open PRs from nixos/nixpkgs matching your keywords</h2>\n\"\"\"\n# Build the plain-text version\ntext_body = \"New Open PRs from nixos/nixpkgs matching your keywords:\\n\\n\"\n\n# Loop through only the new PRs\nfor pr in new_pr_list:\n  title = pr.get(\"title\", \"No Title\")\n  url = pr.get(\"html_url\", \"No URL\")\n  created_at = pr.get(\"created_at\", \"N/A\")\n  state = pr.get(\"state\", \"N/A\")\n  \n  html_body += f\"\"\"\n  <p>\n    <strong>Title:</strong> {title}<br>\n    <strong>URL:</strong> <a href=\"{url}\">{url}</a><br>\n    <strong>Created:</strong> {created_at}<br>\n    <strong>State:</strong> {state}\n  </p>\n  <hr>\n  \"\"\"\n  \n  text_body += f\"Title    : {title}\\n\"\n  text_body += f\"URL      : {url}\\n\"\n  text_body += f\"Created  : {created_at}\\n\"\n  text_body += f\"State    : {state}\\n\"\n  text_body += \"-\" * 50 + \"\\n\"\n\nhtml_body += \"\"\"\n</body>\n</html>\n\"\"\"\n\nreturn [{\n  \"emailBodyHtml\": html_body,\n  \"emailBodyText\": text_body\n}]\n"
+        "pythonCode": "import re\n\nnotified_pr_numbers = _json\nnew_pr_numbers = _json.get(\"pr_numbers\", {}).get(\"diff\")\nnew_prs = _json.get(\"prs\", [])\n\nif not new_prs:\n  return []\n\n# Build the HTML version of the email\nhtml_body = \"\"\"<html>\n<body>\n  <h2>New Open PRs from nixos/nixpkgs matching your keywords</h2>\n\"\"\"\n# Build the plain-text version\ntext_body = \"New Open PRs from nixos/nixpkgs matching your keywords:\\n\\n\"\n\n# Loop through only the new PRs\nfor pr in new_prs:\n  title = pr.get(\"title\", \"No Title\")\n  url = pr.get(\"html_url\", \"No URL\")\n  created_at = pr.get(\"created_at\", \"N/A\")\n  state = pr.get(\"state\", \"N/A\")\n  \n  html_body += f\"\"\"\n  <p>\n    <strong>Title:</strong> {title}<br>\n    <strong>URL:</strong> <a href=\"{url}\">{url}</a><br>\n    <strong>Created:</strong> {created_at}<br>\n    <strong>State:</strong> {state}\n  </p>\n  <hr>\n  \"\"\"\n  \n  text_body += f\"Title    : {title}\\n\"\n  text_body += f\"URL      : {url}\\n\"\n  text_body += f\"Created  : {created_at}\\n\"\n  text_body += f\"State    : {state}\\n\"\n  text_body += \"-\" * 50 + \"\\n\"\n\nhtml_body += \"\"\"\n</body>\n</html>\n\"\"\"\n\nreturn [{\n  \"emailBodyHtml\": html_body,\n  \"emailBodyText\": text_body\n}]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        140,
-        140
+        1200,
+        -360
       ],
-      "id": "fe1ed8a5-9cb3-4335-80db-19e2c0efbc60",
-      "name": "Create email body (legacy)",
-      "disabled": true
+      "id": "0969f818-2fbc-4dc0-b260-b3dcb533e98b",
+      "name": "Create email body"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.github.com/graphql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"variables\": {\n    \"nodeId\": \"{{ $json.pr.node_id }}\"\n  },\n  \"query\": \"mutation($nodeId: ID!) { updateSubscription(input: { subscribableId: $nodeId, state: SUBSCRIBED, clientMutationId: \\\"subscribe-me\\\" }) { clientMutationId } }\"\n\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1380,
+        -160
+      ],
+      "id": "f7095f8e-0b6c-4dc6-82a0-0b332c7597f9",
+      "name": "Subscribe to PR",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "POqP3dfytXqTmZo3",
+          "name": "GitHub account (OAuth)"
+        },
+        "githubApi": {
+          "id": "2J14Hqh22wmzbnkG",
+          "name": "GitHub account (PAT)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/search/issues?q={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        -200
+      ],
+      "id": "841ef34a-23ad-458c-9738-64d486aaca3d",
+      "name": "Fetch matching PRs"
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import re\n\nnotified_pr_ids = _json\nnew_pr_ids = _json.get(\"pr_ids\", {}).get(\"diff\")\nnew_prs = _json.get(\"prs\", [])\n\nif not new_prs:\n  return []\n\n# Build the HTML version of the email\nhtml_body = \"\"\"<html>\n<body>\n  <h2>New Open PRs from nixos/nixpkgs matching your keywords</h2>\n\"\"\"\n# Build the plain-text version\ntext_body = \"New Open PRs from nixos/nixpkgs matching your keywords:\\n\\n\"\n\n# Loop through only the new PRs\nfor pr in new_prs:\n  title = pr.get(\"title\", \"No Title\")\n  url = pr.get(\"html_url\", \"No URL\")\n  created_at = pr.get(\"created_at\", \"N/A\")\n  state = pr.get(\"state\", \"N/A\")\n  \n  html_body += f\"\"\"\n  <p>\n    <strong>Title:</strong> {title}<br>\n    <strong>URL:</strong> <a href=\"{url}\">{url}</a><br>\n    <strong>Created:</strong> {created_at}<br>\n    <strong>State:</strong> {state}\n  </p>\n  <hr>\n  \"\"\"\n  \n  text_body += f\"Title    : {title}\\n\"\n  text_body += f\"URL      : {url}\\n\"\n  text_body += f\"Created  : {created_at}\\n\"\n  text_body += f\"State    : {state}\\n\"\n  text_body += \"-\" * 50 + \"\\n\"\n\nhtml_body += \"\"\"\n</body>\n</html>\n\"\"\"\n\nreturn [{\n  \"emailBodyHtml\": html_body,\n  \"emailBodyText\": text_body\n}]"
+        "pythonCode": "output = []\n\nfor pr in _input.first().json.get(\"prs\"):\n  output.append({\"json\": {\"pr\": pr}})\n\nreturn output"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1280,
-        -280
+        1200,
+        -160
       ],
-      "id": "0969f818-2fbc-4dc0-b260-b3dcb533e98b",
-      "name": "Create email body"
+      "id": "38577684-178e-458d-a17e-2ceaf0f15446",
+      "name": "Convert new PR data to array"
     }
   ],
   "pinData": {},
@@ -409,6 +454,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-02-27T08:27:37.000Z",
-  "versionId": "0ad02ad5-7a77-4abc-b011-f7cb7e2f7c27"
+  "updatedAt": "2025-02-27T15:25:49.000Z",
+  "versionId": "5b08e08a-b5cb-4f92-84b8-08c76d02031e"
 }
