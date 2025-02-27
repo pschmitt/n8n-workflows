@@ -567,7 +567,7 @@
     },
     {
       "parameters": {
-        "content": "## Backup to GitHub \nThis workflow will backup all instance workflows to GitHub every 24 hours.\n\nThe files are saved into folders using `YYYY/MM/` for the directory path and `ID.json` for the filename.\n\nThe Repo Owner, Repo Name and Main folder are set using the **Variables** feature but can be replaced with the `Config` node in the subworkflow. \n\nThe workflow runs calls itself to help reduce memory usage, Once the workflow has completed it will send an optional notification to Slack.\n\n### Time to Run\nTested with 1423 workflows on `1.44.1` it took under 30 minutes for the first run and under 12 minutes once the initial run is complete.",
+        "content": "## Backup to GitHub \nThis workflow will back up all workflows to GitHub every 24 hours.\n\nThe workflow runs calls itself to help reduce memory usage, Once the workflow has completed it will send an optional notification to Slack.",
         "height": 417,
         "width": 385,
         "color": 4
@@ -1184,6 +1184,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-02-27T06:59:59.000Z",
-  "versionId": "9c775f5f-1af7-4aac-b790-5ea23d7fd904"
+  "updatedAt": "2025-02-27T07:01:32.000Z",
+  "versionId": "3f338234-fa12-411c-b2fd-fe5bbd96fa41"
 }
