@@ -1,0 +1,414 @@
+{
+  "active": true,
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Build GH Query",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read cached PR list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Process response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build GH Query": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build GH Query",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read cached PR list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process response": {
+      "main": [
+        [
+          {
+            "node": "Convert JSON response to binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Compare new and cached PR data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read cached PR list": {
+      "main": [
+        [
+          {
+            "node": "Convert cached PR list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert cached PR list": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write cache file": {
+      "main": [
+        []
+      ]
+    },
+    "Convert JSON response to binary": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Write cache file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare new and cached PR data": {
+      "main": [
+        [
+          {
+            "node": "Create email body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create email body (legacy)": {
+      "main": [
+        []
+      ]
+    },
+    "Create email body": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-02-20T15:49:00.768Z",
+  "id": "Yv1UPh7jKlfO7u9g",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "🧪 GitHub PR List",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        -380
+      ],
+      "id": "26ef73ab-6b0e-49e4-aaa2-413028c79222",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/search/issues?q={{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        -200
+      ],
+      "id": "841ef34a-23ad-458c-9738-64d486aaca3d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fromEmail": "n8n@brkn.lol",
+        "toEmail": "philipp@schmitt.co",
+        "subject": "NixOS/nixpkgs PRs",
+        "emailFormat": "both",
+        "text": "={{ $json.emailBodyText }}",
+        "html": "={{ $json.emailBodyHtml }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1460,
+        -280
+      ],
+      "id": "5614308b-1038-48d8-8eee-84b7dc3e2522",
+      "name": "Send Email",
+      "webhookId": "739d7d1d-66da-45ba-90a5-c06548239304",
+      "credentials": {
+        "smtp": {
+          "id": "dQMUZSPTIO45Dpu7",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Define the repository and list of keywords\nrepo = \"nixos/nixpkgs\"\nkeywords = [\n  \"immich\", \n  \"mealie\", \n  \"netbird\", \n  \"paperless-ngx\",\n  \"tailscale\",\n  \"waybar\"\n]\n\n# Construct the query string\nquery = f\"repo:{repo} type:pr is:open in:title (\" + \" OR \".join(keywords) + \")\"\n\nreturn [{\"query\": query}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -200
+      ],
+      "id": "538ab8d1-42e7-413b-8aed-23e11266a02e",
+      "name": "Build GH Query"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 61
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -140,
+        -200
+      ],
+      "id": "cb9568d7-8241-48c2-9fe9-d8a7005a0edd",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "content": "# NixOS/nixpkgs PR email digest\n\n\nThis workflow checks for new PRs in the nixpkgs repo matching certain keywords and sends out email notifications.\n\n**NOTE** The list of topics for PRs is stored in the \"Build GH Query\" node",
+        "height": 220,
+        "width": 560
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -700
+      ],
+      "typeVersion": 1,
+      "id": "d15c09fa-34a0-4e82-bba7-bf0dc37cec7e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "pr_ids = []\nprs = []\n\nfor item in _json.get(\"items\"):\n  pr_ids.append(item.get(\"id\"))\n  prs.append(item)\n\nreturn {\"json\": {\"pr_ids\": pr_ids, \"prs\": prs}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        -200
+      ],
+      "id": "09d4f2a9-df80-4c60-b084-6c3e0889d455",
+      "name": "Process response"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        900,
+        -280
+      ],
+      "id": "a44b7cc6-6cb6-469f-8d92-9c7d286612e7",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/data/pr_data.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -380
+      ],
+      "id": "c085e3b7-f320-4a02-97b0-465de783b824",
+      "name": "Read cached PR list",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {
+          "keepSource": "json"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -380
+      ],
+      "id": "d0821aa2-c672-4d59-b72a-850e27916981",
+      "name": "Convert cached PR list",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/data/pr_data.json",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        900,
+        -120
+      ],
+      "id": "cc2407f5-19c7-4f84-a5b2-8ec8643ba016",
+      "name": "Write cache file"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        -200
+      ],
+      "id": "c7b5a80c-d441-4358-a861-06703c996315",
+      "name": "Convert JSON response to binary"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "cur = _('Process response').first().json\ncached_json = _('Convert cached PR list').first().json\n\ncached = {}\n# we might have not data if the cache file does not exist\nif cached_json and hasattr(cached_json, \"data\"):\n  cached = cached_json.data[0]\n\npr_ids_prev = cached.get(\"pr_ids\", [])\npr_ids_cur = cur.get(\"pr_ids\", [])\n\npr_ids_new = [x for x in pr_ids_cur if x not in pr_ids_prev]\n\nprs_new = [x for x in cur.get(\"prs\", []) if x.get(\"id\") in pr_ids_new]\n\nreturn {\n  \"json\": {\n    \"pr_ids\": {\n      \"prev\": pr_ids_prev,\n      \"cur\": pr_ids_cur,\n      \"diff\": pr_ids_new\n    },\n    \"prs\": prs_new\n  }\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        -280
+      ],
+      "id": "f85b9678-4efe-4768-9e63-bc443f7ea35f",
+      "name": "Compare new and cached PR data"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import re\n\n# Retrieve persistent data using global scope\nworkflowStaticData = _getWorkflowStaticData('global')\n\n# Get the list of notified PR IDs; if missing or not a list, initialize it as an empty list.\nnotified_pr_ids = workflowStaticData.get(\"notified_pr_ids\")\nif not notified_pr_ids or not isinstance(notified_pr_ids, list):\n  notified_pr_ids = []\n\nprint(\"Before:\", notified_pr_ids)\n\n# Retrieve the API response from the previous node\nresponse = _input.all()[0].json\npr_list = response.get(\"items\", [])\n\n# Filter out PRs that have already been notified\nnew_pr_list = []\nfor pr in pr_list:\n  pr_id = pr.get(\"id\")\n  if pr_id not in notified_pr_ids:\n    new_pr_list.append(pr)\n    notified_pr_ids.append(pr_id)\n\nprint(\"After:\", notified_pr_ids)\n\n# Update persistent storage using dictionary indexing\nworkflowStaticData[\"notified_pr_ids\"] = notified_pr_ids\n\n# If no new PRs are found, return an empty list to halt downstream nodes.\nif not new_pr_list:\n  return []\n\n# Build the HTML version of the email\nhtml_body = \"\"\"<html>\n<body>\n  <h2>New Open PRs from nixos/nixpkgs matching your keywords</h2>\n\"\"\"\n# Build the plain-text version\ntext_body = \"New Open PRs from nixos/nixpkgs matching your keywords:\\n\\n\"\n\n# Loop through only the new PRs\nfor pr in new_pr_list:\n  title = pr.get(\"title\", \"No Title\")\n  url = pr.get(\"html_url\", \"No URL\")\n  created_at = pr.get(\"created_at\", \"N/A\")\n  state = pr.get(\"state\", \"N/A\")\n  \n  html_body += f\"\"\"\n  <p>\n    <strong>Title:</strong> {title}<br>\n    <strong>URL:</strong> <a href=\"{url}\">{url}</a><br>\n    <strong>Created:</strong> {created_at}<br>\n    <strong>State:</strong> {state}\n  </p>\n  <hr>\n  \"\"\"\n  \n  text_body += f\"Title    : {title}\\n\"\n  text_body += f\"URL      : {url}\\n\"\n  text_body += f\"Created  : {created_at}\\n\"\n  text_body += f\"State    : {state}\\n\"\n  text_body += \"-\" * 50 + \"\\n\"\n\nhtml_body += \"\"\"\n</body>\n</html>\n\"\"\"\n\nreturn [{\n  \"emailBodyHtml\": html_body,\n  \"emailBodyText\": text_body\n}]\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        140,
+        140
+      ],
+      "id": "fe1ed8a5-9cb3-4335-80db-19e2c0efbc60",
+      "name": "Create email body (legacy)",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import re\n\nnotified_pr_ids = _json\nnew_pr_ids = _json.get(\"pr_ids\", {}).get(\"diff\")\nnew_prs = _json.get(\"prs\", [])\n\nif not new_prs:\n  return []\n\n# Build the HTML version of the email\nhtml_body = \"\"\"<html>\n<body>\n  <h2>New Open PRs from nixos/nixpkgs matching your keywords</h2>\n\"\"\"\n# Build the plain-text version\ntext_body = \"New Open PRs from nixos/nixpkgs matching your keywords:\\n\\n\"\n\n# Loop through only the new PRs\nfor pr in new_prs:\n  title = pr.get(\"title\", \"No Title\")\n  url = pr.get(\"html_url\", \"No URL\")\n  created_at = pr.get(\"created_at\", \"N/A\")\n  state = pr.get(\"state\", \"N/A\")\n  \n  html_body += f\"\"\"\n  <p>\n    <strong>Title:</strong> {title}<br>\n    <strong>URL:</strong> <a href=\"{url}\">{url}</a><br>\n    <strong>Created:</strong> {created_at}<br>\n    <strong>State:</strong> {state}\n  </p>\n  <hr>\n  \"\"\"\n  \n  text_body += f\"Title    : {title}\\n\"\n  text_body += f\"URL      : {url}\\n\"\n  text_body += f\"Created  : {created_at}\\n\"\n  text_body += f\"State    : {state}\\n\"\n  text_body += \"-\" * 50 + \"\\n\"\n\nhtml_body += \"\"\"\n</body>\n</html>\n\"\"\"\n\nreturn [{\n  \"emailBodyHtml\": html_body,\n  \"emailBodyText\": text_body\n}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        -280
+      ],
+      "id": "0969f818-2fbc-4dc0-b260-b3dcb533e98b",
+      "name": "Create email body"
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n-workflows",
+  "repo_owner": "pschmitt",
+  "repo_path": "/",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    },
+    "global": {
+      "notified_pr_ids": {}
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-02-22T22:12:32.000Z",
+  "versionId": "00127447-54a9-4e7f-aacc-ff20522f02e3"
+}
