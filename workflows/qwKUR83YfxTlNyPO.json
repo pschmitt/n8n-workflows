@@ -1,0 +1,97 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Matrix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Matrix": {
+      "main": [
+        [
+          {
+            "node": "Matrix1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-02-27T21:25:34.580Z",
+  "id": "qwKUR83YfxTlNyPO",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "⚗️ Matrix lab",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "efb8285c-f8bb-4001-8949-91cd1ab0ac5a",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "account"
+      },
+      "type": "n8n-nodes-base.matrix",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "3d13a7a5-6077-4022-b02f-94453dbc273b",
+      "name": "Matrix",
+      "credentials": {
+        "matrixApi": {
+          "id": "pDv5vQc765OZGFH9",
+          "name": "Matrix account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "roomId": "!fMgdnOBGpYRLiOkLCY:one.ems.host",
+        "text": "hello, this is n8n"
+      },
+      "type": "n8n-nodes-base.matrix",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "73a62039-dac0-412d-a5d0-8fb29dfcd22f",
+      "name": "Matrix1",
+      "credentials": {
+        "matrixApi": {
+          "id": "pDv5vQc765OZGFH9",
+          "name": "Matrix account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n-workflows",
+  "repo_owner": "pschmitt",
+  "repo_path": "workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-02-27T21:28:06.000Z",
+  "versionId": "f17d8c41-eea3-42ce-9136-52063d2efb7b"
+}
