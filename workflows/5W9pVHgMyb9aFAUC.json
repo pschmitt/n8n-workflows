@@ -22,6 +22,11 @@
           }
         ]
       ]
+    },
+    "Code": {
+      "main": [
+        []
+      ]
     }
   },
   "createdAt": "2025-03-01T19:44:33.782Z",
@@ -34,7 +39,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "emoji-api",
+        "path": "543420bc-177a-42f5-a94b-5cdd1d4b67e9",
         "responseMode": "responseNode",
         "options": {
           "binaryPropertyName": "data",
@@ -59,7 +64,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        440,
+        660,
         0
       ],
       "id": "56f92379-f6d7-418d-abcd-714e6ca69046",
@@ -78,7 +83,7 @@
             {
               "id": "055d25bb-3d66-446e-97b8-a53032122e2f",
               "name": "request",
-              "value": "={{ $json.body }}",
+              "value": "={{ $json.body.text }}",
               "type": "string"
             }
           ]
@@ -88,11 +93,24 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        220,
-        0
+        200,
+        -100
       ],
       "id": "044d12cc-7822-45ff-80a3-08718fbe7055",
       "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.first().json.query;\n$input.first().json.body['{\"text\": \"this is a cucumber\"}']\n// item = JSON.parse($input.first().json.body);\n// return item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        120
+      ],
+      "id": "aed9e1c3-e159-452a-a21f-a9242bfc809f",
+      "name": "Code"
     }
   ],
   "pinData": {},
@@ -105,6 +123,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-03-01T20:30:32.000Z",
-  "versionId": "12ee4aed-2a30-4b1b-8f27-aa85e1b721d6"
+  "updatedAt": "2025-03-01T21:08:45.000Z",
+  "versionId": "55e8c30f-95e3-45bd-8dd7-68c2d8931197"
 }
