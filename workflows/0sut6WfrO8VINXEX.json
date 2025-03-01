@@ -130,138 +130,7 @@
       "main": [
         [
           {
-            "node": "Todoist Rename Task",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Webhook: new task added": {
-      "main": [
-        []
-      ]
-    },
-    "Edit Fields": {
-      "main": [
-        [
-          {
-            "node": "Determine emoji1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Groq Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Determine emoji1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Structured Output Parser1": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "Determine emoji1",
-            "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Determine emoji1": {
-      "main": [
-        [
-          {
-            "node": "Todoist Rename Task (LLM)1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "When Executed by Another Workflow": {
-      "main": [
-        [
-          {
-            "node": "Check Emoji in Input",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "HTTP Request: Get Emoji Mapping",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request: Get Emoji Mapping": {
-      "main": [
-        [
-          {
-            "node": "Map 'emoji_mappings' field",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Emoji in Input": {
-      "main": [
-        [
-          {
-            "node": "Map 'tasks' field",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Map 'tasks' field": {
-      "main": [
-        [
-          {
-            "node": "Merge tasks and emoji mappings",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Map 'emoji_mappings' field": {
-      "main": [
-        [
-          {
-            "node": "Merge tasks and emoji mappings",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Merge tasks and emoji mappings": {
-      "main": [
-        [
-          {
-            "node": "Prepend Emoji",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields1": {
-      "main": [
-        [
-          {
-            "node": "Execute Workflow",
+            "node": "Validate emoji",
             "type": "main",
             "index": 0
           }
@@ -274,6 +143,55 @@
         [
           {
             "node": "Regex replace content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New task added": {
+      "main": [
+        [
+          {
+            "node": "Process webhook data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process webhook data": {
+      "main": [
+        [
+          {
+            "node": "Check task project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check task project": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Get emoji regexes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate emoji": {
+      "main": [
+        [
+          {
+            "node": "Todoist Rename Task",
             "type": "main",
             "index": 0
           }
@@ -293,8 +211,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        80,
-        -560
+        60,
+        -700
       ],
       "id": "c7ce87e6-3a4c-4d56-90cb-123049f6fcb6",
       "name": "When clicking ‘Test workflow’"
@@ -313,21 +231,23 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        80,
-        -400
+        60,
+        -520
       ],
       "id": "25d93d17-1740-4adc-b059-1b645bd08edb",
       "name": "Schedule Trigger"
     },
     {
       "parameters": {
-        "content": "## Todoist Emojifier\n\nThis workflow prepends emojis to tasks in the groceries project."
+        "content": "## Todoist Emojifier\n\nThis workflow prepends emojis to tasks in the groceries project.\n\nNOTE: The project ID is hardcoded in the \"Check task project\" node.",
+        "height": 200,
+        "width": 300
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        160,
-        -740
+        -320,
+        -620
       ],
       "id": "9b8da226-a272-4448-bc41-f94138e3dbae",
       "name": "Sticky Note"
@@ -351,8 +271,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        360,
-        -560
+        340,
+        -520
       ],
       "id": "ec1e73b6-4b77-44ed-a58f-d63fe5f6c92a",
       "name": "Get emoji regexes",
@@ -368,7 +288,7 @@
       "typeVersion": 3,
       "position": [
         580,
-        -480
+        -520
       ],
       "id": "b624aafc-21a6-46ef-82e1-05ff4f3137c4",
       "name": "Merge"
@@ -385,7 +305,7 @@
       "typeVersion": 2.1,
       "position": [
         360,
-        -400
+        -700
       ],
       "id": "f3f2006d-23cf-4efb-849a-fd0be5db6ab9",
       "name": "Todoist Fetch Tasks",
@@ -406,8 +326,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1040,
-        -460
+        980,
+        -520
       ],
       "id": "053c7f59-8574-485e-9880-7e3fe7f290b8",
       "name": "Regex replace content"
@@ -420,7 +340,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1220,
+        1180,
         -180
       ],
       "id": "1f90f76e-6b08-42f5-ad8f-d887b8d75e04",
@@ -440,7 +360,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1360,
+        1340,
         -180
       ],
       "id": "f205def7-c8e6-4945-aa4d-78ded930bbdc",
@@ -455,7 +375,7 @@
         "messages": {
           "messageValues": [
             {
-              "message": "- Prepend a single emoji best describing the content followed by a single space to all the tasks \"content\" fields. \n- Note that the \"content\" fields might be in German, English or French.\n- Ignore all the other fields.\n- Do not alter the \"id\" field under any circumstance.\n- All \"content\" fields should match this: \"{emoji} {original content}\".\n- There should only be one leading emoji, feel free to replace/remove existing emojis if there are any.\n- Only respond with valid JSON.\n"
+              "message": "- Prepend a single emoji best describing the content followed by a single space to all the tasks \"content\" fields. \n- Note that the \"content\" fields might be in German, English or French.\n- Prefer emojis from the \"Food & Drink\" category since the contents are from a grocery shopping list.\n- Ignore all the other fields.\n- Do not alter the \"id\" field under any circumstance.\n- All \"content\" fields should match this: \"{emoji} {original content}\".\n- There should only be one leading emoji, feel free to replace/remove existing emojis if there are any.\n- Only respond with valid JSON.\n"
             },
             {
               "message": "Do not answer anything if my (the user) input is empty. Do not output anything in that case, do not output entries that are not relevant to the input. Do not invent tasks."
@@ -466,8 +386,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        1200,
-        -380
+        1180,
+        -420
       ],
       "id": "bdc80e03-8bce-44a7-9ac7-78e24ddad5c3",
       "name": "Determine emoji",
@@ -481,7 +401,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1380,
+        1240,
         -580
       ],
       "id": "66987551-83dd-4ed5-8ea8-5051abee8c7a",
@@ -495,341 +415,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1520,
-        -380
+        1500,
+        -420
       ],
       "id": "0326d297-3973-4628-8802-83cd912933ab",
       "name": "prepare tasks for import (dynamic)"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        0,
-        0
-      ],
-      "id": "d5087dba-6994-4155-ada1-0bdfe4a849c2",
-      "name": "Webhook: new task added",
-      "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
-              "name": "id",
-              "value": "={{ $json.body.event_data.id }}",
-              "type": "string"
-            },
-            {
-              "id": "9d362483-8501-4fb8-b7f2-cf7437c06024",
-              "name": "content",
-              "value": "={{ $json.body.event_data.content }}",
-              "type": "string"
-            },
-            {
-              "id": "338f9e23-9f39-4bb2-b893-16e8e88a8429",
-              "name": "llm_tasks",
-              "value": "=[{\n  \"id\": \"{{ $json.body.event_data.id }}\",  \n  \"content\": \"{{ $json.body.event_data.content }}\"\n}]",
-              "type": "array"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        440,
-        0
-      ],
-      "id": "267fc0c1-1571-482c-81a6-d5c0b80a74d6",
-      "name": "Edit Fields"
-    },
-    {
-      "parameters": {
-        "content": "## TODO\n\nThis kinda works, but needs to be adjusted to fet routed into the \"regular\" flow.",
-        "color": 3
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        160,
-        -140
-      ],
-      "id": "7577ebb9-8412-4297-bc90-840384353e9b",
-      "name": "Sticky Note1"
-    },
-    {
-      "parameters": {
-        "model": "deepseek-r1-distill-qwen-32b",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
-      "typeVersion": 1,
-      "position": [
-        740,
-        200
-      ],
-      "id": "83fa2aad-52ad-4645-a432-8d72f960e6de",
-      "name": "Groq Chat Model1",
-      "credentials": {
-        "groqApi": {
-          "id": "2nL6WC5EPVPT4o0B",
-          "name": "Groq account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "schemaType": "manual",
-        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"Items List\",\n  \"description\": \"A list of items with ID and content\",\n  \"type\": \"array\",\n  \"items\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"id\": {\n        \"type\": \"string\",\n        \"description\": \"Unique identifier for the item\"\n      },\n      \"content\": {\n        \"type\": \"string\",\n        \"description\": \"Display content for the item\"\n      }\n    },\n    \"required\": [\"id\", \"content\"],\n    \"additionalProperties\": false\n  },\n  \"minItems\": 0,\n  \"uniqueItems\": true\n}"
-      },
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.2,
-      "position": [
-        880,
-        200
-      ],
-      "id": "c1f6d150-0441-4eeb-896b-46c1df38d0e9",
-      "name": "Structured Output Parser1",
-      "notesInFlow": false
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{ $json.llm_tasks }}",
-        "hasOutputParser": true,
-        "messages": {
-          "messageValues": [
-            {
-              "message": "- Prepend a single emoji best describing the content followed by a single space to all the tasks \"content\" fields. \n- Note that the \"content\" fields might be in German, English or French.\n- Ignore all the other fields.\n- Do not alter the \"id\" field under any circumstance.\n- All \"content\" fields should match this: \"{emoji} {original content}\".\n- There should only be one leading emoji, feel free to replace/remove existing emojis if there are any.\n- Only respond with valid JSON.\n"
-            },
-            {
-              "message": "Do not answer anything if my (the user) input is empty. Do not output anything in that case, do not output entries that are not relevant to the input. Do not invent tasks."
-            }
-          ]
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.5,
-      "position": [
-        720,
-        0
-      ],
-      "id": "6281ba0e-9028-42ad-89e7-e63798309fe5",
-      "name": "Determine emoji1",
-      "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "taskId": "={{ $json.output[0].id }}",
-        "updateFields": {
-          "content": "={{ $json.output[0].content }}"
-        }
-      },
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.1,
-      "position": [
-        1080,
-        0
-      ],
-      "id": "2256132b-02fe-4f10-b481-620e3929544c",
-      "name": "Todoist Rename Task (LLM)1",
-      "credentials": {
-        "todoistApi": {
-          "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account (API Key)"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "content": "## TODO nr. 2\n\nYOU NEED TO MAKE SURE TO FILTER ON THE PROJECT/ID SECTION.\n\n-> add a config node!",
-        "height": 240,
-        "color": 3
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        180,
-        80
-      ],
-      "id": "22cd0cf0-1840-4296-a599-b90dd2103f41",
-      "name": "Sticky Note2"
-    },
-    {
-      "parameters": {
-        "inputSource": "jsonExample",
-        "jsonExample": "{\n  \"id\": \"7110567660\",\n  \"project_id\": \"2233547438\",\n  \"section_id\": \"104967156\",\n  \"parent_id\": null,\n  \"content\": \"Tomate\"\n}"
-      },
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.1,
-      "position": [
-        -40,
-        660
-      ],
-      "id": "26855070-e545-4c90-9d78-496d26bb6cb0",
-      "name": "When Executed by Another Workflow"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "0sut6WfrO8VINXEX",
-          "mode": "list",
-          "cachedResultName": "☑️ Todoist Emojifier"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        360,
-        420
-      ],
-      "id": "6421922f-5027-4b0b-b002-a7c7331c1282",
-      "name": "Execute Workflow"
-    },
-    {
-      "parameters": {
-        "language": "python",
-        "pythonCode": "import re\n\ntasks = _json.tasks\nemoji_mappings = _json.emoji_mappings\n\n# return {\"json\": {\"t\": tasks}}\n\nupdated_tasks = []\n\nfor task in tasks:  \n  for emm in emoji_mappings:\n    emoji_pattern = \"^\\s*(\" + \"|\".join(emm.patterns) + \")\"\n    \n    if re.match(emoji_pattern, task.content, re.IGNORECASE):\n      task[\"content\"] = f\"{emm.emoji} {task.content}\"\n      updated_tasks.append(task)\n      break\n\nreturn {\"json\": {\"tasks\": updated_tasks}}\n"
-      },
-      "id": "50dbad2b-d1b5-4932-8748-54a6b1c4e88c",
-      "name": "Prepend Emoji",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        880,
-        680
-      ]
-    },
-    {
-      "parameters": {
-        "url": "https://gist.githubusercontent.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
-        "options": {
-          "redirect": {},
-          "response": {
-            "response": {
-              "fullResponse": false,
-              "neverError": false,
-              "responseFormat": "json"
-            }
-          }
-        }
-      },
-      "id": "c1777c6f-c4e6-4d7a-9ec6-6c10d0ad4a29",
-      "name": "HTTP Request: Get Emoji Mapping",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4,
-      "position": [
-        200,
-        780
-      ]
-    },
-    {
-      "parameters": {
-        "language": "python",
-        "pythonCode": "import re\n\ninputText = _json.content\n\nemoji_pattern = re.compile(\n  \"[\"\n  \"\\U0001F600-\\U0001F64F\"  # Emoticons\n  \"\\U0001F300-\\U0001F5FF\"  # Symbols & Pictographs\n  \"\\U0001F680-\\U0001F6FF\"  # Transport & Map Symbols\n  \"\\U0001F1E6-\\U0001F1FF\"  # Flags (iOS)\n  \"\\U00002500-\\U00002BEF\"  # Misc Symbols\n  \"\\U00002702-\\U000027B0\"\n  \"\\U000024C2-\\U0001F251\"\n  \"\\U0001F926-\\U0001F937\"\n  \"\\U0001F900-\\U0001F9FF\"  # Supplemental Symbols\n  \"\\U0001FA70-\\U0001FAFF\"  # Symbols Extended-A\n  \"\\U00002600-\\U000026FF\"  # Misc Symbols\n  \"\\U00002700-\\U000027BF\"  # Dingbats\n  \"]+\",\n  flags=re.UNICODE\n)\n\n# Check if the input text already starts with an emoji\nif bool(re.match(emoji_pattern, inputText)):\n  return {}\n\nreturn _json"
-      },
-      "id": "9b80914f-2865-4900-9268-d72490b56081",
-      "name": "Check Emoji in Input",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        200,
-        600
-      ]
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "d4c126fa-e448-4299-a210-529fbdf69276",
-              "name": "tasks",
-              "value": "={{ $input.all().map(item => item.json) }}",
-              "type": "array"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        420,
-        600
-      ],
-      "id": "c4465377-6779-4a2f-add5-e8db8db65b18",
-      "name": "Map 'tasks' field"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "e7aa90f7-3890-4d2c-bd51-0a436fc92197",
-              "name": "emoji_mappings",
-              "value": "={{ $input.all().map(item => item.json) }}",
-              "type": "array"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        420,
-        780
-      ],
-      "id": "9209c241-02d2-47fd-8475-fbef9ef826d5",
-      "name": "Map 'emoji_mappings' field"
-    },
-    {
-      "parameters": {
-        "mode": "combineBySql"
-      },
-      "id": "6720532d-3a36-41cd-a701-8ef11336abc3",
-      "name": "Merge tasks and emoji mappings",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3,
-      "position": [
-        680,
-        680
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "{\n  \"id\": \"7110567660\",\n  \"assigner_id\": null,\n  \"assignee_id\": null,\n  \"project_id\": \"2233547438\",\n  \"section_id\": \"104967156\",\n  \"parent_id\": null,\n  \"order\": -1,\n  \"content\": \"tomato\",\n  \"description\": \"\",\n  \"is_completed\": false,\n  \"labels\": [\n  ],\n  \"priority\": 1,\n  \"comment_count\": 0,\n  \"creator_id\": \"26861946\",\n  \"created_at\": \"2023-08-05T14:15:13.136475Z\",\n  \"due\": null,\n  \"url\": \"https://app.todoist.com/app/task/7110567660\",\n  \"duration\": null,\n  \"deadline\": null\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        180,
-        420
-      ],
-      "id": "eca88667-e9e4-4028-88d3-d3aeda2fede8",
-      "name": "Edit Fields1"
     },
     {
       "parameters": {
@@ -860,8 +450,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        800,
-        -480
+        760,
+        -520
       ],
       "id": "7aea6b75-86f6-446a-a8fc-6f6d947a5aa9",
       "name": "Tasks contain emoji"
@@ -877,8 +467,8 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1720,
-        -480
+        1900,
+        -580
       ],
       "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
       "name": "Todoist Rename Task",
@@ -888,21 +478,140 @@
           "name": "Todoist account (API Key)"
         }
       }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -320
+      ],
+      "id": "d5087dba-6994-4155-ada1-0bdfe4a849c2",
+      "name": "New task added",
+      "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
+              "name": "id",
+              "value": "={{ $json.body.event_data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "9d362483-8501-4fb8-b7f2-cf7437c06024",
+              "name": "content",
+              "value": "={{ $json.body.event_data.content }}",
+              "type": "string"
+            },
+            {
+              "id": "a0e984ff-7805-4d5a-883f-0a94c18b6679",
+              "name": "project_id",
+              "value": "={{ $json.body.event_data.project_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -60,
+        -320
+      ],
+      "id": "267fc0c1-1571-482c-81a6-d5c0b80a74d6",
+      "name": "Process webhook data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68d338c3-1807-4831-83c6-18d273a25d00",
+              "leftValue": "={{ $json.project_id }}",
+              "rightValue": "=2233547438",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "68be4bbc-fbe4-4369-aa8e-6af3d8ef2d8d",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "/\\p{Emoji}/u",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        -320
+      ],
+      "id": "acbd2be5-bb8e-40c3-8b81-90817e41c98c",
+      "name": "Check task project"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3459bf0b-2c5d-4964-b19c-36121e29c9ee",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "/\\p{Emoji}/u",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        -420
+      ],
+      "id": "a4a1e298-37a8-4b18-af03-5406cf11dad6",
+      "name": "Validate emoji"
     }
   ],
-  "pinData": {
-    "When Executed by Another Workflow": [
-      {
-        "json": {
-          "id": "7110567660",
-          "project_id": "2233547438",
-          "section_id": "104967156",
-          "parent_id": null,
-          "content": "Tomate"
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "repo_name": "n8n-workflows",
   "repo_owner": "pschmitt",
   "repo_path": "workflows",
@@ -923,6 +632,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-01T09:27:09.000Z",
-  "versionId": "7eefc313-c351-4870-a309-f04d9e58f911"
+  "updatedAt": "2025-03-01T09:54:03.000Z",
+  "versionId": "04d85234-4f56-4de9-b310-357947f340bd"
 }
