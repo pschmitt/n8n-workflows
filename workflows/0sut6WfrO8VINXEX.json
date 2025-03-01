@@ -108,7 +108,7 @@
       "main": [
         [
           {
-            "node": "prepare tasks for import (dynamic)",
+            "node": "Remove halucinations",
             "type": "main",
             "index": 0
           }
@@ -126,34 +126,12 @@
         ]
       ]
     },
-    "prepare tasks for import (dynamic)": {
-      "main": [
-        [
-          {
-            "node": "Validate emoji",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Tasks contain emoji": {
       "main": [
         [],
         [
           {
             "node": "Regex replace content",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "New task added": {
-      "main": [
-        [
-          {
-            "node": "Process webhook data",
             "type": "main",
             "index": 0
           }
@@ -192,6 +170,28 @@
         [
           {
             "node": "Todoist Rename Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task added/updated": {
+      "main": [
+        [
+          {
+            "node": "Process webhook data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove halucinations": {
+      "main": [
+        [
+          {
+            "node": "Validate emoji",
             "type": "main",
             "index": 0
           }
@@ -254,11 +254,11 @@
     },
     {
       "parameters": {
-        "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json?nocache=1",
+        "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
         "options": {
           "redirect": {
             "redirect": {
-              "maxRedirects": 5
+              "maxRedirects": 20
             }
           },
           "response": {
@@ -304,7 +304,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        360,
+        340,
         -700
       ],
       "id": "f3f2006d-23cf-4efb-849a-fd0be5db6ab9",
@@ -321,13 +321,13 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_data = [x.json for x in _(\"Get emoji regexes\").all()]\n# task_data = [x.json for x in _(\"Todoist Fetch Tasks\").all()]\ntask_data = _input.all()\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_data:\n    emoji = em.get(\"emoji\")\n    patterns = em.get(\"patterns\")\n    merged_pattern = f'^\\s*({patterns.join(\"|\")})'\n    \n    if DEBUG:\n      print(f\"emoji: {emoji} - patterns: {patterns} - re: {merged_pattern}\")\n\n    if re.match(merged_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
+        "pythonCode": "import json\nimport re\n\nDEBUG = True\n\nemoji_data = [x.json for x in _(\"Get emoji regexes\").all()]\n# task_data = [x.json for x in _(\"Todoist Fetch Tasks\").all()]\ntask_data = _input.all()\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_data:\n    emoji = em.get(\"emoji\")\n    patterns = em.get(\"patterns\")\n    merged_pattern = f'^\\s*({patterns.join(\"|\")})'\n    \n    if DEBUG:\n      print(f\"emoji: {emoji} - patterns: {patterns} - re: {merged_pattern}\")\n\n    if re.match(merged_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         980,
-        -520
+        -500
       ],
       "id": "053c7f59-8574-485e-9880-7e3fe7f290b8",
       "name": "Regex replace content"
@@ -409,20 +409,6 @@
     },
     {
       "parameters": {
-        "language": "python",
-        "pythonCode": "task_ids = [x.json.get(\"id\") for x in _(\"Merge\").all()]\n# return {\"json\": {\"yo\": task_ids}}\n\nllm_data = _json.output\n\noutput = []\n\nfor l in llm_data:\n  task_id = l.get(\"id\")\n  \n  print(f\"Processing LLM Task: [{task_id}] {l.get('content')}\")\n  print(f\"Real task ids: {', '.join(task_ids)} - {type(task_ids[0])}\")\n  \n  if task_id not in task_ids:\n    print(f\"Skipping halucination: task_id={task_id} - {type(task_id)}\")\n    continue\n  \n  output.append({\"json\": l})\n\nreturn output"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1500,
-        -420
-      ],
-      "id": "0326d297-3973-4628-8802-83cd912933ab",
-      "name": "prepare tasks for import (dynamic)"
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": false,
@@ -478,22 +464,6 @@
           "name": "Todoist account (API Key)"
         }
       }
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        -240,
-        -320
-      ],
-      "id": "d5087dba-6994-4155-ada1-0bdfe4a849c2",
-      "name": "New task added",
-      "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
     },
     {
       "parameters": {
@@ -609,6 +579,36 @@
       ],
       "id": "a4a1e298-37a8-4b18-af03-5406cf11dad6",
       "name": "Validate emoji"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -320
+      ],
+      "id": "d5087dba-6994-4155-ada1-0bdfe4a849c2",
+      "name": "Task added/updated",
+      "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "task_ids = [x.json.get(\"id\") for x in _(\"Merge\").all()]\n# return {\"json\": {\"yo\": task_ids}}\n\nllm_data = _json.output\n\noutput = []\n\nfor l in llm_data:\n  task_id = l.get(\"id\")\n  \n  print(f\"Processing LLM Task: [{task_id}] {l.get('content')}\")\n  print(f\"Real task ids: {', '.join(task_ids)} - {type(task_ids[0])}\")\n  \n  if task_id not in task_ids:\n    print(f\"Skipping halucination: task_id={task_id} - {type(task_id)}\")\n    continue\n  \n  output.append({\"json\": l})\n\nreturn output"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        -420
+      ],
+      "id": "0326d297-3973-4628-8802-83cd912933ab",
+      "name": "Remove halucinations"
     }
   ],
   "pinData": {},
@@ -632,6 +632,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-01T09:54:03.000Z",
-  "versionId": "04d85234-4f56-4de9-b310-357947f340bd"
+  "updatedAt": "2025-03-01T10:18:18.000Z",
+  "versionId": "21b03942-84a2-43fe-b905-e5b13f6238cc"
 }
