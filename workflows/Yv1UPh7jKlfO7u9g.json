@@ -492,8 +492,21 @@
       "notified_pr_ids": {}
     }
   },
-  "tags": [],
+  "tags": [
+    {
+      "createdAt": "2025-03-01T10:08:28.997Z",
+      "updatedAt": "2025-03-01T10:08:28.997Z",
+      "id": "XtnD4IrqWWI0nMgl",
+      "name": "mail"
+    },
+    {
+      "createdAt": "2025-03-01T10:08:32.875Z",
+      "updatedAt": "2025-03-01T10:08:32.875Z",
+      "id": "ZImYrfZ29jOrOJYu",
+      "name": "github"
+    }
+  ],
   "triggerCount": 1,
-  "updatedAt": "2025-02-27T17:50:40.000Z",
-  "versionId": "33419b63-4c38-4556-a0e2-94a1ecab0515"
+  "updatedAt": "2025-03-01T10:08:34.000Z",
+  "versionId": "6938fe07-8b36-49a4-b7ee-64dc5ea96056"
 }
