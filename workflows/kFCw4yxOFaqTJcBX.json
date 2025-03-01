@@ -1182,8 +1182,21 @@
       "recurrenceRules": []
     }
   },
-  "tags": [],
+  "tags": [
+    {
+      "createdAt": "2025-03-01T10:08:40.646Z",
+      "updatedAt": "2025-03-01T10:08:40.646Z",
+      "id": "OyteJf99vPShklOw",
+      "name": "backup"
+    },
+    {
+      "createdAt": "2025-03-01T10:08:32.875Z",
+      "updatedAt": "2025-03-01T10:08:32.875Z",
+      "id": "ZImYrfZ29jOrOJYu",
+      "name": "github"
+    }
+  ],
   "triggerCount": 1,
-  "updatedAt": "2025-03-01T09:13:08.000Z",
-  "versionId": "10e1c082-9ac9-4608-aed7-1d8bdc343f85"
+  "updatedAt": "2025-03-01T10:08:51.000Z",
+  "versionId": "cbeecb05-2280-4b85-b811-0a32a76cf784"
 }
