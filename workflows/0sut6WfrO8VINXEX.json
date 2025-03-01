@@ -37,7 +37,7 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Construct regexes",
             "type": "main",
             "index": 0
           }
@@ -70,12 +70,12 @@
       "main": [
         [
           {
-            "node": "Determine emoji",
+            "node": "prepare tasks for import (static)",
             "type": "main",
             "index": 0
           },
           {
-            "node": "prepare tasks for import (static)",
+            "node": "Determine emoji",
             "type": "main",
             "index": 0
           }
@@ -197,6 +197,17 @@
           }
         ]
       ]
+    },
+    "Construct regexes": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-02-20T13:52:03.090Z",
@@ -254,7 +265,7 @@
     },
     {
       "parameters": {
-        "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json?cache=no",
+        "url": "=https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json?ts={{ Date.now() }}",
         "options": {
           "redirect": {
             "redirect": {
@@ -287,8 +298,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        580,
-        -520
+        820,
+        -500
       ],
       "id": "b624aafc-21a6-46ef-82e1-05ff4f3137c4",
       "name": "Merge"
@@ -321,13 +332,13 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import json\nimport re\n\nDEBUG = True\n\nemoji_data = [x.json for x in _(\"Get emoji regexes\").all()]\n# task_data = [x.json for x in _(\"Todoist Fetch Tasks\").all()]\ntask_data = _input.all()\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_data:\n    emoji = em.get(\"emoji\")\n    patterns = em.get(\"patterns\")\n    merged_pattern = f'^\\s*({patterns.join(\"|\")})'\n    \n    if DEBUG:\n      print(f\"emoji: {emoji} - patterns: {patterns} - re: {merged_pattern}\")\n\n    if re.match(merged_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
+        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _('Construct regexes').all()]\ntask_data = [x.json for x in _input.all()]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n    \n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        980,
-        -500
+        1300,
+        -480
       ],
       "id": "053c7f59-8574-485e-9880-7e3fe7f290b8",
       "name": "Regex replace content"
@@ -340,7 +351,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1180,
+        1620,
         -180
       ],
       "id": "1f90f76e-6b08-42f5-ad8f-d887b8d75e04",
@@ -360,7 +371,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1340,
+        1780,
         -180
       ],
       "id": "f205def7-c8e6-4945-aa4d-78ded930bbdc",
@@ -386,7 +397,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        1180,
+        1620,
         -420
       ],
       "id": "bdc80e03-8bce-44a7-9ac7-78e24ddad5c3",
@@ -401,7 +412,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1240,
+        1680,
         -580
       ],
       "id": "66987551-83dd-4ed5-8ea8-5051abee8c7a",
@@ -436,8 +447,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        760,
-        -520
+        1040,
+        -500
       ],
       "id": "7aea6b75-86f6-446a-a8fc-6f6d947a5aa9",
       "name": "Tasks contain emoji"
@@ -453,7 +464,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1900,
+        2340,
         -580
       ],
       "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
@@ -574,7 +585,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1680,
+        2120,
         -420
       ],
       "id": "a4a1e298-37a8-4b18-af03-5406cf11dad6",
@@ -604,11 +615,40 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1500,
+        1940,
         -420
       ],
       "id": "0326d297-3973-4628-8802-83cd912933ab",
       "name": "Remove halucinations"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e56e7ebd-78eb-406c-90a8-03106730e5dd",
+              "name": "emoji",
+              "value": "={{ $json.emoji }}",
+              "type": "string"
+            },
+            {
+              "id": "4aa8605b-f54f-4c2d-a013-d78a3e8fb4c1",
+              "name": "regex",
+              "value": "=^\\s*({{ $json.patterns.join(\"|\") }})",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        540,
+        -520
+      ],
+      "id": "f3cfef21-b484-45cc-ab61-a8634d55e422",
+      "name": "Construct regexes"
     }
   ],
   "pinData": {},
@@ -632,6 +672,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-01T13:00:56.000Z",
-  "versionId": "b59f5523-405e-4246-9c6b-cfabc7b1731a"
+  "updatedAt": "2025-03-01T14:27:33.000Z",
+  "versionId": "8683bfc8-e3a7-4b96-b5b8-0af166c14d27"
 }
