@@ -494,7 +494,7 @@
       "credentials": {
         "githubOAuth2Api": {
           "id": "POqP3dfytXqTmZo3",
-          "name": "GitHub account (pschmitt)"
+          "name": "GitHub account (OAuth)"
         }
       }
     },
@@ -528,7 +528,7 @@
       "credentials": {
         "githubOAuth2Api": {
           "id": "POqP3dfytXqTmZo3",
-          "name": "GitHub account (pschmitt)"
+          "name": "GitHub account (OAuth)"
         }
       }
     },
@@ -550,8 +550,8 @@
         "rule": {
           "interval": [
             {
-              "triggerAtHour": 1,
-              "triggerAtMinute": 33
+              "field": "minutes",
+              "minutesInterval": 30
             }
           ]
         }
@@ -644,7 +644,7 @@
       "credentials": {
         "githubOAuth2Api": {
           "id": "POqP3dfytXqTmZo3",
-          "name": "GitHub account (pschmitt)"
+          "name": "GitHub account (OAuth)"
         }
       },
       "continueOnFail": true
@@ -1184,6 +1184,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-02-27T08:23:19.000Z",
-  "versionId": "de5472e9-5871-4fed-98e4-4c38c4bb79bf"
+  "updatedAt": "2025-03-01T09:13:08.000Z",
+  "versionId": "10e1c082-9ac9-4608-aed7-1d8bdc343f85"
 }
