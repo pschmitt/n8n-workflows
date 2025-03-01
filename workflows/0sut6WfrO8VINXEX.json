@@ -375,7 +375,7 @@
         "messages": {
           "messageValues": [
             {
-              "message": "- Prepend a single emoji best describing the content followed by a single space to all the tasks \"content\" fields. \n- Note that the \"content\" fields might be in German, English or French.\n- Prefer emojis from the \"Food & Drink\" category since the contents are from a grocery shopping list.\n- Ignore all the other fields.\n- Do not alter the \"id\" field under any circumstance.\n- All \"content\" fields should match this: \"{emoji} {original content}\".\n- There should only be one leading emoji, feel free to replace/remove existing emojis if there are any.\n- Only respond with valid JSON.\n"
+              "message": "- Prepend a single emoji best describing the content followed by a single space to all the tasks \"content\" fields. \n- Note that the \"content\" fields might be in German, English or French.\n- Prefer emojis from the \"Food & Drink\" category since the contents are from a grocery shopping list. If there's no good match you can still use other emoji.\n- Don't use chinese, arabic or similar characters. I don't consider these emojis.\n- Ignore all the other fields.\n- Do not alter the \"id\" field under any circumstance.\n- All \"content\" fields should match this: \"{emoji} {original content}\".\n- There should only be one leading emoji, feel free to replace/remove existing emojis if there are any.\n- Only respond with valid JSON.\n"
             },
             {
               "message": "Do not answer anything if my (the user) input is empty. Do not output anything in that case, do not output entries that are not relevant to the input. Do not invent tasks."
@@ -632,6 +632,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-01T10:18:18.000Z",
-  "versionId": "21b03942-84a2-43fe-b905-e5b13f6238cc"
+  "updatedAt": "2025-03-01T11:59:39.000Z",
+  "versionId": "cbf92a2d-431b-4c58-b037-ecd17aabc694"
 }
