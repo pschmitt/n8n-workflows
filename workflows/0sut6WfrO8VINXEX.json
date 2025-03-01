@@ -75,7 +75,7 @@
             "index": 0
           },
           {
-            "node": "Determine emoji",
+            "node": "If llm tasks not empty",
             "type": "main",
             "index": 0
           }
@@ -208,6 +208,17 @@
           }
         ]
       ]
+    },
+    "If llm tasks not empty": {
+      "main": [
+        [
+          {
+            "node": "Determine emoji",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-02-20T13:52:03.090Z",
@@ -332,7 +343,7 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _('Construct regexes').all()]\ntask_data = [x.json for x in _input.all()]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n    \n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
+        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _('Construct regexes').all()]\ntask_data = [x.json for x in _input.all()]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  matched = False\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n    \n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      matched = True\n      # Break out of the inner loop once a pattern matches\n      break\n\n  if not matched and task not in llm_tasks:\n    llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -351,7 +362,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1620,
+        1840,
         -180
       ],
       "id": "1f90f76e-6b08-42f5-ad8f-d887b8d75e04",
@@ -371,7 +382,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1780,
+        2000,
         -180
       ],
       "id": "f205def7-c8e6-4945-aa4d-78ded930bbdc",
@@ -397,7 +408,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        1620,
+        1840,
         -420
       ],
       "id": "bdc80e03-8bce-44a7-9ac7-78e24ddad5c3",
@@ -412,7 +423,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1680,
+        1900,
         -580
       ],
       "id": "66987551-83dd-4ed5-8ea8-5051abee8c7a",
@@ -464,7 +475,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        2340,
+        2560,
         -580
       ],
       "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
@@ -585,7 +596,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2120,
+        2340,
         -420
       ],
       "id": "a4a1e298-37a8-4b18-af03-5406cf11dad6",
@@ -615,7 +626,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1940,
+        2160,
         -420
       ],
       "id": "0326d297-3973-4628-8802-83cd912933ab",
@@ -649,6 +660,40 @@
       ],
       "id": "f3cfef21-b484-45cc-ab61-a8634d55e422",
       "name": "Construct regexes"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7864ed00-17e9-4604-8c53-b88d469503f2",
+              "leftValue": "={{ $json.llm_tasks }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        -400
+      ],
+      "id": "3691e9f1-b7b7-456c-9ee6-de1b3fd83422",
+      "name": "If llm tasks not empty"
     }
   ],
   "pinData": {},
@@ -672,6 +717,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-01T14:39:07.000Z",
-  "versionId": "c16cadd7-1012-4aca-86b7-aeea202f80a3"
+  "updatedAt": "2025-03-01T15:08:18.000Z",
+  "versionId": "bb2fafbe-fc2d-4e1e-b911-f478067b0c30"
 }
