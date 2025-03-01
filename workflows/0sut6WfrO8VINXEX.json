@@ -48,7 +48,7 @@
       "main": [
         [
           {
-            "node": "Regex replace content",
+            "node": "Tasks contain emoji",
             "type": "main",
             "index": 0
           }
@@ -119,7 +119,7 @@
       "main": [
         [
           {
-            "node": "Todoist Rename Task (Static)",
+            "node": "Todoist Rename Task",
             "type": "main",
             "index": 0
           }
@@ -130,7 +130,7 @@
       "main": [
         [
           {
-            "node": "Todoist Rename Task (LLM)",
+            "node": "Todoist Rename Task",
             "type": "main",
             "index": 0
           }
@@ -180,6 +180,100 @@
         [
           {
             "node": "Todoist Rename Task (LLM)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Check Emoji in Input",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request: Get Emoji Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: Get Emoji Mapping": {
+      "main": [
+        [
+          {
+            "node": "Map 'emoji_mappings' field",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Emoji in Input": {
+      "main": [
+        [
+          {
+            "node": "Map 'tasks' field",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map 'tasks' field": {
+      "main": [
+        [
+          {
+            "node": "Merge tasks and emoji mappings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map 'emoji_mappings' field": {
+      "main": [
+        [
+          {
+            "node": "Merge tasks and emoji mappings",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge tasks and emoji mappings": {
+      "main": [
+        [
+          {
+            "node": "Prepend Emoji",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tasks contain emoji": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Regex replace content",
             "type": "main",
             "index": 0
           }
@@ -307,13 +401,13 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_pattern = re.compile(\n    \"[\"\n    \"\\U0001F600-\\U0001F64F\"  # Emoticons\n    \"\\U0001F300-\\U0001F5FF\"  # Symbols & Pictographs\n    \"\\U0001F680-\\U0001F6FF\"  # Transport & Map Symbols\n    \"\\U0001F1E6-\\U0001F1FF\"  # Flags (iOS)\n    \"\\U00002500-\\U00002BEF\"  # Misc Symbols (e.g., ♠️)\n    \"\\U00002702-\\U000027B0\"\n    \"\\U000024C2-\\U0001F251\"\n    \"\\U0001F926-\\U0001F937\"\n    \"\\U0001F900-\\U0001F9FF\"  # Supplemental Symbols\n    \"\\U0001FA70-\\U0001FAFF\"  # Symbols Extended-A\n    \"\\U00002600-\\U000026FF\"  # Misc Symbols (e.g., ☀️)\n    \"\\U00002700-\\U000027BF\"  # Dingbats\n    \"]+\",\n    flags=re.UNICODE\n)\n\ndef contains_emoji(str):\n  return True if re.match(emoji_pattern, str) else False\n\nemoji_data = [x.json for x in _(\"Get emoji regexes\").all()]\n# task_data = [x.json for x in _(\"Todoist Fetch Tasks\").all()]\ntask_data = _input.all()\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  if contains_emoji(content):\n    print(f\"Skipping '{content}' since it already contains emojis\")\n    # Already contains an emoji, skip\n    continue\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_data:\n    emoji = em.get(\"emoji\")\n    patterns = em.get(\"patterns\")\n    merged_pattern = f'^\\s*({patterns.join(\"|\")})'\n    \n    if DEBUG:\n      print(f\"emoji: {emoji} - patterns: {patterns} - re: {merged_pattern}\")\n\n    if re.match(merged_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
+        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_data = [x.json for x in _(\"Get emoji regexes\").all()]\n# task_data = [x.json for x in _(\"Todoist Fetch Tasks\").all()]\ntask_data = _input.all()\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_data:\n    emoji = em.get(\"emoji\")\n    patterns = em.get(\"patterns\")\n    merged_pattern = f'^\\s*({patterns.join(\"|\")})'\n    \n    if DEBUG:\n      print(f\"emoji: {emoji} - patterns: {patterns} - re: {merged_pattern}\")\n\n    if re.match(merged_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1200,
-        -480
+        1040,
+        -460
       ],
       "id": "053c7f59-8574-485e-9880-7e3fe7f290b8",
       "name": "Regex replace content"
@@ -326,7 +420,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1420,
+        1220,
         -180
       ],
       "id": "1f90f76e-6b08-42f5-ad8f-d887b8d75e04",
@@ -346,7 +440,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1560,
+        1360,
         -180
       ],
       "id": "f205def7-c8e6-4945-aa4d-78ded930bbdc",
@@ -372,58 +466,12 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        1400,
+        1200,
         -380
       ],
       "id": "bdc80e03-8bce-44a7-9ac7-78e24ddad5c3",
       "name": "Determine emoji",
       "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "taskId": "={{ $json.id }}",
-        "updateFields": {
-          "content": "={{ $json.content }}"
-        }
-      },
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.1,
-      "position": [
-        1940,
-        -560
-      ],
-      "id": "1dc3efac-b7ad-4218-b9be-8c9031ca5803",
-      "name": "Todoist Rename Task (Static)",
-      "credentials": {
-        "todoistApi": {
-          "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account (API Key)"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "taskId": "={{ $json.id }}",
-        "updateFields": {
-          "content": "={{ $json.content }}"
-        }
-      },
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.1,
-      "position": [
-        1940,
-        -380
-      ],
-      "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
-      "name": "Todoist Rename Task (LLM)",
-      "credentials": {
-        "todoistApi": {
-          "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account (API Key)"
-        }
-      }
     },
     {
       "parameters": {
@@ -433,8 +481,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1720,
-        -560
+        1380,
+        -580
       ],
       "id": "66987551-83dd-4ed5-8ea8-5051abee8c7a",
       "name": "prepare tasks for import (static)"
@@ -447,7 +495,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1720,
+        1520,
         -380
       ],
       "id": "0326d297-3973-4628-8802-83cd912933ab",
@@ -616,9 +664,245 @@
       ],
       "id": "22cd0cf0-1840-4296-a599-b90dd2103f41",
       "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"id\": \"7110567660\",\n  \"project_id\": \"2233547438\",\n  \"section_id\": \"104967156\",\n  \"parent_id\": null,\n  \"content\": \"Tomate\"\n}"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -40,
+        660
+      ],
+      "id": "26855070-e545-4c90-9d78-496d26bb6cb0",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "0sut6WfrO8VINXEX",
+          "mode": "list",
+          "cachedResultName": "☑️ Todoist Emojifier"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        420
+      ],
+      "id": "6421922f-5027-4b0b-b002-a7c7331c1282",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import re\n\ntasks = _json.tasks\nemoji_mappings = _json.emoji_mappings\n\n# return {\"json\": {\"t\": tasks}}\n\nupdated_tasks = []\n\nfor task in tasks:  \n  for emm in emoji_mappings:\n    emoji_pattern = \"^\\s*(\" + \"|\".join(emm.patterns) + \")\"\n    \n    if re.match(emoji_pattern, task.content, re.IGNORECASE):\n      task[\"content\"] = f\"{emm.emoji} {task.content}\"\n      updated_tasks.append(task)\n      break\n\nreturn {\"json\": {\"tasks\": updated_tasks}}\n"
+      },
+      "id": "50dbad2b-d1b5-4932-8748-54a6b1c4e88c",
+      "name": "Prepend Emoji",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://gist.githubusercontent.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
+        "options": {
+          "redirect": {},
+          "response": {
+            "response": {
+              "fullResponse": false,
+              "neverError": false,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "c1777c6f-c4e6-4d7a-9ec6-6c10d0ad4a29",
+      "name": "HTTP Request: Get Emoji Mapping",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        200,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import re\n\ninputText = _json.content\n\nemoji_pattern = re.compile(\n  \"[\"\n  \"\\U0001F600-\\U0001F64F\"  # Emoticons\n  \"\\U0001F300-\\U0001F5FF\"  # Symbols & Pictographs\n  \"\\U0001F680-\\U0001F6FF\"  # Transport & Map Symbols\n  \"\\U0001F1E6-\\U0001F1FF\"  # Flags (iOS)\n  \"\\U00002500-\\U00002BEF\"  # Misc Symbols\n  \"\\U00002702-\\U000027B0\"\n  \"\\U000024C2-\\U0001F251\"\n  \"\\U0001F926-\\U0001F937\"\n  \"\\U0001F900-\\U0001F9FF\"  # Supplemental Symbols\n  \"\\U0001FA70-\\U0001FAFF\"  # Symbols Extended-A\n  \"\\U00002600-\\U000026FF\"  # Misc Symbols\n  \"\\U00002700-\\U000027BF\"  # Dingbats\n  \"]+\",\n  flags=re.UNICODE\n)\n\n# Check if the input text already starts with an emoji\nif bool(re.match(emoji_pattern, inputText)):\n  return {}\n\nreturn _json"
+      },
+      "id": "9b80914f-2865-4900-9268-d72490b56081",
+      "name": "Check Emoji in Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4c126fa-e448-4299-a210-529fbdf69276",
+              "name": "tasks",
+              "value": "={{ $input.all().map(item => item.json) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        420,
+        600
+      ],
+      "id": "c4465377-6779-4a2f-add5-e8db8db65b18",
+      "name": "Map 'tasks' field"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e7aa90f7-3890-4d2c-bd51-0a436fc92197",
+              "name": "emoji_mappings",
+              "value": "={{ $input.all().map(item => item.json) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        420,
+        780
+      ],
+      "id": "9209c241-02d2-47fd-8475-fbef9ef826d5",
+      "name": "Map 'emoji_mappings' field"
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql"
+      },
+      "id": "6720532d-3a36-41cd-a701-8ef11336abc3",
+      "name": "Merge tasks and emoji mappings",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        680,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"id\": \"7110567660\",\n  \"assigner_id\": null,\n  \"assignee_id\": null,\n  \"project_id\": \"2233547438\",\n  \"section_id\": \"104967156\",\n  \"parent_id\": null,\n  \"order\": -1,\n  \"content\": \"tomato\",\n  \"description\": \"\",\n  \"is_completed\": false,\n  \"labels\": [\n  ],\n  \"priority\": 1,\n  \"comment_count\": 0,\n  \"creator_id\": \"26861946\",\n  \"created_at\": \"2023-08-05T14:15:13.136475Z\",\n  \"due\": null,\n  \"url\": \"https://app.todoist.com/app/task/7110567660\",\n  \"duration\": null,\n  \"deadline\": null\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        420
+      ],
+      "id": "eca88667-e9e4-4028-88d3-d3aeda2fede8",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5c125b3d-7e38-45d0-8e74-fabc2c3531f9",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "/\\p{Emoji}/u",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -480
+      ],
+      "id": "7aea6b75-86f6-446a-a8fc-6f6d947a5aa9",
+      "name": "Tasks contain emoji"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "taskId": "={{ $json.id }}",
+        "updateFields": {
+          "content": "={{ $json.content }}"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        1720,
+        -480
+      ],
+      "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
+      "name": "Todoist Rename Task",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "id": "7110567660",
+          "project_id": "2233547438",
+          "section_id": "104967156",
+          "parent_id": null,
+          "content": "Tomate"
+        }
+      }
+    ]
+  },
   "repo_name": "n8n-workflows",
   "repo_owner": "pschmitt",
   "repo_path": "workflows",
@@ -630,8 +914,15 @@
       "recurrenceRules": []
     }
   },
-  "tags": [],
+  "tags": [
+    {
+      "createdAt": "2025-03-01T06:50:52.672Z",
+      "updatedAt": "2025-03-01T06:50:52.672Z",
+      "id": "mjfF2OqntfnQP15x",
+      "name": "todoist"
+    }
+  ],
   "triggerCount": 2,
-  "updatedAt": "2025-02-28T21:01:54.000Z",
-  "versionId": "c15bcc7e-c6df-4331-b097-2f93b73fb58a"
+  "updatedAt": "2025-03-01T09:27:09.000Z",
+  "versionId": "7eefc313-c351-4870-a309-f04d9e58f911"
 }
