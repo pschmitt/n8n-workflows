@@ -5,12 +5,7 @@
       "main": [
         [
           {
-            "node": "Matrix",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Matrix1",
+            "node": "Edit Fields",
             "type": "main",
             "index": 0
           }
@@ -26,6 +21,17 @@
       "main": [
         []
       ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Has Emoji",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-02-27T21:25:34.580Z",
@@ -40,8 +46,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        -720,
+        380
       ],
       "id": "efb8285c-f8bb-4001-8949-91cd1ab0ac5a",
       "name": "When clicking ‘Test workflow’"
@@ -103,8 +109,8 @@
       "type": "n8n-nodes-base.homeAssistant",
       "typeVersion": 1,
       "position": [
-        200,
-        300
+        -60,
+        -100
       ],
       "id": "31972731-45ff-49a7-96da-6a68ce0be771",
       "name": "Toggle Rack Light",
@@ -114,6 +120,54 @@
           "name": "Home Assistant account"
         }
       }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"id\": \"7110567660\",\n  \"assigner_id\": null,\n  \"assignee_id\": null,\n  \"project_id\": \"2233547438\",\n  \"section_id\": \"104967156\",\n  \"parent_id\": null,\n  \"order\": -1,\n  \"content\": \"⚗️ tomato\",\n  \"description\": \"\",\n  \"is_completed\": false,\n  \"labels\": [\n  ],\n  \"priority\": 1,\n  \"comment_count\": 0,\n  \"creator_id\": \"26861946\",\n  \"created_at\": \"2023-08-05T14:15:13.136475Z\",\n  \"due\": null,\n  \"url\": \"https://app.todoist.com/app/task/7110567660\",\n  \"duration\": null,\n  \"deadline\": null\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -500,
+        380
+      ],
+      "id": "b9ded59c-d61a-4e65-bccf-5cc6a5e3ce80",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9a75fd13-30f4-48da-8735-9c3483011d6e",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "/\\p{Emoji}/u",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -280,
+        380
+      ],
+      "id": "4b1bb316-ef6b-4b86-be65-d3952133abf2",
+      "name": "Has Emoji"
     }
   ],
   "pinData": {},
@@ -124,8 +178,15 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": [],
+  "tags": [
+    {
+      "createdAt": "2025-03-01T09:15:55.233Z",
+      "updatedAt": "2025-03-01T09:15:55.233Z",
+      "id": "rSNOgCiExn2vRDnN",
+      "name": "test"
+    }
+  ],
   "triggerCount": 0,
-  "updatedAt": "2025-02-28T14:38:59.000Z",
-  "versionId": "809729e3-8348-4317-8fc3-a1879b68c2a4"
+  "updatedAt": "2025-03-01T09:19:26.000Z",
+  "versionId": "b101610f-c55c-4a1d-b256-edf2e7b81627"
 }
