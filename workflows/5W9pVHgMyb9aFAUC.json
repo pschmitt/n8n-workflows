@@ -78,7 +78,7 @@
             {
               "id": "055d25bb-3d66-446e-97b8-a53032122e2f",
               "name": "request",
-              "value": "={{ JSON.parse($json.body) }}",
+              "value": "={{ $json.body }}",
               "type": "string"
             }
           ]
@@ -105,6 +105,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-03-01T20:27:25.000Z",
-  "versionId": "aa23d2cc-3e40-46e3-b272-0dd28d8d1615"
+  "updatedAt": "2025-03-01T20:30:32.000Z",
+  "versionId": "12ee4aed-2a30-4b1b-8f27-aa85e1b721d6"
 }
