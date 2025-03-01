@@ -136,6 +136,55 @@
           }
         ]
       ]
+    },
+    "Webhook: new task added": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Determine emoji1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Determine emoji1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Determine emoji1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine emoji1": {
+      "main": [
+        [
+          {
+            "node": "Todoist Rename Task (LLM)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-02-20T13:52:03.090Z",
@@ -251,19 +300,19 @@
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account"
+          "name": "Todoist account (API Key)"
         }
       }
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_pattern = re.compile(\n    \"[\"\n    \"\\U0001F600-\\U0001F64F\"  # Emoticons\n    \"\\U0001F300-\\U0001F5FF\"  # Symbols & Pictographs\n    \"\\U0001F680-\\U0001F6FF\"  # Transport & Map Symbols\n    \"\\U0001F1E6-\\U0001F1FF\"  # Flags (iOS)\n    \"\\U00002500-\\U00002BEF\"  # Misc Symbols (e.g., ♠️)\n    \"\\U00002702-\\U000027B0\"\n    \"\\U000024C2-\\U0001F251\"\n    \"\\U0001F926-\\U0001F937\"\n    \"\\U0001F900-\\U0001F9FF\"  # Supplemental Symbols\n    \"\\U0001FA70-\\U0001FAFF\"  # Symbols Extended-A\n    \"\\U00002600-\\U000026FF\"  # Misc Symbols (e.g., ☀️)\n    \"\\U00002700-\\U000027BF\"  # Dingbats\n    \"]+\",\n    flags=re.UNICODE\n)\n\ndef contains_emoji(str):\n  return True if re.match(emoji_pattern, str) else False\n\nemoji_data = [x.json for x in _(\"Get emoji regexes\").all()]\ntask_data = [x.json for x in _(\"Todoist Fetch Tasks\").all()]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  if contains_emoji(content):\n    print(f\"Skipping '{content}' since it already contains emojis\")\n    # Already contains an emoji, skip\n    continue\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_data:\n    emoji = em.get(\"emoji\")\n    patterns = em.get(\"patterns\")\n    merged_pattern = f'^\\s*({patterns.join(\"|\")})'\n    \n    if DEBUG:\n      print(f\"emoji: {emoji} - patterns: {patterns} - re: {merged_pattern}\")\n\n    if re.match(merged_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\n# Return the modified list of tasks\n# return {\"json\": {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}} \n\nres = {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}\nreturn res"
+        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_pattern = re.compile(\n    \"[\"\n    \"\\U0001F600-\\U0001F64F\"  # Emoticons\n    \"\\U0001F300-\\U0001F5FF\"  # Symbols & Pictographs\n    \"\\U0001F680-\\U0001F6FF\"  # Transport & Map Symbols\n    \"\\U0001F1E6-\\U0001F1FF\"  # Flags (iOS)\n    \"\\U00002500-\\U00002BEF\"  # Misc Symbols (e.g., ♠️)\n    \"\\U00002702-\\U000027B0\"\n    \"\\U000024C2-\\U0001F251\"\n    \"\\U0001F926-\\U0001F937\"\n    \"\\U0001F900-\\U0001F9FF\"  # Supplemental Symbols\n    \"\\U0001FA70-\\U0001FAFF\"  # Symbols Extended-A\n    \"\\U00002600-\\U000026FF\"  # Misc Symbols (e.g., ☀️)\n    \"\\U00002700-\\U000027BF\"  # Dingbats\n    \"]+\",\n    flags=re.UNICODE\n)\n\ndef contains_emoji(str):\n  return True if re.match(emoji_pattern, str) else False\n\nemoji_data = [x.json for x in _(\"Get emoji regexes\").all()]\n# task_data = [x.json for x in _(\"Todoist Fetch Tasks\").all()]\ntask_data = _input.all()\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  if contains_emoji(content):\n    print(f\"Skipping '{content}' since it already contains emojis\")\n    # Already contains an emoji, skip\n    continue\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_data:\n    emoji = em.get(\"emoji\")\n    patterns = em.get(\"patterns\")\n    merged_pattern = f'^\\s*({patterns.join(\"|\")})'\n    \n    if DEBUG:\n      print(f\"emoji: {emoji} - patterns: {patterns} - re: {merged_pattern}\")\n\n    if re.match(merged_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      # Break out of the inner loop once a pattern matches\n      break\n\n    if task not in llm_tasks:\n      llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        760,
+        1200,
         -480
       ],
       "id": "053c7f59-8574-485e-9880-7e3fe7f290b8",
@@ -277,7 +326,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        980,
+        1420,
         -180
       ],
       "id": "1f90f76e-6b08-42f5-ad8f-d887b8d75e04",
@@ -297,7 +346,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1120,
+        1560,
         -180
       ],
       "id": "f205def7-c8e6-4945-aa4d-78ded930bbdc",
@@ -323,7 +372,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        960,
+        1400,
         -380
       ],
       "id": "bdc80e03-8bce-44a7-9ac7-78e24ddad5c3",
@@ -341,7 +390,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1500,
+        1940,
         -560
       ],
       "id": "1dc3efac-b7ad-4218-b9be-8c9031ca5803",
@@ -349,7 +398,7 @@
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account"
+          "name": "Todoist account (API Key)"
         }
       }
     },
@@ -364,7 +413,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1500,
+        1940,
         -380
       ],
       "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
@@ -372,7 +421,7 @@
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account"
+          "name": "Todoist account (API Key)"
         }
       }
     },
@@ -384,7 +433,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1280,
+        1720,
         -560
       ],
       "id": "66987551-83dd-4ed5-8ea8-5051abee8c7a",
@@ -398,11 +447,175 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1280,
+        1720,
         -380
       ],
       "id": "0326d297-3973-4628-8802-83cd912933ab",
       "name": "prepare tasks for import (dynamic)"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d5087dba-6994-4155-ada1-0bdfe4a849c2",
+      "name": "Webhook: new task added",
+      "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
+              "name": "id",
+              "value": "={{ $json.body.event_data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "9d362483-8501-4fb8-b7f2-cf7437c06024",
+              "name": "content",
+              "value": "={{ $json.body.event_data.content }}",
+              "type": "string"
+            },
+            {
+              "id": "338f9e23-9f39-4bb2-b893-16e8e88a8429",
+              "name": "llm_tasks",
+              "value": "=[{\n  \"id\": \"{{ $json.body.event_data.id }}\",  \n  \"content\": \"{{ $json.body.event_data.content }}\"\n}]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "id": "267fc0c1-1571-482c-81a6-d5c0b80a74d6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## TODO\n\nThis kinda works, but needs to be adjusted to fet routed into the \"regular\" flow.",
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -140
+      ],
+      "id": "7577ebb9-8412-4297-bc90-840384353e9b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1-distill-qwen-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        740,
+        200
+      ],
+      "id": "83fa2aad-52ad-4645-a432-8d72f960e6de",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "2nL6WC5EPVPT4o0B",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"Items List\",\n  \"description\": \"A list of items with ID and content\",\n  \"type\": \"array\",\n  \"items\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"id\": {\n        \"type\": \"string\",\n        \"description\": \"Unique identifier for the item\"\n      },\n      \"content\": {\n        \"type\": \"string\",\n        \"description\": \"Display content for the item\"\n      }\n    },\n    \"required\": [\"id\", \"content\"],\n    \"additionalProperties\": false\n  },\n  \"minItems\": 0,\n  \"uniqueItems\": true\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        200
+      ],
+      "id": "c1f6d150-0441-4eeb-896b-46c1df38d0e9",
+      "name": "Structured Output Parser1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.llm_tasks }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "- Prepend a single emoji best describing the content followed by a single space to all the tasks \"content\" fields. \n- Note that the \"content\" fields might be in German, English or French.\n- Ignore all the other fields.\n- Do not alter the \"id\" field under any circumstance.\n- All \"content\" fields should match this: \"{emoji} {original content}\".\n- There should only be one leading emoji, feel free to replace/remove existing emojis if there are any.\n- Only respond with valid JSON.\n"
+            },
+            {
+              "message": "Do not answer anything if my (the user) input is empty. Do not output anything in that case, do not output entries that are not relevant to the input. Do not invent tasks."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        720,
+        0
+      ],
+      "id": "6281ba0e-9028-42ad-89e7-e63798309fe5",
+      "name": "Determine emoji1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "taskId": "={{ $json.output[0].id }}",
+        "updateFields": {
+          "content": "={{ $json.output[0].content }}"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        1080,
+        0
+      ],
+      "id": "2256132b-02fe-4f10-b481-620e3929544c",
+      "name": "Todoist Rename Task (LLM)1",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## TODO nr. 2\n\nYOU NEED TO MAKE SURE TO FILTER ON THE PROJECT/ID SECTION.\n\n-> add a config node!",
+        "height": 240,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        80
+      ],
+      "id": "22cd0cf0-1840-4296-a599-b90dd2103f41",
+      "name": "Sticky Note2"
     }
   ],
   "pinData": {},
@@ -418,7 +631,7 @@
     }
   },
   "tags": [],
-  "triggerCount": 1,
-  "updatedAt": "2025-02-27T21:10:45.000Z",
-  "versionId": "b80a1016-1720-4f7a-9943-a9fa123397d6"
+  "triggerCount": 2,
+  "updatedAt": "2025-02-28T21:01:54.000Z",
+  "versionId": "c15bcc7e-c6df-4331-b097-2f93b73fb58a"
 }
