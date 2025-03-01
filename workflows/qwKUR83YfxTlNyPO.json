@@ -8,19 +8,23 @@
             "node": "Matrix",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "Matrix": {
-      "main": [
-        [
+          },
           {
             "node": "Matrix1",
             "type": "main",
             "index": 0
           }
         ]
+      ]
+    },
+    "Matrix": {
+      "main": [
+        []
+      ]
+    },
+    "Matrix1": {
+      "main": [
+        []
       ]
     }
   },
@@ -29,7 +33,7 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "name": "⚗️ Matrix lab",
+  "name": "⚗️ The Lab",
   "nodes": [
     {
       "parameters": {},
@@ -49,8 +53,8 @@
       "type": "n8n-nodes-base.matrix",
       "typeVersion": 1,
       "position": [
-        220,
-        0
+        200,
+        -140
       ],
       "id": "3d13a7a5-6077-4022-b02f-94453dbc273b",
       "name": "Matrix",
@@ -69,8 +73,8 @@
       "type": "n8n-nodes-base.matrix",
       "typeVersion": 1,
       "position": [
-        440,
-        0
+        200,
+        100
       ],
       "id": "73a62039-dac0-412d-a5d0-8fb29dfcd22f",
       "name": "Matrix1",
@@ -78,6 +82,36 @@
         "matrixApi": {
           "id": "pDv5vQc765OZGFH9",
           "name": "Matrix account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "service",
+        "operation": "call",
+        "domain": "light",
+        "service": "toggle",
+        "serviceAttributes": {
+          "attributes": [
+            {
+              "name": "entity_id",
+              "value": "light.elgato_key_light_mini"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.homeAssistant",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ],
+      "id": "31972731-45ff-49a7-96da-6a68ce0be771",
+      "name": "Toggle Rack Light",
+      "credentials": {
+        "homeAssistantApi": {
+          "id": "1duqjqGBTITwlAcS",
+          "name": "Home Assistant account"
         }
       }
     }
@@ -92,6 +126,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-02-27T21:28:06.000Z",
-  "versionId": "f17d8c41-eea3-42ce-9136-52063d2efb7b"
+  "updatedAt": "2025-02-28T14:38:59.000Z",
+  "versionId": "809729e3-8348-4317-8fc3-a1879b68c2a4"
 }
