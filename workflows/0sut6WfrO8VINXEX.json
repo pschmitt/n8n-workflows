@@ -254,7 +254,7 @@
     },
     {
       "parameters": {
-        "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
+        "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json?cache=no",
         "options": {
           "redirect": {
             "redirect": {
@@ -632,6 +632,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-01T11:59:39.000Z",
-  "versionId": "cbf92a2d-431b-4c58-b037-ecd17aabc694"
+  "updatedAt": "2025-03-01T12:41:18.000Z",
+  "versionId": "f4644db9-5801-4957-bf29-37656dc48257"
 }
