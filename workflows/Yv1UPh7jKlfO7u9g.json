@@ -241,7 +241,7 @@
           "interval": [
             {
               "field": "minutes",
-              "minutesInterval": 61
+              "minutesInterval": 30
             }
           ]
         }
@@ -507,6 +507,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-03-01T10:08:34.000Z",
-  "versionId": "6938fe07-8b36-49a4-b7ee-64dc5ea96056"
+  "updatedAt": "2025-03-02T16:12:13.000Z",
+  "versionId": "2ac28646-338d-4f66-b920-20dc8261363f"
 }
