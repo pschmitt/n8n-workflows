@@ -580,7 +580,7 @@
             {
               "id": "3459bf0b-2c5d-4964-b19c-36121e29c9ee",
               "leftValue": "={{ $json.content }}",
-              "rightValue": "/\\p{Emoji}/u",
+              "rightValue": "/^\\p{Emoji}/u",
               "operator": {
                 "type": "string",
                 "operation": "regex"
@@ -717,6 +717,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-01T15:08:18.000Z",
-  "versionId": "bb2fafbe-fc2d-4e1e-b911-f478067b0c30"
+  "updatedAt": "2025-03-05T21:42:25.000Z",
+  "versionId": "0b49c5cc-a739-4832-b9b7-6752264ec06d"
 }
