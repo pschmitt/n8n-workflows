@@ -5,7 +5,7 @@
       "main": [
         [
           {
-            "node": "Edit Fields",
+            "node": "SSH",
             "type": "main",
             "index": 0
           }
@@ -31,6 +31,11 @@
             "index": 0
           }
         ]
+      ]
+    },
+    "Execute Command": {
+      "main": [
+        []
       ]
     }
   },
@@ -168,6 +173,36 @@
       ],
       "id": "4b1bb316-ef6b-4b86-be65-d3952133abf2",
       "name": "Has Emoji"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        660
+      ],
+      "id": "fa0d0dc2-eb73-4f44-9c5d-b20fead7db78",
+      "name": "Execute Command"
+    },
+    {
+      "parameters": {
+        "command": "zhj monero::deploy-miners-k8s -r 8 wiit-edge-002"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        620
+      ],
+      "id": "603e5453-69b3-4a9b-920c-7a370bfd380d",
+      "name": "SSH",
+      "credentials": {
+        "sshPassword": {
+          "id": "pA2e6YM7mlcmMcQy",
+          "name": "SSH: fnuc (password)"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -187,6 +222,6 @@
     }
   ],
   "triggerCount": 0,
-  "updatedAt": "2025-03-01T10:08:57.000Z",
-  "versionId": "b101610f-c55c-4a1d-b256-edf2e7b81627"
+  "updatedAt": "2025-03-21T22:34:10.000Z",
+  "versionId": "8f954ae1-7570-4be3-b6c5-b044896e98ca"
 }
