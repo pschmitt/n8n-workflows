@@ -356,7 +356,7 @@
     },
     {
       "parameters": {
-        "model": "deepseek-r1-distill-qwen-32b",
+        "model": "qwen-qwq-32b",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
@@ -717,6 +717,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-03-05T21:42:25.000Z",
-  "versionId": "0b49c5cc-a739-4832-b9b7-6752264ec06d"
+  "updatedAt": "2025-04-07T20:05:21.000Z",
+  "versionId": "435c9cd1-6b9b-4fa7-a3bb-739e896aaefe"
 }
