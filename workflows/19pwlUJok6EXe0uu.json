@@ -157,9 +157,9 @@
       "typeVersion": 1,
       "position": [
         -1984,
-        368
+        -160
       ],
-      "id": "762cb4d6-703c-4fc2-9b49-ac528ab7a25e",
+      "id": "142fa2aa-3d84-4da1-9258-bcdcd7eb96da",
       "name": "When clicking ‘Test workflow’"
     },
     {
@@ -176,9 +176,9 @@
       "typeVersion": 1.2,
       "position": [
         -1984,
-        608
+        80
       ],
-      "id": "e9eb36f7-77fa-4f2a-9855-de316f3a9c02",
+      "id": "10a54450-fea8-4271-ae67-91b8ade8866d",
       "name": "Schedule Trigger"
     },
     {
@@ -191,9 +191,9 @@
       "typeVersion": 1,
       "position": [
         -2208,
-        256
+        -256
       ],
-      "id": "c47ea024-cbb1-4eae-8b9d-8701bc9ed836",
+      "id": "8fd39bd6-fcf3-4614-9346-16deeaff0c01",
       "name": "Sticky Note"
     },
     {
@@ -205,9 +205,9 @@
       "typeVersion": 2.1,
       "position": [
         -1664,
-        480
+        -48
       ],
-      "id": "c2df8f30-5e74-4a6b-9f17-40034332b8a0",
+      "id": "da02ace2-789f-45be-8ae3-29b74b875d9a",
       "name": "Fetch Projects",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -227,9 +227,9 @@
       "typeVersion": 2,
       "position": [
         -1424,
-        480
+        -48
       ],
-      "id": "56ce309f-9ba4-4d2e-9cac-b61a6373f463",
+      "id": "f90f5640-d7eb-467f-be0a-c7dbe4b74f42",
       "name": "Select Templates Project"
     },
     {
@@ -244,9 +244,9 @@
       "typeVersion": 2.1,
       "position": [
         -1152,
-        320
+        -208
       ],
-      "id": "fb113427-cc18-4a77-8487-2a209d71b15f",
+      "id": "87b63cac-f564-43d2-9078-5872198ae956",
       "name": "Fetch Template Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -267,9 +267,9 @@
       "typeVersion": 2.1,
       "position": [
         -1312,
-        704
+        192
       ],
-      "id": "030f2731-d2ef-4554-b037-ef3ed6cdda99",
+      "id": "a35b8450-c002-4985-bf7a-80c996fd63d0",
       "name": "Fetch Active Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -283,15 +283,15 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import re\nfrom collections import defaultdict, deque\n\nDEBUG = False\n\ntemplates = _('Select Templates Project').first()\ntemplate_project_id = None\nif templates:\n  template_project_id = templates.json.get('templatesProjectId')\n\nif template_project_id is None:\n  if DEBUG:\n    print('No template project found')\n  return []\n\ntemplate_tasks = [item.json for item in _('Fetch Template Tasks').all()]\nif not template_tasks:\n  if DEBUG:\n    print('Template project has no tasks')\n  return []\n\nall_tasks = [item.json for item in _input.all()]\n\nchildren = defaultdict(list)\nfor task in template_tasks:\n  parent_id = task.get('parent_id')\n  if parent_id:\n    children[parent_id].append(task)\n\nfor child_list in children.values():\n  child_list.sort(key=lambda item: item.get('child_order', 0))\n\npattern = re.compile(r'^!!\\s*(.+)$', re.IGNORECASE)\nitems = []\n\nfor task in all_tasks:\n  if task.get('project_id') == template_project_id:\n    continue\n\n  match = pattern.match(task.get('content', ''))\n  if not match:\n    continue\n\n  template_name = match.group(1).strip()\n  if not template_name:\n    continue\n\n  candidates = [\n    t for t in template_tasks\n    if t.get('content', '').strip().lower() == template_name.lower()\n  ]\n  candidates.sort(key=lambda t: (t.get('parent_id') is not None, t.get('child_order', 0)))\n  if not candidates:\n    if DEBUG:\n      print(f\"No template found for placeholder '{template_name}'\")\n    continue\n\n  root = candidates[0]\n\n  queue = deque([root])\n  subtree = []\n  while queue:\n    current = queue.popleft()\n    subtree.append(current)\n    for child in children.get(current.get('id'), []):\n      queue.append(child)\n\n  if not subtree:\n    continue\n\n  placeholder = {\n    'id': task.get('id'),\n    'projectId': task.get('project_id'),\n    'sectionId': task.get('section_id'),\n    'parentId': task.get('parent_id'),\n    'order': task.get('order'),\n    'childOrder': task.get('child_order'),\n  }\n\n  placeholder_key = str(task.get('id'))\n\n  items.append({\n    'json': {\n      'action': 'delete',\n      'placeholder': placeholder,\n      'templateName': template_name,\n      'placeholderKey': placeholder_key,\n    }\n  })\n\n  for template_task in subtree:\n    template_id = template_task.get('id')\n    payload = {\n      'templateId': template_id,\n      'parentTemplateId': template_task.get('parent_id'),\n      'content': template_task.get('content', ''),\n      'description': template_task.get('description'),\n      'priority': template_task.get('priority'),\n      'labels': template_task.get('labels') or [],\n      'order': template_task.get('order'),\n      'childOrder': template_task.get('child_order'),\n      'due': template_task.get('due') or {},\n      'isRoot': template_id == root.get('id'),\n    }\n\n    items.append({\n      'json': {\n        'action': 'create',\n        'placeholder': placeholder,\n        'templateName': template_name,\n        'placeholderKey': placeholder_key,\n        'task': payload,\n      }\n    })\n\nreturn items"
+        "pythonCode": "import re\nfrom collections import defaultdict, deque\n\nDEBUG = False\n\ntemplates = _('Select Templates Project').first()\ntemplate_project_id = None\nif templates:\n  template_project_id = templates.json.get('templatesProjectId')\n\nif template_project_id is None:\n  if DEBUG:\n    print('No template project found')\n  return []\n\nprojects = [item.json for item in _('Fetch Projects').all()]\ntest_project_id = None\nfor project in projects:\n  name = (project.get('name') or '').strip()\n  if name == '🧪 Test (meta)':\n    test_project_id = project.get('id')\n    break\n\nif test_project_id is None:\n  if DEBUG:\n    print(\"Test project '🧪 Test (meta)' not found\")\n  return []\n\ntemplate_tasks = [item.json for item in _('Fetch Template Tasks').all()]\nif not template_tasks:\n  if DEBUG:\n    print('Template project has no tasks')\n  return []\n\nall_tasks = [item.json for item in _input.all()]\n\nchildren = defaultdict(list)\nfor task in template_tasks:\n  parent_id = task.get('parent_id')\n  if parent_id:\n    children[parent_id].append(task)\n\nfor child_list in children.values():\n  child_list.sort(key=lambda item: item.get('child_order', 0))\n\ndef normalize_name(value):\n  if not value:\n    return ''\n  lowered = value.lower()\n  return ''.join(ch for ch in lowered if ch.isalnum())\n\ntemplate_index = [\n  (task, normalize_name(task.get('content', '')))\n  for task in template_tasks\n]\n\npattern = re.compile(r'^!!\\s*(.+)$', re.IGNORECASE)\nitems = []\n\nfor task in all_tasks:\n  if task.get('project_id') == template_project_id:\n    continue\n\n  if task.get('project_id') != test_project_id:\n    continue\n\n  match = pattern.match(task.get('content', ''))\n  if not match:\n    continue\n\n  template_name = match.group(1).strip()\n  normalized_placeholder = normalize_name(template_name)\n  if not normalized_placeholder:\n    continue\n\n  candidates = [\n    t for t, normalized in template_index\n    if normalized == normalized_placeholder\n  ]\n  candidates.sort(key=lambda t: (t.get('parent_id') is not None, t.get('child_order', 0)))\n  if not candidates:\n    if DEBUG:\n      print(f\"No template found for placeholder '{template_name}'\")\n    continue\n\n  root = candidates[0]\n\n  queue = deque([root])\n  subtree = []\n  while queue:\n    current = queue.popleft()\n    subtree.append(current)\n    for child in children.get(current.get('id'), []):\n      queue.append(child)\n\n  if not subtree:\n    continue\n\n  placeholder = {\n    'id': task.get('id'),\n    'projectId': task.get('project_id'),\n    'sectionId': task.get('section_id'),\n    'parentId': task.get('parent_id'),\n    'order': task.get('order'),\n    'childOrder': task.get('child_order'),\n  }\n\n  placeholder_key = str(task.get('id'))\n\n  items.append({\n    'json': {\n      'action': 'deletePlaceholder',\n      'placeholder': placeholder,\n      'templateName': template_name,\n      'placeholderKey': placeholder_key,\n    }\n  })\n\n  for template_task in subtree:\n    template_id = template_task.get('id')\n    payload = {\n      'templateId': template_id,\n      'parentTemplateId': template_task.get('parent_id'),\n      'content': template_task.get('content', ''),\n      'description': template_task.get('description'),\n      'priority': template_task.get('priority'),\n      'labels': template_task.get('labels') or [],\n      'order': template_task.get('order'),\n      'childOrder': template_task.get('child_order'),\n      'due': template_task.get('due') or {},\n      'isRoot': template_id == root.get('id'),\n    }\n\n    items.append({\n      'json': {\n        'action': 'createFromTemplate',\n        'placeholder': placeholder,\n        'templateName': template_name,\n        'placeholderKey': placeholder_key,\n        'task': payload,\n      }\n    })\n\nreturn items"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         -928,
-        544
+        32
       ],
-      "id": "49118fe3-0814-4722-bd1b-275e2e8397e0",
+      "id": "1b05302c-19ec-46f0-9687-6957d471837c",
       "name": "Build Template Actions"
     },
     {
@@ -302,10 +302,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 1,
       "position": [
-        -672,
-        736
+        -496,
+        -16
       ],
-      "id": "157a65c2-f152-4334-b940-b182d914773b",
+      "id": "efbef23e-be02-4c44-b451-8ef1cc4955c9",
       "name": "Process Template Actions"
     },
     {
@@ -316,10 +316,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        -432,
-        736
+        -336,
+        272
       ],
-      "id": "fcbadd46-2bd6-4179-820a-03d80daa93a9",
+      "id": "288d3822-e928-4b67-9bba-911155fa743d",
       "name": "Route Template Actions"
     },
     {
@@ -331,9 +331,9 @@
       "typeVersion": 2.1,
       "position": [
         -160,
-        608
+        80
       ],
-      "id": "d9a8aad9-1f61-4c99-b6d1-40bea3c89ff6",
+      "id": "883c330f-bc30-4543-ac2a-9c6248ab3f6c",
       "name": "Delete Placeholder Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -353,9 +353,9 @@
       "typeVersion": 2,
       "position": [
         80,
-        608
+        80
       ],
-      "id": "854ab597-2288-4d00-b60b-99a423762c33",
+      "id": "2eca766a-54e7-4c99-86f5-0cdb5c8c818f",
       "name": "Reset Template Context"
     },
     {
@@ -367,9 +367,9 @@
       "typeVersion": 2,
       "position": [
         -160,
-        880
+        368
       ],
-      "id": "68be033d-6d0d-40e6-8c05-1f24dcd46366",
+      "id": "83e83b27-4cbc-43be-a20f-74315a6b2fab",
       "name": "Prepare Create Payload"
     },
     {
@@ -383,9 +383,9 @@
       "typeVersion": 2.1,
       "position": [
         80,
-        880
+        368
       ],
-      "id": "eb0e8181-aaf1-4204-8cc1-1294007b040d",
+      "id": "3e962f13-5b30-42a3-bb73-a2e91ff6e514",
       "name": "Create Template Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -405,9 +405,9 @@
       "typeVersion": 2,
       "position": [
         320,
-        880
+        368
       ],
-      "id": "1838d90b-48b1-4ee5-8c8b-cfb98f78e674",
+      "id": "dfccc0d7-a827-4944-8f98-787261999596",
       "name": "Update Parent Map"
     }
   ],
@@ -432,8 +432,15 @@
       "recurrenceRules": []
     }
   },
-  "tags": [],
+  "tags": [
+    {
+      "createdAt": "2025-03-01T06:50:52.672Z",
+      "updatedAt": "2025-03-01T06:50:52.672Z",
+      "id": "mjfF2OqntfnQP15x",
+      "name": "todoist"
+    }
+  ],
   "triggerCount": 1,
-  "updatedAt": "2025-09-26T19:41:55.000Z",
-  "versionId": "6c5b3324-df1d-4ecb-93b0-3df6ca9723f9"
+  "updatedAt": "2025-09-26T20:15:12.000Z",
+  "versionId": "0fdae189-4e3f-4154-8330-14750ee48c18"
 }
