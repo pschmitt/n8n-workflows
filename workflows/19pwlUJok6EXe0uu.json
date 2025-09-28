@@ -141,10 +141,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        432,
-        432
+        -1504,
+        -176
       ],
-      "id": "ac9e57ef-4e04-41ad-a7e3-e562b6242153",
+      "id": "6fcb6482-ca88-4025-930d-a4cbdc7c1cad",
       "name": "When clicking ‘Test workflow’"
     },
     {
@@ -160,10 +160,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        432,
-        624
+        -1504,
+        80
       ],
-      "id": "a75c59ad-24fe-4c0e-879e-ee86a8ef7b29",
+      "id": "2608cf27-76d8-4b88-bf4b-5694e5993b30",
       "name": "Schedule Trigger"
     },
     {
@@ -175,10 +175,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        300,
-        332
+        -1728,
+        -288
       ],
-      "id": "4de0863b-920e-4ea7-9f14-6fbef5443ecc",
+      "id": "27ade4fd-53b1-4516-b9b9-840a03348257",
       "name": "Sticky Note"
     },
     {
@@ -189,10 +189,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        656,
-        528
+        -1184,
+        -64
       ],
-      "id": "2c18f901-d542-4851-97e5-75b4b908348d",
+      "id": "2ea9fd54-c860-405f-a924-1a8dabadc27f",
       "name": "Fetch Projects",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -206,15 +206,15 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "\nprojects = [item.json for item in _input.all()]\n\ntemplate = None\nfor project in projects:\n    name = project.get(\"name\", \"\").strip()\n    if name.lower() == \"📄 templates\":\n        template = project\n        break\n\nif not template:\n    return []\n\nreturn [\n    {\n        \"json\": {\n            \"templatesProjectId\": template.get(\"id\"),\n            \"templatesProject\": template,\n        }\n    }\n]"
+        "pythonCode": "\n\ndef normalize_name(value):\n    if not value:\n        return \"\"\n    lowered = value.lower()\n    return \"\".join(ch for ch in lowered if ch.isalnum())\n\nprojects = [item.json for item in _input.all()]\n\ntemplates_project = None\nfor project in projects:\n    name = project.get(\"name\", \"\")\n    normalized = normalize_name(name)\n    if normalized == \"templates\":\n        templates_project = project\n        break\n\nif not templates_project:\n    return []\n\nreturn [\n    {\n        \"json\": {\n            \"templatesProjectId\": templates_project.get(\"id\"),\n            \"templatesProject\": templates_project,\n        }\n    }\n]\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        880,
-        528
+        -944,
+        -64
       ],
-      "id": "da5424df-6921-4d2e-ae0a-04711c8e3a6a",
+      "id": "3b34f2e4-e7f9-4671-9271-e020eb1dff44",
       "name": "Select Templates Project"
     },
     {
@@ -228,10 +228,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1104,
-        528
+        -656,
+        -224
       ],
-      "id": "b50ea204-206e-4b22-a167-b6095dcb7804",
+      "id": "5ad975c7-4bb3-40e9-9be3-832352e5ec97",
       "name": "Fetch Template Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -251,10 +251,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1328,
-        528
+        -816,
+        176
       ],
-      "id": "98bdabb2-c25b-4c61-931a-e65e3eb5b4d5",
+      "id": "c3eb411d-cf91-47e4-b4f3-fd566295612f",
       "name": "Fetch Active Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -273,10 +273,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1552,
-        528
+        -432,
+        16
       ],
-      "id": "ec1b2dc7-aad4-45ab-a66b-bfa2fa6efb89",
+      "id": "631621bc-e7c5-43fb-9cb9-cbb2955d404e",
       "name": "Build Template Actions"
     },
     {
@@ -297,24 +297,24 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        1776,
-        528
+        -128,
+        208
       ],
-      "id": "2dc07808-c176-4ecb-9196-b19110ae82f8",
+      "id": "0bb550e3-3da1-404a-aa29-00d54c33adee",
       "name": "Route Template Actions"
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def get_item_json(item):\n    if hasattr(item, 'json'):\n        return item.json\n    if isinstance(item, dict):\n        return item.get('json', {})\n    return {}\n\n\ndef to_output_item(item):\n    item_json = get_item_json(item)\n    result = {'json': item_json}\n    binary = getattr(item, 'binary', None)\n    if binary is None and isinstance(item, dict):\n        binary = item.get('binary')\n    if binary is not None:\n        result['binary'] = binary\n    paired = getattr(item, 'pairedItem', None)\n    if paired is None and isinstance(item, dict):\n        paired = item.get('pairedItem')\n    if paired is not None:\n        result['pairedItem'] = paired\n    return result\n\n\ndata = _self.getWorkflowStaticData('node')\nitems = _input.all()\nif not items:\n    data.pop('contexts', None)\n    data.pop('currentPlaceholderKey', None)\n    return []\n\nitem_json = get_item_json(items[0])\nplaceholder = item_json.get('placeholder')\nif not placeholder:\n    raise ValueError('Missing placeholder data in delete action')\n\nplaceholder_key = item_json.get('placeholderKey') or str(placeholder.get('id'))\ncontexts = data.get('contexts')\nif contexts is None:\n    contexts = {}\n    data['contexts'] = contexts\n\ncontexts[placeholder_key] = {\n    'placeholder': placeholder,\n    'parentMap': {},\n    'remainingCreates': item_json.get('totalCreateActions', 0),\n}\n\ndata['currentPlaceholderKey'] = placeholder_key\n\nreturn [to_output_item(item) for item in items]"
+        "pythonCode": "def get_item_json(item):\n    if hasattr(item, 'json'):\n        return item.json\n    if isinstance(item, dict):\n        return item.get('json', {})\n    return {}\n\n\ndef to_output_item(item):\n    item_json = get_item_json(item)\n    result = {'json': item_json}\n    binary = getattr(item, 'binary', None)\n    if binary is None and isinstance(item, dict):\n        binary = item.get('binary')\n    if binary is not None:\n        result['binary'] = binary\n    paired = getattr(item, 'pairedItem', None)\n    if paired is None and isinstance(item, dict):\n        paired = item.get('pairedItem')\n    if paired is not None:\n        result['pairedItem'] = paired\n    return result\n\n\ndef get_static_data():\n    getter = globals().get('getWorkflowStaticData')\n    if callable(getter):\n        return getter('node')\n    for context_name in ('_self', 'self', 'this'):\n        context = globals().get(context_name)\n        if context is None:\n            continue\n        func = getattr(context, 'getWorkflowStaticData', None)\n        if callable(func):\n            return func('node')\n    raise RuntimeError('Workflow static data helper is unavailable')\n\n\ndata = get_static_data()\nitems = list(_input.all())\nif not items:\n    data['contexts'] = {}\n    data['currentPlaceholderKey'] = None\n    return []\n\nitem_json = get_item_json(items[0])\nplaceholder = item_json.get('placeholder')\nif not placeholder:\n    raise ValueError('Missing placeholder data in delete action')\n\nplaceholder_key = item_json.get('placeholderKey') or str(placeholder.get('id'))\ncontexts = data.get('contexts')\nif not isinstance(contexts, dict):\n    contexts = {}\ndata['contexts'] = contexts\n\ncontexts[placeholder_key] = {\n    'placeholder': placeholder,\n    'parentMap': {},\n    'remainingCreates': item_json.get('totalCreateActions', 0),\n}\n\ndata['currentPlaceholderKey'] = placeholder_key\n\nreturn [to_output_item(item) for item in items]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2000,
-        432
+        144,
+        -128
       ],
-      "id": "a7c2ff6c-993a-4838-8b05-e86bba369af5",
+      "id": "2d448d35-5081-43a5-8d6c-0d2dcb2c14a4",
       "name": "Prepare Template Context"
     },
     {
@@ -325,10 +325,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        2224,
-        432
+        384,
+        -128
       ],
-      "id": "4eabd3db-8099-4ba8-b7cd-9bcfc88fb8cb",
+      "id": "a716b1f3-d9d4-496e-9321-7d973a577b80",
       "name": "Delete Placeholder Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -342,15 +342,15 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def get_item_json(item):\n    if hasattr(item, 'json'):\n        return item.json\n    if isinstance(item, dict):\n        return item.get('json', {})\n    return {}\n\n\ndef to_output_item(json_payload):\n    return {'json': json_payload}\n\n\ndata = _self.getWorkflowStaticData('node')\nitems = _input.all()\nif not items:\n    raise ValueError('Missing input item for task creation')\n\nitem_json = get_item_json(items[0])\nplaceholder_key = item_json.get('placeholderKey')\nif not placeholder_key:\n    raise ValueError('Missing placeholder key for task creation')\n\ncontexts = data.get('contexts') or {}\ncontext = contexts.get(placeholder_key)\nif not context:\n    raise ValueError(f\"No placeholder context for key {placeholder_key}\")\n\nplaceholder = context.get('placeholder')\nif not placeholder:\n    raise ValueError('Placeholder context is missing details')\n\nparent_map = context.get('parentMap') or {}\ntask = item_json.get('task') or {}\nif not task:\n    raise ValueError('Missing template task payload')\n\noptions = {}\nsection_id = placeholder.get('sectionId')\n\ndescription = task.get('description')\nif description:\n    options['description'] = description\n\npriority = task.get('priority')\nif isinstance(priority, int) and priority > 0:\n    options['priority'] = priority\n\nif task.get('isRoot'):\n    if section_id is not None:\n        options['section'] = section_id\n    parent_id = placeholder.get('parentId')\n    if parent_id is not None:\n        options['parentId'] = parent_id\nelse:\n    parent_template_id = task.get('parentTemplateId')\n    if parent_template_id is not None:\n        parent_id = parent_map.get(parent_template_id)\n        if parent_id is None:\n            raise ValueError(\n                f\"Parent task for template {parent_template_id} has not been created yet\"\n            )\n        options['parentId'] = parent_id\n\ndue = task.get('due') or {}\nif due.get('string'):\n    options['dueString'] = due.get('string')\nif due.get('datetime'):\n    options['dueDateTime'] = due.get('datetime')\nelif due.get('date'):\n    options['dueDate'] = due.get('date')\nif due.get('lang'):\n    options['dueLang'] = due.get('lang')\n\nlabels = task.get('labels') or []\nif not isinstance(labels, list):\n    labels = [labels]\n\ncreate_payload = {\n    'content': task.get('content', ''),\n    'project': placeholder.get('projectId'),\n    'labels': labels,\n    'options': options,\n    'templateId': task.get('templateId'),\n    'placeholderKey': placeholder_key,\n    'isLastAction': item_json.get('isLastAction', False),\n}\n\ncontext['parentMap'] = parent_map\ncontexts[placeholder_key] = context\ndata['contexts'] = contexts\n\noutput_json = {\n    'placeholder': placeholder,\n    'placeholderKey': placeholder_key,\n    'task': task,\n    'create': create_payload,\n    'isLastAction': item_json.get('isLastAction', False),\n}\n\nreturn [to_output_item(output_json)]"
+        "pythonCode": "def get_item_json(item):\n    if hasattr(item, 'json'):\n        return item.json\n    if isinstance(item, dict):\n        return item.get('json', {})\n    return {}\n\n\ndef to_output_item(json_payload):\n    return {'json': json_payload}\n\n\ndef get_static_data():\n    getter = globals().get('getWorkflowStaticData')\n    if callable(getter):\n        return getter('node')\n    for context_name in ('_self', 'self', 'this'):\n        context = globals().get(context_name)\n        if context is None:\n            continue\n        func = getattr(context, 'getWorkflowStaticData', None)\n        if callable(func):\n            return func('node')\n    raise RuntimeError('Workflow static data helper is unavailable')\n\n\ndata = get_static_data()\nitems = _input.all()\nif not items:\n    raise ValueError('Missing input item for task creation')\n\nitem_json = get_item_json(items[0])\nplaceholder_key = item_json.get('placeholderKey')\nif not placeholder_key:\n    raise ValueError('Missing placeholder key for task creation')\n\ncontexts = data.get('contexts') or {}\ncontext = contexts.get(placeholder_key)\nif not context:\n    raise ValueError(f\"No placeholder context for key {placeholder_key}\")\n\nplaceholder = context.get('placeholder')\nif not placeholder:\n    raise ValueError('Placeholder context is missing details')\n\nparent_map = context.get('parentMap') or {}\ntask = item_json.get('task') or {}\nif not task:\n    raise ValueError('Missing template task payload')\n\noptions = {}\nsection_id = placeholder.get('sectionId')\n\ndescription = task.get('description')\nif description:\n    options['description'] = description\n\npriority = task.get('priority')\nif isinstance(priority, int) and priority > 0:\n    options['priority'] = priority\n\nif task.get('isRoot'):\n    if section_id is not None:\n        options['section'] = section_id\n    parent_id = placeholder.get('parentId')\n    if parent_id is not None:\n        options['parentId'] = parent_id\nelse:\n    parent_template_id = task.get('parentTemplateId')\n    if parent_template_id is not None:\n        parent_id = parent_map.get(parent_template_id)\n        if parent_id is None:\n            raise ValueError(\n                f\"Parent task for template {parent_template_id} has not been created yet\"\n            )\n        options['parentId'] = parent_id\n\ndue = task.get('due') or {}\nif due.get('string'):\n    options['dueString'] = due.get('string')\nif due.get('datetime'):\n    options['dueDateTime'] = due.get('datetime')\nelif due.get('date'):\n    options['dueDate'] = due.get('date')\nif due.get('lang'):\n    options['dueLang'] = due.get('lang')\n\nlabels = task.get('labels') or []\nif not isinstance(labels, list):\n    labels = [labels]\n\ncreate_payload = {\n    'content': task.get('content', ''),\n    'project': placeholder.get('projectId'),\n    'labels': labels,\n    'options': options,\n    'templateId': task.get('templateId'),\n    'placeholderKey': placeholder_key,\n    'isLastAction': item_json.get('isLastAction', False),\n}\n\ncontext['parentMap'] = parent_map\ncontexts[placeholder_key] = context\ndata['contexts'] = contexts\n\noutput_json = {\n    'placeholder': placeholder,\n    'placeholderKey': placeholder_key,\n    'task': task,\n    'create': create_payload,\n    'isLastAction': item_json.get('isLastAction', False),\n}\n\nreturn [to_output_item(output_json)]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2000,
-        624
+        128,
+        368
       ],
-      "id": "a8ed16ad-e82a-492b-b0b3-7c4671eb14f6",
+      "id": "1fe258ca-9469-49f1-8eeb-8e664e97217e",
       "name": "Prepare Create Payload"
     },
     {
@@ -363,10 +363,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        2224,
-        624
+        384,
+        368
       ],
-      "id": "cc0793f4-4b4b-418b-9d8a-1379ac2b4956",
+      "id": "ca7b85f8-1bf8-459a-b81d-46c1d5dd21ee",
       "name": "Create Template Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -380,15 +380,15 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def get_item_json(item):\n    if hasattr(item, 'json'):\n        return item.json\n    if isinstance(item, dict):\n        return item.get('json', {})\n    return {}\n\n\ndef to_output_item(item):\n    item_json = get_item_json(item)\n    result = {'json': item_json}\n    binary = getattr(item, 'binary', None)\n    if binary is None and isinstance(item, dict):\n        binary = item.get('binary')\n    if binary is not None:\n        result['binary'] = binary\n    paired = getattr(item, 'pairedItem', None)\n    if paired is None and isinstance(item, dict):\n        paired = item.get('pairedItem')\n    if paired is not None:\n        result['pairedItem'] = paired\n    return result\n\n\ndata = _self.getWorkflowStaticData('node')\nitems = _input.all()\nif not items:\n    return []\n\nitem_json = get_item_json(items[0])\nresponse = item_json.get('data') or item_json\nnew_task_id = None\nif isinstance(response, dict):\n    new_task_id = response.get('id') or response.get('task', {}).get('id')\n\nif new_task_id is None:\n    raise ValueError('Failed to determine created task id')\n\ncreate_payload = item_json.get('create') or {}\nplaceholder_key = create_payload.get('placeholderKey') or item_json.get('placeholderKey')\nif not placeholder_key:\n    raise ValueError('Missing placeholder key when updating parent map')\n\ncontexts = data.get('contexts') or {}\ncontext = contexts.get(placeholder_key)\nif context is None:\n    context = {\n        'placeholder': item_json.get('placeholder'),\n        'parentMap': {},\n        'remainingCreates': 0,\n    }\n\nparent_map = context.get('parentMap') or {}\ntemplate_id = create_payload.get('templateId')\nif template_id is None:\n    template_id = item_json.get('task', {}).get('templateId')\nif template_id is None:\n    raise ValueError('Missing template id for created task')\n\nparent_map[template_id] = new_task_id\ncontext['parentMap'] = parent_map\n\nremaining = context.get('remainingCreates')\nif isinstance(remaining, int) and remaining > 0:\n    context['remainingCreates'] = remaining - 1\n\ncontexts[placeholder_key] = context\n\nif item_json.get('isLastAction') or context.get('remainingCreates') in (None, 0):\n    contexts.pop(placeholder_key, None)\n    if data.get('currentPlaceholderKey') == placeholder_key:\n        data.pop('currentPlaceholderKey', None)\n\nif contexts:\n    data['contexts'] = contexts\nelse:\n    data.pop('contexts', None)\n\nreturn [to_output_item(item) for item in items]"
+        "pythonCode": "def get_item_json(item):\n    if hasattr(item, 'json'):\n        return item.json\n    if isinstance(item, dict):\n        return item.get('json', {})\n    return {}\n\n\ndef to_output_item(item):\n    item_json = get_item_json(item)\n    result = {'json': item_json}\n    binary = getattr(item, 'binary', None)\n    if binary is None and isinstance(item, dict):\n        binary = item.get('binary')\n    if binary is not None:\n        result['binary'] = binary\n    paired = getattr(item, 'pairedItem', None)\n    if paired is None and isinstance(item, dict):\n        paired = item.get('pairedItem')\n    if paired is not None:\n        result['pairedItem'] = paired\n    return result\n\n\ndef get_static_data():\n    getter = globals().get('getWorkflowStaticData')\n    if callable(getter):\n        return getter('node')\n    for context_name in ('_self', 'self', 'this'):\n        context = globals().get(context_name)\n        if context is None:\n            continue\n        func = getattr(context, 'getWorkflowStaticData', None)\n        if callable(func):\n            return func('node')\n    raise RuntimeError('Workflow static data helper is unavailable')\n\n\ndata = get_static_data()\nitems = list(_input.all())\nif not items:\n    return []\n\nitem_json = get_item_json(items[0])\nresponse = item_json.get('data') or item_json\nnew_task_id = None\nif isinstance(response, dict):\n    new_task_id = response.get('id') or response.get('task', {}).get('id')\n\nif new_task_id is None:\n    raise ValueError('Failed to determine created task id')\n\ncreate_payload = item_json.get('create') or {}\nplaceholder_key = create_payload.get('placeholderKey') or item_json.get('placeholderKey')\nif not placeholder_key:\n    raise ValueError('Missing placeholder key when updating parent map')\n\ncontexts = data.get('contexts')\nif not isinstance(contexts, dict):\n    contexts = {}\ncontext = contexts.get(placeholder_key)\nif context is None:\n    context = {\n        'placeholder': item_json.get('placeholder'),\n        'parentMap': {},\n        'remainingCreates': 0,\n    }\n\nparent_map = context.get('parentMap')\nif not isinstance(parent_map, dict):\n    parent_map = {}\ntemplate_id = create_payload.get('templateId') or item_json.get('task', {}).get('templateId')\nif template_id is None:\n    raise ValueError('Missing template id for created task')\n\nparent_map[template_id] = new_task_id\ncontext['parentMap'] = parent_map\n\nremaining = context.get('remainingCreates')\nif isinstance(remaining, int) and remaining > 0:\n    context['remainingCreates'] = remaining - 1\n\ncontexts[placeholder_key] = context\n\nif item_json.get('isLastAction') or context.get('remainingCreates') in (None, 0):\n    contexts.pop(placeholder_key, None)\n    if data.get('currentPlaceholderKey') == placeholder_key:\n        data['currentPlaceholderKey'] = None\n\nif contexts:\n    data['contexts'] = contexts\nelse:\n    data['contexts'] = {}\n    data['currentPlaceholderKey'] = None\n\nreturn [to_output_item(item) for item in items]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2448,
-        624
+        624,
+        368
       ],
-      "id": "ad3764e4-86d1-408b-800c-f64840476546",
+      "id": "aeae5a38-b3b7-478a-a6d9-27dd9cb7a05a",
       "name": "Update Parent Map"
     }
   ],
@@ -422,6 +422,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-09-28T09:24:53.000Z",
-  "versionId": "156f59f0-e2e3-4d23-a582-b999691ec4d3"
+  "updatedAt": "2025-09-28T09:53:18.000Z",
+  "versionId": "56c0e329-baa5-4eba-bce8-68f95212075f"
 }
