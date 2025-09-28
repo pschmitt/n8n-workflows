@@ -185,6 +185,7 @@
     },
     {
       "parameters": {
+        "authentication": "oAuth2",
         "resource": "project",
         "operation": "getAll"
       },
@@ -197,7 +198,13 @@
       "name": "Fetch Projects",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "92269b1c-1481-4bba-8062-5c70dffb3c1b"
+      "id": "92269b1c-1481-4bba-8062-5c70dffb3c1b",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "pRLGe9rI6m8eY5MJ",
+          "name": "Todoist account (OAuth)"
+        }
+      }
     },
     {
       "parameters": {
@@ -215,6 +222,7 @@
     },
     {
       "parameters": {
+        "authentication": "oAuth2",
         "operation": "getAll",
         "returnAll": true,
         "filters": {
@@ -230,10 +238,17 @@
       "name": "Fetch Template Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "e5e8f02f-721c-45fc-8ee4-8d2c2ba4672e"
+      "id": "e5e8f02f-721c-45fc-8ee4-8d2c2ba4672e",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "pRLGe9rI6m8eY5MJ",
+          "name": "Todoist account (OAuth)"
+        }
+      }
     },
     {
       "parameters": {
+        "authentication": "oAuth2",
         "operation": "getAll",
         "returnAll": true,
         "filters": {}
@@ -247,7 +262,13 @@
       "name": "Fetch Active Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "e9329433-72db-4a93-b025-3075fe28cb87"
+      "id": "e9329433-72db-4a93-b025-3075fe28cb87",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "pRLGe9rI6m8eY5MJ",
+          "name": "Todoist account (OAuth)"
+        }
+      }
     },
     {
       "parameters": {
@@ -303,6 +324,7 @@
     },
     {
       "parameters": {
+        "authentication": "oAuth2",
         "operation": "delete",
         "taskId": "={{$json.placeholder.id}}"
       },
@@ -315,7 +337,13 @@
       "name": "Delete Placeholder Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "116ddc0d-2d90-48a0-af9a-a8b46b5a9505"
+      "id": "116ddc0d-2d90-48a0-af9a-a8b46b5a9505",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "pRLGe9rI6m8eY5MJ",
+          "name": "Todoist account (OAuth)"
+        }
+      }
     },
     {
       "parameters": {
@@ -333,6 +361,7 @@
     },
     {
       "parameters": {
+        "authentication": "oAuth2",
         "project": "={{$json.create.project}}",
         "labels": "={{$json.create.labels}}",
         "content": "={{$json.create.content}}",
@@ -347,12 +376,18 @@
       "name": "Create Template Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "2ddfa31c-de40-4934-ac2a-2c1fae4d10ef"
+      "id": "2ddfa31c-de40-4934-ac2a-2c1fae4d10ef",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "pRLGe9rI6m8eY5MJ",
+          "name": "Todoist account (OAuth)"
+        }
+      }
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def _id(o):\n  if isinstance(o,dict):\n    if o.get('id'):return o['id']\n    for k in('task','data'):\n      if k in o:\n        r=_id(o[k]);\n        if r:return r\n    for v in o.values():\n      r=_id(v)\n      if r:return r\n  elif isinstance(o,list):\n    for v in o:\n      r=_id(v)\n      if r:return r\n  return None\n\ndata=_getWorkflowStaticData('node')\nit=_input.all()[0].json\nk=str(it.get('placeholderKey') or data.get('currentPlaceholderKey'))\nctxs=data.get('contexts') or {}\nctx=ctxs.get(k) or {'placeholder':{},'parentMap':{},'remainingCreates':0,'pendingTemplateIds':[]}\nnew_id=_id(it)\nif not new_id:raise ValueError('Failed to determine created task id')\npend=ctx.get('pendingTemplateIds',[])\ntid=pend.pop(0) if pend else it.get('task',{}).get('templateId')\nctx['parentMap'][tid]=new_id\nctx['pendingTemplateIds']=pend\nif isinstance(ctx.get('remainingCreates'),int) and ctx['remainingCreates']>0:ctx['remainingCreates']-=1\nif it.get('isLastAction') or ctx.get('remainingCreates') in (0,None):\n  ctxs.pop(k,None)\n  if data.get('currentPlaceholderKey')==k:data['currentPlaceholderKey']=None\nelse:ctxs[k]=ctx\ndata['contexts']=ctxs\nreturn _input.all()"
+        "pythonCode": "# Update Parent Map — JsProxy-safe, handles dict/list/sequence payloads and batches\n\ndef is_string_like(x):\n  return isinstance(x, (str, bytes, bytearray))\n\ndef is_mapping_like(x):\n  # Works for dict and JsProxy objects that behave like a mapping\n  if isinstance(x, dict):\n    return True\n  return hasattr(x, \"keys\") or hasattr(x, \"items\")\n\ndef is_sequence_like(x):\n  # Works for list/tuple and JsProxy arrays\n  if isinstance(x, (list, tuple)):\n    return True\n  if is_string_like(x):\n    return False\n  return hasattr(x, \"__len__\") and hasattr(x, \"__getitem__\")\n\ndef mget(obj, key, default=None):\n  \"\"\"Mapping get for dict/JsProxy mapping.\"\"\"\n  if isinstance(obj, dict):\n    return obj.get(key, default)\n  # JsProxy mapping: try key lookup\n  try:\n    val = obj[key]\n    return val\n  except Exception:\n    pass\n  # Try attribute (last resort)\n  try:\n    return getattr(obj, key)\n  except Exception:\n    return default\n\ndef iter_values(obj):\n  \"\"\"Yield values of a mapping-like object.\"\"\"\n  if isinstance(obj, dict):\n    for v in obj.values():\n      yield v\n    return\n  # JsProxy: try .values(), then items()\n  try:\n    vals = obj.values()  # may exist on JsProxy\n    for v in vals:\n      yield v\n    return\n  except Exception:\n    pass\n  try:\n    for _, v in obj.items():\n      yield v\n    return\n  except Exception:\n    pass\n  # Fallback: try keys()\n  try:\n    for k in obj.keys():\n      yield mget(obj, k)\n  except Exception:\n    return\n\ndef iter_task_ids(payload):\n  \"\"\"\n  Yield Todoist task IDs from any payload:\n  - dict/JsProxy mapping with 'id'\n  - list/tuple/JsProxy array of such dicts\n  - nested under 'data' / 'task' / 'json'\n  \"\"\"\n  # Unwrap n8n items\n  if hasattr(payload, \"json\"):\n    payload = payload.json\n\n  # Mapping-like\n  if is_mapping_like(payload):\n    tid = mget(payload, \"id\")\n    if tid:\n      yield tid\n      return\n    # common wrappers\n    for k in (\"data\", \"task\", \"json\"):\n      inner = mget(payload, k)\n      if inner is not None:\n        for x in iter_task_ids(inner):\n          yield x\n        # do not return; allow other wrappers too\n    # fallback: walk values\n    for v in iter_values(payload):\n      for x in iter_task_ids(v):\n        yield x\n    return\n\n  # Sequence-like (incl. JsProxy arrays)\n  if is_sequence_like(payload):\n    try:\n      n = len(payload)\n    except Exception:\n      n = 0\n    for i in range(n):\n      try:\n        v = payload[i]\n      except Exception:\n        continue\n      for x in iter_task_ids(v):\n        yield x\n    return\n\n  # nothing found\n  return\n\ndef to_str(v):\n  return None if v is None else str(v)\n\ndef get_static():\n  return _getWorkflowStaticData(\"node\")  # type: ignore[name-defined]\n\ndata = get_static()\ncontexts = data.get(\"contexts\") or {}\ncurrent_key = to_str(data.get(\"currentPlaceholderKey\"))\n\nout_items = []\n\n# Process all create results (there can be multiple)\nfor item in _input.all():\n  # Extract ALL ids from the payload (handles list/dict/JsProxy)\n  created_ids = list(iter_task_ids(item))\n  if not created_ids:\n    # Try the raw json as a fallback (in case the input wrapper differs)\n    created_ids = list(iter_task_ids(getattr(item, \"json\", None)))\n  if not created_ids:\n    raise ValueError(\"Failed to determine created task id\")\n\n  # Decide which placeholder context to use\n  placeholder_key = current_key\n  if placeholder_key is None:\n    j = getattr(item, \"json\", None)\n    if is_mapping_like(j):\n      placeholder_key = to_str(mget(j, \"placeholderKey\"))\n  if placeholder_key is None:\n    raise ValueError(\"Missing placeholder key when updating parent map\")\n\n  ctx = contexts.get(placeholder_key)\n  if ctx is None:\n    # Defensive bootstrap (usually exists already)\n    ctx = {\n      \"placeholder\": {},\n      \"parentMap\": {},\n      \"remainingCreates\": 0,\n      \"pendingTemplateIds\": [],\n    }\n\n  parent_map = ctx.get(\"parentMap\") or {}\n  pending = list(ctx.get(\"pendingTemplateIds\") or [])\n\n  # Map each new id to the next pending templateId (FIFO)\n  for new_id in created_ids:\n    if pending:\n      templ_id = pending.pop(0)\n    else:\n      # Rare fallback: try echo\n      templ_id = None\n      j = getattr(item, \"json\", None)\n      if is_mapping_like(j):\n        task_payload = mget(j, \"task\", {})\n        if is_mapping_like(task_payload):\n          templ_id = mget(task_payload, \"templateId\")\n    if templ_id is None:\n      raise ValueError(\"Missing template id for created task (pending queue empty)\")\n    parent_map[templ_id] = new_id\n\n  # Save updates\n  ctx[\"parentMap\"] = parent_map\n  ctx[\"pendingTemplateIds\"] = pending\n\n  # Decrement remainingCreates by the number we just mapped (usually 1)\n  rem = ctx.get(\"remainingCreates\")\n  if isinstance(rem, int) and rem > 0:\n    ctx[\"remainingCreates\"] = max(0, rem - len(created_ids))\n\n  # Decide if we've finished this placeholder\n  is_last = ctx.get(\"remainingCreates\") in (None, 0)\n  j = getattr(item, \"json\", None)\n  if is_mapping_like(j) and mget(j, \"isLastAction\"):\n    is_last = True\n\n  if is_last:\n    contexts.pop(placeholder_key, None)\n    if to_str(data.get(\"currentPlaceholderKey\")) == placeholder_key:\n      data[\"currentPlaceholderKey\"] = None\n    # Let the next placeholder set its key\n    current_key = None\n  else:\n    contexts[placeholder_key] = ctx\n\n  # Pass-through for downstream logging if needed\n  out_items.append({\"json\": getattr(item, \"json\", {}) or {}})\n\n# Persist back\ndata[\"contexts\"] = contexts if contexts else {}\nif not contexts:\n  data[\"currentPlaceholderKey\"] = None\n\nreturn out_items\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -394,6 +429,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-09-28T12:22:22.000Z",
-  "versionId": "1b1f4f53-d8df-4fda-9321-df78f9e9acca"
+  "updatedAt": "2025-09-28T12:31:54.000Z",
+  "versionId": "e83bf0a2-6e4a-44ea-857a-98c86747af19"
 }
