@@ -143,11 +143,11 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -1808,
-        480
+        608,
+        16
       ],
-      "name": "When clicking ‘Test workflow’",
-      "id": "df0d5165-ab32-48f5-af77-831352b4c644"
+      "id": "293b7a62-4744-4b19-bd1b-e170bbcd705d",
+      "name": "When clicking ‘Test workflow’"
     },
     {
       "parameters": {
@@ -162,67 +162,65 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -1808,
-        672
+        608,
+        208
       ],
-      "name": "Schedule Trigger",
-      "id": "29ddf615-47bd-4eea-8cb0-1b064629d3cc"
+      "id": "800f32c2-f379-4765-8589-fa71cd7bbe7f",
+      "name": "Schedule Trigger"
     },
     {
       "parameters": {
-        "content": "## Todoist Template Expander\n\nReplaces shorthand tasks (`!!X`) by cloning from Templates project.",
+        "content": "## Todoist Template Expander\n\nThis workflow replaces shorthand tasks that start with `!!` by cloning the matching template (including subtasks) from the \"Templates\" project.",
         "height": 260,
         "width": 360
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -1940,
-        380
+        476,
+        -84
       ],
-      "name": "Sticky Note",
-      "id": "82d50695-65fb-4933-b8ca-d7985eaf5605"
+      "id": "d82ab190-24fb-4d52-a095-31f62d005762",
+      "name": "Sticky Note"
     },
     {
       "parameters": {
-        "authentication": "oAuth2",
         "resource": "project",
         "operation": "getAll"
       },
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        -1584,
-        576
+        832,
+        112
       ],
+      "id": "70ddc967-174b-405f-bdf6-e40953addb4d",
       "name": "Fetch Projects",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "92269b1c-1481-4bba-8062-5c70dffb3c1b",
       "credentials": {
-        "todoistOAuth2Api": {
-          "id": "pRLGe9rI6m8eY5MJ",
-          "name": "Todoist account (OAuth)"
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
         }
       }
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def normalize_name(v):\n  return ''.join(ch for ch in (v or '').lower() if ch.isalnum())\nprojects=[i.json for i in _input.all()]\nfor p in projects:\n  if normalize_name(p.get('name',''))=='templates':\n    return [{'json':{'templatesProjectId':p.get('id'),'templatesProject':p}}]\nreturn []"
+        "pythonCode": "def normalize_name(v):\n  return ''.join(ch for ch in (v or '').lower() if ch.isalnum())\n\nprojects = [i.json for i in _input.all()]\nfor p in projects:\n  if normalize_name(p.get('name', '')) == 'templates':\n    return [{ 'json': { 'templatesProjectId': p.get('id'), 'templatesProject': p } }]\nreturn []\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1360,
-        576
+        1056,
+        112
       ],
-      "name": "Select Templates Project",
-      "id": "749902c0-4a8d-43c0-bad1-569cbc87ee1f"
+      "id": "3745797a-a873-4c81-829b-297b263649a1",
+      "name": "Select Templates Project"
     },
     {
       "parameters": {
-        "authentication": "oAuth2",
         "operation": "getAll",
         "returnAll": true,
         "filters": {
@@ -232,23 +230,22 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        -1136,
-        576
+        1280,
+        112
       ],
+      "id": "1a03080d-d860-49d7-9533-5bd254e26b23",
       "name": "Fetch Template Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "e5e8f02f-721c-45fc-8ee4-8d2c2ba4672e",
       "credentials": {
-        "todoistOAuth2Api": {
-          "id": "pRLGe9rI6m8eY5MJ",
-          "name": "Todoist account (OAuth)"
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
         }
       }
     },
     {
       "parameters": {
-        "authentication": "oAuth2",
         "operation": "getAll",
         "returnAll": true,
         "filters": {}
@@ -256,33 +253,33 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        -912,
-        576
+        1504,
+        112
       ],
+      "id": "ba5c8a76-9484-4148-bc27-bfdf8e2a8997",
       "name": "Fetch Active Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "e9329433-72db-4a93-b025-3075fe28cb87",
       "credentials": {
-        "todoistOAuth2Api": {
-          "id": "pRLGe9rI6m8eY5MJ",
-          "name": "Todoist account (OAuth)"
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
         }
       }
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import re,collections\nDEBUG=False\nLIMIT_TO_TEST_PROJECT=True\nTEST='🧪 Test (meta)'\nnormalize=lambda v:'' if not v else ''.join(c for c in v.lower() if c.isalnum())\nsel=_('Select Templates Project').first()\nif not sel: return []\ntid=sel.json.get('templatesProjectId')\nif not tid: return []\nT=[i.json for i in _('Fetch Template Tasks').all()]\nif not T: return []\nprojects=[i.json for i in _('Fetch Projects').all()]\nallowed=set()\nif LIMIT_TO_TEST_PROJECT:\n  for p in projects:\n    if (p.get('name') or '').strip()==TEST: allowed.add(p.get('id'))\nelse:\n  allowed={p.get('id') for p in projects if p.get('id')!=tid}\nchildren=collections.defaultdict(list)\nfor t in T:\n  if t.get('parent_id'): children[t['parent_id']].append(t)\nfor s in children.values(): s.sort(key=lambda x:x.get('child_order',0))\nindex=[(t,normalize(t.get('content',''))) for t in T]\npat=re.compile(r'^!!\\s*(.+)$',re.I)\nout=[]\nfor t in [i.json for i in _input.all()]:\n  pid=t.get('project_id')\n  if pid==tid or (allowed and pid not in allowed): continue\n  m=pat.match(t.get('content','') or '')\n  if not m: continue\n  name=m.group(1).strip(); key=normalize(name)\n  c=[tt for tt,n in index if n==key]\n  c.sort(key=lambda tt:(tt.get('parent_id') is not None,tt.get('child_order',0)))\n  if not c: continue\n  root=c[0]\n  dq=collections.deque([root]);sub=[]\n  while dq:\n    cur=dq.popleft();sub.append(cur)\n    for ch in children.get(cur.get('id'),[]):dq.append(ch)\n  if not sub: continue\n  ph={'id':t.get('id'),'projectId':pid,'sectionId':t.get('section_id'),'parentId':t.get('parent_id'),'order':t.get('order'),'childOrder':t.get('child_order')}\n  phk=str(t.get('id'))\n  out.append({'json':{'action':'deletePlaceholder','placeholder':ph,'placeholderKey':phk,'totalCreateActions':len(sub)}})\n  for i,s in enumerate(sub):\n    out.append({'json':{'action':'createFromTemplate','placeholder':ph,'placeholderKey':phk,'task':{'templateId':s.get('id'),'parentTemplateId':s.get('parent_id'),'content':s.get('content',''),'description':s.get('description') or '','priority':s.get('priority'),'labels':s.get('labels') or [],'order':s.get('order'),'childOrder':s.get('child_order'),'due':s.get('due') or {},'isRoot':s.get('id')==root.get('id')},'isLastAction':i==len(sub)-1}})\nreturn out"
+        "pythonCode": "import re\nfrom collections import defaultdict, deque\n\nDEBUG = False\nLIMIT_TO_TEST_PROJECT = True\nTEST_PROJECT_NAME = '🧪 Test (meta)'\n\ndef normalize_name(value):\n  if not value:\n    return ''\n  lowered = value.lower()\n  return ''.join(ch for ch in lowered if ch.isalnum())\n\nsel = _('Select Templates Project').first()\nif not sel:\n  return []\n\ntemplates_project_id = sel.json.get('templatesProjectId')\nif not templates_project_id:\n  return []\n\ntemplate_tasks = [it.json for it in _('Fetch Template Tasks').all()]\nif not template_tasks:\n  return []\n\nprojects = [it.json for it in _('Fetch Projects').all()]\nallowed_project_ids = set()\nif LIMIT_TO_TEST_PROJECT:\n  for p in projects:\n    if (p.get('name') or '').strip() == TEST_PROJECT_NAME:\n      allowed_project_ids.add(p.get('id'))\n      break\nelse:\n  for p in projects:\n    pid = p.get('id')\n    if pid and pid != templates_project_id:\n      allowed_project_ids.add(pid)\n\nchildren = defaultdict(list)\nfor t in template_tasks:\n  pid = t.get('parent_id')\n  if pid:\n    children[pid].append(t)\nfor sibs in children.values():\n  sibs.sort(key=lambda x: x.get('child_order', 0))\n\nindex = [(t, normalize_name(t.get('content', ''))) for t in template_tasks]\npat = re.compile(r'^!!\\s*(.+)$', re.I)\nitems = []\n\nfor t in [it.json for it in _input.all()]:\n  pid = t.get('project_id')\n  if pid == templates_project_id:\n    continue\n  if allowed_project_ids and pid not in allowed_project_ids:\n    continue\n  m = pat.match(t.get('content', '') or '')\n  if not m:\n    continue\n  name = m.group(1).strip()\n  key = normalize_name(name)\n  if not key:\n    continue\n  candidates = [tt for tt, n in index if n == key]\n  candidates.sort(key=lambda tt: (tt.get('parent_id') is not None, tt.get('child_order', 0)))\n  if not candidates:\n    continue\n  root = candidates[0]\n  q = deque([root])\n  subtree = []\n  while q:\n    cur = q.popleft()\n    subtree.append(cur)\n    for ch in children.get(cur.get('id'), []):\n      q.append(ch)\n  if not subtree:\n    continue\n  ph = {\n    'id': t.get('id'),\n    'projectId': pid,\n    'sectionId': t.get('section_id'),\n    'parentId': t.get('parent_id'),\n    'order': t.get('order'),\n    'childOrder': t.get('child_order')\n  }\n  phk = str(t.get('id'))\n  items.append({ 'json': {\n    'action': 'deletePlaceholder',\n    'placeholder': ph,\n    'templateName': name,\n    'placeholderKey': phk,\n    'totalCreateActions': len(subtree)\n  }})\n  for i, tt in enumerate(subtree):\n    tid = tt.get('id')\n    payload = {\n      'templateId': tid,\n      'parentTemplateId': tt.get('parent_id'),\n      'content': tt.get('content', ''),\n      'description': tt.get('description') or '',\n      'priority': tt.get('priority'),\n      'labels': tt.get('labels') or [],\n      'order': tt.get('order'),\n      'childOrder': tt.get('child_order'),\n      'due': tt.get('due') or {},\n      'isRoot': tid == root.get('id')\n    }\n    items.append({ 'json': {\n      'action': 'createFromTemplate',\n      'placeholder': ph,\n      'templateName': name,\n      'placeholderKey': phk,\n      'task': payload,\n      'isLastAction': i == len(subtree) - 1\n    }})\n\nreturn items\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -688,
-        576
+        1728,
+        112
       ],
-      "name": "Build Template Actions",
-      "id": "aaf97f2c-c3f9-49de-b678-6081b1588ec0"
+      "id": "5f7ddb9b-3ab8-4729-adac-3ebf24bbfe10",
+      "name": "Build Template Actions"
     },
     {
       "parameters": {
@@ -302,66 +299,64 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        -464,
-        576
+        1952,
+        112
       ],
-      "name": "Route Template Actions",
-      "id": "c82bfec6-d766-4bc8-b509-5175900f4580"
+      "id": "8aeab5f2-def2-4848-bc90-8e9158fe7e29",
+      "name": "Route Template Actions"
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def get_static_data():\n  return _getWorkflowStaticData('node')\n\ndata=get_static_data()\nit=_input.all()[0].json\nph=it.get('placeholder');k=str(it.get('placeholderKey') or ph.get('id'))\nctxs=data.get('contexts') or {}\nctxs[k]={'placeholder':ph,'parentMap':{},'remainingCreates':it.get('totalCreateActions',0),'pendingTemplateIds':[]}\ndata['contexts']=ctxs;data['currentPlaceholderKey']=k\nreturn _input.all()"
+        "pythonCode": "def get_static_data():\n  return _getWorkflowStaticData('node')\n\ndata = get_static_data()\nitem = _input.all()[0].json\nph = item.get('placeholder')\nkey = str(item.get('placeholderKey') or ph.get('id'))\nctxs = data.get('contexts') or {}\nctxs[key] = {\n  'placeholder': ph,\n  'parentMap': {},\n  'remainingCreates': item.get('totalCreateActions', 0),\n  'pendingTemplateIds': []\n}\n# set current key for the whole placeholder processing\ndata['contexts'] = ctxs\ndata['currentPlaceholderKey'] = key\nreturn _input.all()\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -240,
-        480
+        2176,
+        16
       ],
-      "name": "Prepare Template Context",
-      "id": "4ac2ce27-0432-4fd2-a0fe-17657547ffd6"
+      "id": "f829632a-9948-4dd6-b67d-91ede3ff2508",
+      "name": "Prepare Template Context"
     },
     {
       "parameters": {
-        "authentication": "oAuth2",
         "operation": "delete",
         "taskId": "={{$json.placeholder.id}}"
       },
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        -16,
-        480
+        2400,
+        16
       ],
+      "id": "63d2fdfb-4f85-4c66-8ccc-c987e96d54f2",
       "name": "Delete Placeholder Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "116ddc0d-2d90-48a0-af9a-a8b46b5a9505",
       "credentials": {
-        "todoistOAuth2Api": {
-          "id": "pRLGe9rI6m8eY5MJ",
-          "name": "Todoist account (OAuth)"
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
         }
       }
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "data=_getWorkflowStaticData('node')\nit=_input.all()[0].json\nk=str(it.get('placeholderKey'))\nctxs=data.get('contexts') or {}\nctx=ctxs.get(k) or {'placeholder':it.get('placeholder') or {},'parentMap':{},'remainingCreates':it.get('totalCreateActions',0),'pendingTemplateIds':[]}\nph=ctx['placeholder'];pm=ctx['parentMap'];pending=ctx.get('pendingTemplateIds',[])\nt=it['task']\nopts={}\nif t.get('description'):opts['description']=t['description']\nif t.get('priority'):opts['priority']=t['priority']\nif t.get('isRoot'):\n  if ph.get('sectionId'):opts['section']=ph['sectionId']\n  if ph.get('parentId'):opts['parentId']=ph['parentId']\nelse:\n  pid=t.get('parentTemplateId')\n  if pid and pid in pm:opts['parentId']=pm[pid]\npending.append(t['templateId']);ctx['pendingTemplateIds']=pending\nctxs[k]=ctx;data['contexts']=ctxs\nreturn [{'json':{'placeholderKey':k,'placeholder':ph,'task':t,'create':{'content':t.get('content'), 'project':ph.get('projectId'), 'labels':t.get('labels',[]),'options':opts,'templateId':t.get('templateId'),'placeholderKey':k,'isLastAction':it.get('isLastAction')}}}]"
+        "pythonCode": "def get_item_json(item):\n  if hasattr(item, 'json'):\n    return item.json\n  if isinstance(item, dict):\n    return item.get('json', {})\n  return {}\n\ndef get_static_data():\n  return _getWorkflowStaticData('node')\n\ndata = get_static_data()\nitems = _input.all()\nif not items:\n  raise ValueError('Missing input item for task creation')\n\nitem_json = get_item_json(items[0])\nplaceholder_key = item_json.get('placeholderKey')\nif placeholder_key is None:\n  raise ValueError('Missing placeholder key for task creation')\nplaceholder_key = str(placeholder_key)\n\n# ensure current key is set so Update Parent Map can find it even if branches race\ndata['currentPlaceholderKey'] = placeholder_key\n\ncontexts = data.get('contexts') or {}\ncontext = contexts.get(placeholder_key)\nif not context:\n  context = {\n    'placeholder': item_json.get('placeholder') or {},\n    'parentMap': {},\n    'remainingCreates': item_json.get('totalCreateActions', 0),\n    'pendingTemplateIds': []\n  }\n  contexts[placeholder_key] = context\n  data['contexts'] = contexts\n\nplaceholder = context.get('placeholder')\nif not placeholder:\n  raise ValueError('Placeholder context is missing details')\n\nparent_map = context.get('parentMap') or {}\npending = context.get('pendingTemplateIds') or []\n\ntask = item_json.get('task') or {}\nif not task:\n  raise ValueError('Missing template task payload')\n\noptions = {}\nsection_id = placeholder.get('sectionId')\n\ndesc = task.get('description')\nif desc:\n  options['description'] = desc\n\npriority = task.get('priority')\nif isinstance(priority, int) and priority > 0:\n  options['priority'] = priority\n\nif task.get('isRoot'):\n  if section_id is not None:\n    options['section'] = section_id\n  parent_id = placeholder.get('parentId')\n  if parent_id is not None:\n    options['parentId'] = parent_id\nelse:\n  parent_template_id = task.get('parentTemplateId')\n  if parent_template_id is not None:\n    parent_id = parent_map.get(parent_template_id)\n    if parent_id is None:\n      raise ValueError(f\"Parent task for template {parent_template_id} has not been created yet\")\n    options['parentId'] = parent_id\n\ndue = task.get('due') or {}\nif due.get('string'):\n  options['dueString'] = due.get('string')\nif due.get('datetime'):\n  options['dueDateTime'] = due.get('datetime')\nelif due.get('date'):\n  options['dueDate'] = due.get('date')\nif due.get('lang'):\n  options['dueLang'] = due.get('lang')\n\nlabels = task.get('labels') or []\nif not isinstance(labels, list):\n  labels = [labels]\n\n# enqueue template id so mapper can match by order\ntemplate_id = task.get('templateId')\nif template_id is None:\n  raise ValueError('Missing template id in template task payload')\n\npending.append(template_id)\ncontext['pendingTemplateIds'] = pending\n\ncreate_payload = {\n  'content': task.get('content', ''),\n  'project': placeholder.get('projectId'),\n  'labels': labels,\n  'options': options,\n  'templateId': template_id,\n  'placeholderKey': placeholder_key,\n  'isLastAction': item_json.get('isLastAction', False)\n}\n\ncontexts[placeholder_key] = context\ndata['contexts'] = contexts\n\nreturn [{ 'json': {\n  'placeholder': placeholder,\n  'placeholderKey': placeholder_key,\n  'task': task,\n  'create': create_payload,\n  'isLastAction': item_json.get('isLastAction', False)\n}}]\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -240,
-        672
+        2176,
+        208
       ],
-      "name": "Prepare Create Payload",
-      "id": "6b6db0f4-4201-465d-b7a1-67b1ba4fbc59"
+      "id": "6ffe5de0-f5dd-437f-8a1b-b8e90913a563",
+      "name": "Prepare Create Payload"
     },
     {
       "parameters": {
-        "authentication": "oAuth2",
         "project": "={{$json.create.project}}",
         "labels": "={{$json.create.labels}}",
         "content": "={{$json.create.content}}",
@@ -370,33 +365,33 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        -16,
-        672
+        2400,
+        208
       ],
+      "id": "06d48a0d-c566-441b-a577-b141cd46f4ea",
       "name": "Create Template Task",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
-      "id": "2ddfa31c-de40-4934-ac2a-2c1fae4d10ef",
       "credentials": {
-        "todoistOAuth2Api": {
-          "id": "pRLGe9rI6m8eY5MJ",
-          "name": "Todoist account (OAuth)"
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
         }
       }
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "# Update Parent Map — JsProxy-safe, handles dict/list/sequence payloads and batches\n\ndef is_string_like(x):\n  return isinstance(x, (str, bytes, bytearray))\n\ndef is_mapping_like(x):\n  # Works for dict and JsProxy objects that behave like a mapping\n  if isinstance(x, dict):\n    return True\n  return hasattr(x, \"keys\") or hasattr(x, \"items\")\n\ndef is_sequence_like(x):\n  # Works for list/tuple and JsProxy arrays\n  if isinstance(x, (list, tuple)):\n    return True\n  if is_string_like(x):\n    return False\n  return hasattr(x, \"__len__\") and hasattr(x, \"__getitem__\")\n\ndef mget(obj, key, default=None):\n  \"\"\"Mapping get for dict/JsProxy mapping.\"\"\"\n  if isinstance(obj, dict):\n    return obj.get(key, default)\n  # JsProxy mapping: try key lookup\n  try:\n    val = obj[key]\n    return val\n  except Exception:\n    pass\n  # Try attribute (last resort)\n  try:\n    return getattr(obj, key)\n  except Exception:\n    return default\n\ndef iter_values(obj):\n  \"\"\"Yield values of a mapping-like object.\"\"\"\n  if isinstance(obj, dict):\n    for v in obj.values():\n      yield v\n    return\n  # JsProxy: try .values(), then items()\n  try:\n    vals = obj.values()  # may exist on JsProxy\n    for v in vals:\n      yield v\n    return\n  except Exception:\n    pass\n  try:\n    for _, v in obj.items():\n      yield v\n    return\n  except Exception:\n    pass\n  # Fallback: try keys()\n  try:\n    for k in obj.keys():\n      yield mget(obj, k)\n  except Exception:\n    return\n\ndef iter_task_ids(payload):\n  \"\"\"\n  Yield Todoist task IDs from any payload:\n  - dict/JsProxy mapping with 'id'\n  - list/tuple/JsProxy array of such dicts\n  - nested under 'data' / 'task' / 'json'\n  \"\"\"\n  # Unwrap n8n items\n  if hasattr(payload, \"json\"):\n    payload = payload.json\n\n  # Mapping-like\n  if is_mapping_like(payload):\n    tid = mget(payload, \"id\")\n    if tid:\n      yield tid\n      return\n    # common wrappers\n    for k in (\"data\", \"task\", \"json\"):\n      inner = mget(payload, k)\n      if inner is not None:\n        for x in iter_task_ids(inner):\n          yield x\n        # do not return; allow other wrappers too\n    # fallback: walk values\n    for v in iter_values(payload):\n      for x in iter_task_ids(v):\n        yield x\n    return\n\n  # Sequence-like (incl. JsProxy arrays)\n  if is_sequence_like(payload):\n    try:\n      n = len(payload)\n    except Exception:\n      n = 0\n    for i in range(n):\n      try:\n        v = payload[i]\n      except Exception:\n        continue\n      for x in iter_task_ids(v):\n        yield x\n    return\n\n  # nothing found\n  return\n\ndef to_str(v):\n  return None if v is None else str(v)\n\ndef get_static():\n  return _getWorkflowStaticData(\"node\")  # type: ignore[name-defined]\n\ndata = get_static()\ncontexts = data.get(\"contexts\") or {}\ncurrent_key = to_str(data.get(\"currentPlaceholderKey\"))\n\nout_items = []\n\n# Process all create results (there can be multiple)\nfor item in _input.all():\n  # Extract ALL ids from the payload (handles list/dict/JsProxy)\n  created_ids = list(iter_task_ids(item))\n  if not created_ids:\n    # Try the raw json as a fallback (in case the input wrapper differs)\n    created_ids = list(iter_task_ids(getattr(item, \"json\", None)))\n  if not created_ids:\n    raise ValueError(\"Failed to determine created task id\")\n\n  # Decide which placeholder context to use\n  placeholder_key = current_key\n  if placeholder_key is None:\n    j = getattr(item, \"json\", None)\n    if is_mapping_like(j):\n      placeholder_key = to_str(mget(j, \"placeholderKey\"))\n  if placeholder_key is None:\n    raise ValueError(\"Missing placeholder key when updating parent map\")\n\n  ctx = contexts.get(placeholder_key)\n  if ctx is None:\n    # Defensive bootstrap (usually exists already)\n    ctx = {\n      \"placeholder\": {},\n      \"parentMap\": {},\n      \"remainingCreates\": 0,\n      \"pendingTemplateIds\": [],\n    }\n\n  parent_map = ctx.get(\"parentMap\") or {}\n  pending = list(ctx.get(\"pendingTemplateIds\") or [])\n\n  # Map each new id to the next pending templateId (FIFO)\n  for new_id in created_ids:\n    if pending:\n      templ_id = pending.pop(0)\n    else:\n      # Rare fallback: try echo\n      templ_id = None\n      j = getattr(item, \"json\", None)\n      if is_mapping_like(j):\n        task_payload = mget(j, \"task\", {})\n        if is_mapping_like(task_payload):\n          templ_id = mget(task_payload, \"templateId\")\n    if templ_id is None:\n      raise ValueError(\"Missing template id for created task (pending queue empty)\")\n    parent_map[templ_id] = new_id\n\n  # Save updates\n  ctx[\"parentMap\"] = parent_map\n  ctx[\"pendingTemplateIds\"] = pending\n\n  # Decrement remainingCreates by the number we just mapped (usually 1)\n  rem = ctx.get(\"remainingCreates\")\n  if isinstance(rem, int) and rem > 0:\n    ctx[\"remainingCreates\"] = max(0, rem - len(created_ids))\n\n  # Decide if we've finished this placeholder\n  is_last = ctx.get(\"remainingCreates\") in (None, 0)\n  j = getattr(item, \"json\", None)\n  if is_mapping_like(j) and mget(j, \"isLastAction\"):\n    is_last = True\n\n  if is_last:\n    contexts.pop(placeholder_key, None)\n    if to_str(data.get(\"currentPlaceholderKey\")) == placeholder_key:\n      data[\"currentPlaceholderKey\"] = None\n    # Let the next placeholder set its key\n    current_key = None\n  else:\n    contexts[placeholder_key] = ctx\n\n  # Pass-through for downstream logging if needed\n  out_items.append({\"json\": getattr(item, \"json\", {}) or {}})\n\n# Persist back\ndata[\"contexts\"] = contexts if contexts else {}\nif not contexts:\n  data[\"currentPlaceholderKey\"] = None\n\nreturn out_items\n"
+        "pythonCode": "def is_string_like(x):\n  return isinstance(x, (str, bytes, bytearray))\n\ndef is_mapping_like(x):\n  if isinstance(x, dict):\n    return True\n  return hasattr(x, 'keys') or hasattr(x, 'items')\n\ndef is_sequence_like(x):\n  if isinstance(x, (list, tuple)):\n    return True\n  if is_string_like(x):\n    return False\n  return hasattr(x, '__len__') and hasattr(x, '__getitem__')\n\ndef mget(obj, key, default=None):\n  if isinstance(obj, dict):\n    return obj.get(key, default)\n  try:\n    return obj[key]\n  except Exception:\n    pass\n  try:\n    return getattr(obj, key)\n  except Exception:\n    return default\n\ndef iter_values(obj):\n  if isinstance(obj, dict):\n    for v in obj.values():\n      yield v\n    return\n  try:\n    vals = obj.values()\n    for v in vals:\n      yield v\n    return\n  except Exception:\n    pass\n  try:\n    for _, v in obj.items():\n      yield v\n    return\n  except Exception:\n    pass\n  try:\n    for k in obj.keys():\n      yield mget(obj, k)\n  except Exception:\n    return\n\ndef iter_task_ids(payload):\n  if hasattr(payload, 'json'):\n    payload = payload.json\n  if is_mapping_like(payload):\n    tid = mget(payload, 'id')\n    if tid:\n      yield tid\n    for k in ('data', 'task', 'json'):\n      inner = mget(payload, k)\n      if inner is not None:\n        for x in iter_task_ids(inner):\n          yield x\n    for v in iter_values(payload):\n      for x in iter_task_ids(v):\n        yield x\n    return\n  if is_sequence_like(payload):\n    try:\n      n = len(payload)\n    except Exception:\n      n = 0\n    for i in range(n):\n      try:\n        v = payload[i]\n      except Exception:\n        continue\n      for x in iter_task_ids(v):\n        yield x\n    return\n  return\n\ndef to_str(v):\n  return None if v is None else str(v)\n\ndata = _getWorkflowStaticData('node')\ncontexts = data.get('contexts') or {}\ncurrent_key = to_str(data.get('currentPlaceholderKey'))\n\nout_items = []\n\nfor item in _input.all():\n  created_ids = list(iter_task_ids(item))\n  if not created_ids:\n    j = getattr(item, 'json', None)\n    created_ids = list(iter_task_ids(j))\n  if not created_ids:\n    raise ValueError('Failed to determine created task id')\n\n  placeholder_key = current_key\n  if placeholder_key is None:\n    if isinstance(contexts, dict) and len(contexts) == 1:\n      placeholder_key = to_str(next(iter(contexts.keys())))\n  if placeholder_key is None:\n    j = getattr(item, 'json', None)\n    if is_mapping_like(j):\n      placeholder_key = to_str(mget(j, 'placeholderKey'))\n  if placeholder_key is None:\n    raise ValueError('Missing placeholder key when updating parent map')\n\n  ctx = contexts.get(placeholder_key)\n  if ctx is None:\n    ctx = { 'placeholder': {}, 'parentMap': {}, 'remainingCreates': 0, 'pendingTemplateIds': [] }\n\n  parent_map = ctx.get('parentMap') or {}\n  pending = list(ctx.get('pendingTemplateIds') or [])\n\n  for new_id in created_ids:\n    if pending:\n      templ_id = pending.pop(0)\n    else:\n      templ_id = None\n      j = getattr(item, 'json', None)\n      if is_mapping_like(j):\n        tp = mget(j, 'task', {})\n        if is_mapping_like(tp):\n          templ_id = mget(tp, 'templateId')\n    if templ_id is None:\n      raise ValueError('Missing template id for created task (pending queue empty)')\n    parent_map[templ_id] = new_id\n\n  ctx['parentMap'] = parent_map\n  ctx['pendingTemplateIds'] = pending\n\n  rem = ctx.get('remainingCreates')\n  if isinstance(rem, int) and rem > 0:\n    ctx['remainingCreates'] = max(0, rem - len(created_ids))\n\n  is_last = ctx.get('remainingCreates') in (None, 0)\n  j = getattr(item, 'json', None)\n  if is_mapping_like(j) and mget(j, 'isLastAction'):\n    is_last = True\n\n  if is_last:\n    contexts.pop(placeholder_key, None)\n    if to_str(data.get('currentPlaceholderKey')) == placeholder_key:\n      data['currentPlaceholderKey'] = None\n    current_key = None\n  else:\n    contexts[placeholder_key] = ctx\n\n  out_items.append({ 'json': j or {} })\n\n# persist\ndata['contexts'] = contexts if contexts else {}\nif not contexts:\n  data['currentPlaceholderKey'] = None\n\nreturn out_items\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
-        672
+        2624,
+        208
       ],
-      "name": "Update Parent Map",
-      "id": "5ada9acb-5e71-4a1d-8c1a-0826f5ed1e5c"
+      "id": "7a18c928-6f04-48e3-b8f4-7124a7dc6c3f",
+      "name": "Update Parent Map"
     }
   ],
   "pinData": {},
@@ -429,6 +424,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-09-28T12:31:54.000Z",
-  "versionId": "e83bf0a2-6e4a-44ea-857a-98c86747af19"
+  "updatedAt": "2025-09-29T07:19:09.000Z",
+  "versionId": "b844538c-dcd2-44b4-83ff-97988f583f2b"
 }
