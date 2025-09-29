@@ -270,7 +270,8 @@
       "parameters": {
         "operation": "getAll",
         "returnAll": true,
-        "filters": {}
+        "filters": {},
+        "resource": "task"
       },
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
@@ -396,7 +397,9 @@
         "project": "={{$json.create.project}}",
         "labels": "={{$json.create.labels}}",
         "content": "={{$json.create.content}}",
-        "options": {}
+        "options": "={{$json.create.options}}",
+        "operation": "create",
+        "resource": "task"
       },
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
