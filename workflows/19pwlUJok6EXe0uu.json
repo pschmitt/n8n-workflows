@@ -5,14 +5,36 @@
       "main": [
         [
           {
-            "node": "Fetch Projects",
+            "node": "Merge",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Schedule Trigger": {
+    "Task added/updated": {
+      "main": [
+        [
+          {
+            "node": "Process webhook data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process webhook data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
       "main": [
         [
           {
@@ -46,50 +68,6 @@
       ]
     },
     "Fetch Template Tasks": {
-      "main": [
-        [
-          {
-            "node": "Fetch Active Tasks",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fetch Active Tasks": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Task added/updated": {
-      "main": [
-        [
-          {
-            "node": "Process webhook data",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Process webhook data": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
       "main": [
         [
           {
@@ -205,64 +183,77 @@
   "name": "☑️ Todoist Template Expander (recursive, same-section)",
   "nodes": [
     {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        200
+      ],
+      "name": "When clicking ‘Test workflow’",
+      "id": "dbd39a33-8420-4ab9-a82f-0581edaa808d"
+    },
+    {
       "parameters": {
         "httpMethod": "POST",
-        "path": "webhook",
+        "path": "a6f7c8d9-2b4f-4f7f-a8c9-3d9a2b4f7f7f",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        416,
-        368
+        -352,
+        8
       ],
       "name": "Task added/updated",
-      "id": "b2502fec-3080-4392-8c63-dee709186d6a",
-      "webhookId": "99948ec5-5b3a-4420-ba28-3169e4745dfc"
+      "id": "72e7e44b-3d4a-4545-8970-ef457c06160c",
+      "webhookId": "a6f7c8d9-2b4f-4f7f-a8c9-3d9a2b4f7f7f"
     },
     {
       "parameters": {
-        "language": "python",
-        "pythonCode": "return [{'json': item.get('body', {}).get('event_data', {})}]"
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
+              "name": "id",
+              "value": "={{ $json.body.event_data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "9d362483-8501-4fb8-b7f2-cf7437c06024",
+              "name": "content",
+              "value": "={{ $json.body.event_data.content }}",
+              "type": "string"
+            },
+            {
+              "id": "a0e984ff-7805-4d5a-883f-0a94c18b6679",
+              "name": "project_id",
+              "value": "={{ $json.body.event_data.project_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
       },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
-        736,
-        368
+        -128,
+        8
       ],
       "name": "Process webhook data",
-      "id": "7b29bb5c-1c11-4b28-a173-bb1560e0e82c"
+      "id": "ad787c3f-c37e-44b1-8263-62fff54d60d0"
     },
     {
       "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
       "position": [
-        416,
-        528
+        96,
+        104
       ],
-      "name": "When clicking ‘Test workflow’",
-      "id": "f92ed697-7fdd-4ac6-bfe8-2856f3db148d"
-    },
-    {
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "minutes"
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        416,
-        768
-      ],
-      "name": "Schedule Trigger",
-      "id": "e4e2089b-3611-4959-af23-d3fd460f71d9"
+      "name": "Merge",
+      "id": "c294c58b-c049-4416-abbf-d62f21d4ebfc"
     },
     {
       "parameters": {
@@ -273,11 +264,11 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        176,
-        400
+        -320,
+        60
       ],
       "name": "Sticky Note",
-      "id": "4ad4c59a-ce1c-4da1-bbe8-df4be848e4ce"
+      "id": "cf71865c-4d56-4b39-8d4a-a883a17e1cbd"
     },
     {
       "parameters": {
@@ -287,11 +278,11 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        736,
-        640
+        320,
+        104
       ],
       "name": "Fetch Projects",
-      "id": "d32ff813-5f14-495e-bd48-4a01ac623d76",
+      "id": "98f494c3-dfbd-42d5-946d-14cf878d6cd5",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
       "credentials": {
@@ -304,16 +295,16 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def normalize_name(value):\n  if not value:\n    return ''\n  return ''.join(ch for ch in value.lower() if ch.isalnum())\n\nprojects = [i.json for i in _input.all()]\nfor p in projects:\n  if normalize_name(p.get('name','')) == 'templates':\n    return [{ 'json': { 'templatesProjectId': p.get('id'), 'templatesProject': p } }]\nreturn []\n"
+        "pythonCode": "def normalize_name(value):\n    if not value:\n        return ''\n    # Strips leading emojis and spaces\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    # Remove all non-alphanumeric characters\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\nprojects = [i.json for i in _input.all()]\nfor p in projects:\n  if normalize_name(p.get('name','')) == 'templates':\n    return [{ 'json': { 'templatesProjectId': p.get('id'), 'templatesProject': p } }]\nreturn []\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        976,
-        640
+        544,
+        104
       ],
       "name": "Select Templates Project",
-      "id": "346e82d3-233d-4b43-bf7a-bb75a3fc41ef"
+      "id": "6c3cff41-f422-49cd-a600-746a8e05859e"
     },
     {
       "parameters": {
@@ -326,34 +317,11 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1264,
-        480
+        768,
+        104
       ],
       "name": "Fetch Template Tasks",
-      "id": "ed924d37-05bc-4d0d-ab94-570f65ba8dfa",
-      "retryOnFail": true,
-      "waitBetweenTries": 2000,
-      "credentials": {
-        "todoistApi": {
-          "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account (API Key)"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "getAll",
-        "returnAll": true,
-        "filters": {}
-      },
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.1,
-      "position": [
-        1104,
-        864
-      ],
-      "name": "Fetch Active Tasks",
-      "id": "b948f6a7-3e9a-45aa-8dbc-13ebf420d307",
+      "id": "e1de2fe8-044e-4056-b4fa-49d5869faf1b",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
       "credentials": {
@@ -366,16 +334,17 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import re\nfrom collections import defaultdict\n\ndef to_key(value):\n  if value is None:\n    return None\n  if isinstance(value, str):\n    value = value.strip()\n    return value or None\n  return str(value)\n\ndef normalize_name(value):\n  if not value:\n    return ''\n  return ''.join(ch for ch in value.lower() if ch.isalnum())\n\ndef pick_value(*values):\n  for value in values:\n    if value is not None:\n      return value\n  return None\n\ndef build_payload(template, is_root):\n  return {\n    'templateId': template.get('id'),\n    'parentTemplateId': pick_value(template.get('parent_id'), template.get('parentId')),\n    'content': template.get('content', ''),\n    'description': template.get('description') or '',\n    'priority': template.get('priority'),\n    'labels': template.get('labels') or [],\n    'order': template.get('order'),\n    'childOrder': pick_value(template.get('child_order'), template.get('childOrder')),\n    'due': template.get('due') or {},\n    'isRoot': is_root,\n  }\n\ndef gather_templates():\n  tasks = []\n  for item in _('Fetch Template Tasks').all():\n    payload = getattr(item, 'json', None) or {}\n    if isinstance(payload, dict):\n      tasks.append(payload)\n  return tasks\n\ndef gather_projects():\n  items = []\n  for item in _('Fetch Projects').all():\n    payload = getattr(item, 'json', None) or {}\n    if isinstance(payload, dict):\n      items.append(payload)\n  return items\n\nsel = _('Select Templates Project').first()\nif not sel:\n  return []\nsettings = getattr(sel, 'json', {}) or {}\ntemplates_project_id = settings.get('templatesProjectId')\nif not templates_project_id:\n  return []\n\ntemplate_tasks = gather_templates()\nif not template_tasks:\n  return []\n\nprojects = gather_projects()\n\nallowed_projects = set()\nlimit_to_test_project = True\ntest_project_name = '🧪 Test (meta)'\nif limit_to_test_project:\n  for project in projects:\n    name = (project.get('name') or '').strip()\n    if name == test_project_name:\n      pid = pick_value(project.get('id'), project.get('project_id'))\n      if pid:\n        allowed_projects.add(pid)\n      break\nelse:\n  for project in projects:\n    pid = pick_value(project.get('id'), project.get('project_id'))\n    if pid and pid != templates_project_id:\n      allowed_projects.add(pid)\n\nchildren = defaultdict(list)\nfor task in template_tasks:\n  parent_raw = pick_value(task.get('parent_id'), task.get('parentId'))\n  if parent_raw:\n    parent_key = to_key(parent_raw)\n    if parent_key:\n      children[parent_key].append(task)\n\nfor siblings in children.values():\n  siblings.sort(key=lambda x: pick_value(x.get('child_order'), x.get('childOrder')) or 0)\n\ndef walk_subtree(root):\n  ordered = []\n  stack = [root]\n  while stack:\n    node = stack.pop()\n    ordered.append(node)\n    node_key = to_key(pick_value(node.get('id'), node.get('task_id'), node.get('taskId')))\n    kid_list = children.get(node_key, [])\n    for child in reversed(kid_list):\n      stack.append(child)\n  return ordered\n\nindex = []\nfor task in template_tasks:\n  name = normalize_name(task.get('content', ''))\n  if name:\n    index.append((task, name))\n\npattern = re.compile(r'^\\$\\s*(.+)$', re.I)\nresults = []\n\ndef build_placeholder(payload):\n  return {\n    'id': payload.get('id'),\n    'project_id': pick_value(payload.get('project_id'), payload.get('projectId')),\n    'projectId': payload.get('projectId'),\n    'section_id': pick_value(payload.get('section_id'), payload.get('sectionId')),\n    'sectionId': payload.get('sectionId'),\n    'parent_id': pick_value(payload.get('parent_id'), payload.get('parentId')),\n    'parentId': payload.get('parentId'),\n    'order': payload.get('order'),\n    'child_order': pick_value(payload.get('child_order'), payload.get('childOrder')),\n  }\n\nfor item in _input.all():\n  payload = getattr(item, 'json', None) or {}\n  if not isinstance(payload, dict):\n    continue\n  project_id = pick_value(payload.get('project_id'), payload.get('projectId'))\n  if project_id == templates_project_id:\n    continue\n  if allowed_projects and project_id not in allowed_projects:\n    continue\n  match = pattern.match(payload.get('content') or '')\n  if not match:\n    continue\n  template_name = normalize_name(match.group(1))\n  if not template_name:\n    continue\n  candidates = [task for task, name in index if name == template_name]\n  candidates.sort(key=lambda task: (pick_value(task.get('parent_id'), task.get('parentId')) is not None, pick_value(task.get('child_order'), task.get('childOrder')) or 0))\n  root = candidates[0] if candidates else None\n  if not root:\n    continue\n  if pick_value(root.get('parent_id'), root.get('parentId')):\n    continue\n  subtree = walk_subtree(root)\n  if not subtree:\n    continue\n\n  placeholder = build_placeholder(payload)\n  placeholder_key = to_key(placeholder.get('id'))\n  if placeholder_key is None:\n    continue\n\n  total_creates = len(subtree)\n  root_payload = build_payload(subtree[0], True)\n\n  results.append({'json': {\n    'action': 'preparePlaceholder',\n    'placeholder': placeholder,\n    'placeholderKey': placeholder_key,\n    'rootTask': root_payload,\n    'totalCreateActions': total_creates,\n  }})\n\n  for idx, tmpl in enumerate(subtree):\n    task_payload = build_payload(tmpl, idx == 0)\n    results.append({'json': {\n      'action': 'createFromTemplate',\n      'placeholder': placeholder,\n      'placeholderKey': placeholder_key,\n      'task': task_payload,\n      'isLastAction': (idx + 1) == total_creates,\n    }})\n\nreturn results"
+        "pythonCode": "import re\nfrom collections import defaultdict\n\ndef to_key(value):\n  if value is None:\n    return None\n  if isinstance(value, str):\n    value = value.strip()\n    return value or None\n  return str(value)\n\ndef normalize_name(value):\n  if not value:\n    return ''\n  # Strips leading emojis and spaces\n  first_alnum_index = -1\n  for i, char in enumerate(value):\n      if char.isalnum():\n          first_alnum_index = i\n          break\n  if first_alnum_index == -1:\n      return ''\n  value = value[first_alnum_index:]\n  return ''.join(ch for ch in value.lower() if ch.isalnum())\n\ndef pick_value(*values):\n  for value in values:\n    if value is not None:\n      return value\n  return None\n\ndef build_payload(template, is_root):\n  return {\n    'templateId': template.get('id'),\n    'parentTemplateId': pick_value(template.get('parent_id'), template.get('parentId')),\n    'content': template.get('content', ''),\n    'description': template.get('description') or '',\n    'priority': template.get('priority'),\n    'labels': template.get('labels') or [],\n    'order': template.get('order'),\n    'childOrder': pick_value(template.get('child_order'), template.get('childOrder')),\n    'due': template.get('due') or {},\n    'isRoot': is_root,\n  }\n\ndef gather_templates():\n  tasks = []\n  for item in _('Fetch Template Tasks').all():\n    payload = getattr(item, 'json', None) or {}\n    if isinstance(payload, dict):\n      tasks.append(payload)\n  return tasks\n\ndef gather_projects():\n  items = []\n  for item in _('Fetch Projects').all():\n    payload = getattr(item, 'json', None) or {}\n    if isinstance(payload, dict):\n      items.append(payload)\n  return items\n\nsel = _('Select Templates Project').first()\nif not sel:\n  return []\nsettings = getattr(sel, 'json', {}) or {}\ntemplates_project_id = settings.get('templatesProjectId')\nif not templates_project_id:\n  return []\n\ntemplate_tasks = gather_templates()\nif not template_tasks:\n  return []\n\nprojects = gather_projects()\n\nallowed_projects = set()\nlimit_to_test_project = True\ntest_project_name = '🧪 Test (meta)'\nif limit_to_test_project:\n  for project in projects:\n    name = (project.get('name') or '').strip()\n    if name == test_project_name:\n      pid = pick_value(project.get('id'), project.get('project_id'))\n      if pid:\n        allowed_projects.add(pid)\n      break\nelse:\n  for project in projects:\n    pid = pick_value(project.get('id'), project.get('project_id'))\n    if pid and pid != templates_project_id:\n      allowed_projects.add(pid)\n\nchildren = defaultdict(list)\nfor task in template_tasks:\n  parent_raw = pick_value(task.get('parent_id'), task.get('parentId'))\n  if parent_raw:\n    parent_key = to_key(parent_raw)\n    if parent_key:\n      children[parent_key].append(task)\n\nfor siblings in children.values():\n  siblings.sort(key=lambda x: pick_value(x.get('child_order'), x.get('childOrder')) or 0)\n\ndef walk_subtree(root):\n  ordered = []\n  stack = [root]\n  while stack:\n    node = stack.pop()\n    ordered.append(node)\n    node_key = to_key(pick_value(node.get('id'), node.get('task_id'), node.get('taskId')))\n    kid_list = children.get(node_key, [])\n    for child in reversed(kid_list):\n      stack.append(child)\n  return ordered\n\nindex = []\nfor task in template_tasks:\n  name = normalize_name(task.get('content', ''))\n  if name:\n    index.append((task, name))\n\npattern = re.compile(r'^\\$\\s*(.+)$', re.I)\nresults = []\n\ndef build_placeholder(payload):\n  return {\n    'id': payload.get('id'),\n    'project_id': pick_value(payload.get('project_id'), payload.get('projectId')),\n    'projectId': payload.get('projectId'),\n    'section_id': pick_value(payload.get('section_id'), payload.get('sectionId')),\n    'sectionId': payload.get('sectionId'),\n    'parent_id': pick_value(payload.get('parent_id'), payload.get('parentId')),\n    'parentId': payload.get('parentId'),\n    'order': payload.get('order'),\n    'child_order': pick_value(payload.get('child_order'), payload.get('childOrder')),\n  }\n\nfor item in _input.all():\n  payload = getattr(item, 'json', None) or {}\n  if not isinstance(payload, dict):\n    continue\n  project_id = pick_value(payload.get('project_id'), payload.get('projectId'))\n  if project_id == templates_project_id:\n    continue\n  if allowed_projects and project_id not in allowed_projects:\n    continue\n  match = pattern.match(payload.get('content') or '')\n  if not match:\n    continue\n  template_name = normalize_name(match.group(1))\n  if not template_name:\n    continue\n  candidates = [task for task, name in index if name == template_name]\n  candidates.sort(key=lambda task: (pick_value(task.get('parent_id'), task.get('parentId')) is not None, pick_value(task.get('child_order'), task.get('childOrder')) or 0))\n  root = candidates[0] if candidates else None\n  if not root:\n    continue\n  if pick_value(root.get('parent_id'), root.get('parentId')):\n    continue\n  subtree = walk_subtree(root)\n  if not subtree:\n    continue\n\n  placeholder = build_placeholder(payload)\n  placeholder_key = to_key(placeholder.get('id'))\n  if placeholder_key is None:\n    continue\n\n  total_creates = len(subtree)\n  root_payload = build_payload(subtree[0], True)\n\n  results.append({'json': {\n    'action': 'preparePlaceholder',\n    'placeholder': placeholder,\n    'placeholderKey': placeholder_key,\n    'rootTask': root_payload,\n    'totalCreateActions': total_creates,\n  }})\n\n  for idx, tmpl in enumerate(subtree):\n    task_payload = build_payload(tmpl, idx == 0)\n    results.append({'json': {\n      'action': 'createFromTemplate',\n      'placeholder': placeholder,\n      'placeholderKey': placeholder_key,\n      'task': task_payload,\n      'isLastAction': (idx + 1) == total_creates,\n    }})\n\nreturn results"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1488,
-        704
+        992,
+        104
       ],
       "name": "Build Template Actions",
-      "id": "4156347b-d0d2-4b2f-8f3f-47074f16e1c3"
+      "id": "3cd61c36-a37a-4548-aa70-c4dca4d2645d",
+      "alwaysOutputData": false
     },
     {
       "parameters": {
@@ -395,11 +364,11 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        1792,
-        896
+        1440,
+        -112
       ],
       "name": "Route Template Actions",
-      "id": "e3c9ace3-6631-4d50-9733-6c2c9e5b0d2a"
+      "id": "9f2fe8ab-6c0d-4d6b-bbd5-45684ac587d2"
     },
     {
       "parameters": {
@@ -409,11 +378,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2064,
-        576
+        1664,
+        -112
       ],
       "name": "Prepare Template Context",
-      "id": "a684f82b-18dc-4360-aa2e-ab51d61386a0"
+      "id": "816f37af-7abd-4176-9b6f-60ccf8e6a94d"
     },
     {
       "parameters": {
@@ -423,11 +392,11 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        2304,
-        576
+        1888,
+        -112
       ],
       "name": "Delete Placeholder Task",
-      "id": "22ba93d6-bc2b-48b5-b8e6-dac4ceb7eac9",
+      "id": "3fe12683-554d-494f-b752-df1d91202ae7",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
       "credentials": {
@@ -445,11 +414,11 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
       "position": [
-        2048,
-        896
+        1216,
+        104
       ],
       "name": "Split In Batches (size 1)",
-      "id": "a474c4a0-74a3-4910-a206-2ab939085d7e"
+      "id": "2afec9b7-95f6-4f15-b4d6-9e26680c171e"
     },
     {
       "parameters": {
@@ -459,11 +428,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2288,
-        896
+        1664,
+        80
       ],
       "name": "Prepare Create Payload",
-      "id": "e7ca4e3e-09fc-4beb-8ca3-c141ffe2ba9a"
+      "id": "acd7b8a9-04b3-4bfb-a13e-1bc44340ea97"
     },
     {
       "parameters": {
@@ -482,11 +451,11 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        2544,
-        896
+        1888,
+        80
       ],
       "name": "Create Template Task",
-      "id": "8a2d825d-069c-4eda-9fab-90bf4a208cc7",
+      "id": "c8b948db-0a04-4961-8905-96ca23410ff4",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
       "credentials": {
@@ -504,22 +473,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2784,
-        896
+        2112,
+        200
       ],
       "name": "Update Parent Map",
-      "id": "2871bdc2-2c84-404f-8e3f-5e24b3cac7ce"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3,
-      "position": [
-        1296,
-        704
-      ],
-      "name": "Merge",
-      "id": "22cbac5d-45f0-47ee-98a2-03444a8bd86f"
+      "id": "7c46289a-ae38-477b-902f-f25202e96c66"
     }
   ],
   "pinData": {},
@@ -551,7 +509,7 @@
       "name": "todoist"
     }
   ],
-  "triggerCount": 2,
-  "updatedAt": "2025-10-08T12:17:18.000Z",
-  "versionId": "9b14bb78-8955-4123-9721-372ae782c343"
+  "triggerCount": 1,
+  "updatedAt": "2025-10-09T09:37:33.000Z",
+  "versionId": "8e233492-2b63-44df-b641-a746b1a5a447"
 }
