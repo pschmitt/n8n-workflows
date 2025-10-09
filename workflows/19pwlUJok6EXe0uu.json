@@ -54,7 +54,7 @@
       "main": [
         [
           {
-            "node": "Process Actions one by one",
+            "node": "Route Action",
             "type": "main",
             "index": 0
           }
@@ -63,13 +63,7 @@
     },
     "Process Actions one by one": {
       "main": [
-        [
-          {
-            "node": "Route Action",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Route Action": {
@@ -177,7 +171,7 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "from collections import defaultdict\n\ndef normalize_name(value):\n    if not value:\n        return ''\n    # Strips leading emojis and spaces\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    # Remove all non-alphanumeric characters\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\n# All tasks from the test project, from input 0\ntest_project_tasks = [i.json for i in _input.all(0)]\n# All tasks from the templates project, from input 1\ntemplate_project_tasks = [i.json for i in _input.all(1)]\n\n# Build a map of parent_id -> list of child tasks for both projects\ntest_subtasks = defaultdict(list)\nfor task in test_project_tasks:\n    if task.get('parent_id'):\n        test_subtasks[task['parent_id']].append(task)\n\ntemplate_subtasks = defaultdict(list)\nfor task in template_project_tasks:\n    if task.get('parent_id'):\n        template_subtasks[task['parent_id']].append(task)\n\n# Create a lookup for top-level templates by their normalized name\ntemplate_lookup = {\n    normalize_name(t.get('content', '')): t\n    for t in template_project_tasks if not t.get('parent_id')\n}\n\nactions = []\n\n# Find tasks in the test project that need to be expanded\nfor task_to_expand in test_project_tasks:\n    if 'templated' in task_to_expand.get('labels', []):\n        normalized_content = normalize_name(task_to_expand.get('content', ''))\n        template = template_lookup.get(normalized_content)\n\n        if not template:\n            continue\n\n        # 1. Generate UPDATE action for the main task\n        original_labels = task_to_expand.get('labels', [])\n        template_labels = template.get('labels', [])\n        combined_labels = list(set(original_labels + template_labels))\n        final_labels = [label for label in combined_labels if label != 'templated']\n\n        update_payload = {\n            'task_id': task_to_expand['id'],\n            'project_id': task_to_expand['project_id'],\n            'content': template.get('content'),\n            'original_content': task_to_expand['content'],\n            'description': template.get('description'),\n            'priority': template.get('priority'),\n            'due': template.get('due'),\n            'labels': final_labels,\n            # 'TEMPLATE_SUBTASKS': template_subtasks\n        }\n        actions.append({'json': {'action': 'update_task', 'payload': update_payload}})\n\n        # 2. Generate DELETE actions for existing subtasks\n        existing_subtask_list = test_subtasks.get(task_to_expand['id'], [])\n        for subtask in existing_subtask_list:\n            delete_payload = {'task_id': subtask['id']}\n            actions.append({'json': {'action': 'delete_task', 'payload': delete_payload}})\n\n        # 3. Generate CREATE actions for new subtasks from the template\n        new_subtask_list = template_subtasks.get(template['id'], [])\n        for subtask_template in new_subtask_list:\n            create_payload = {\n                'content': subtask_template.get('content'),\n                'description': subtask_template.get('description'),\n                'priority': subtask_template.get('priority'),\n                'due': subtask_template.get('due'),\n                'labels': subtask_template.get('labels', []),\n                'parent_id': task_to_expand['id'],\n                'project_id': task_to_expand.get('project_id')\n            }\n            actions.append({'json': {'action': 'create_task', 'payload': create_payload}})\n\nreturn actions"
+        "pythonCode": "from collections import defaultdict\n\ndef normalize_name(value):\n    if not value:\n        return ''\n    # Strips leading emojis and spaces\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    # Remove all non-alphanumeric characters\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\n# All tasks from the test project, from input 0\ntest_project_tasks = [i.json for i in _input.all(0)]\n# All tasks from the templates project, from input 1\ntemplate_project_tasks = [i.json for i in _input.all(1)]\n\n# Build a map of parent_id -> list of child tasks for both projects\ntest_subtasks = defaultdict(list)\nfor task in test_project_tasks:\n    if task.get('parent_id'):\n        test_subtasks[task['parent_id']].append(task)\n\ntemplate_subtasks = defaultdict(list)\nfor task in template_project_tasks:\n    if task.get('parent_id'):\n        template_subtasks[task['parent_id']].append(task)\n\n# Create a lookup for top-level templates by their normalized name\ntemplate_lookup = {\n    normalize_name(t.get('content', '')): t\n    for t in template_project_tasks if not t.get('parent_id')\n}\n\nactions = []\n\n# Find tasks in the test project that need to be expanded\nfor task_to_expand in test_project_tasks:\n    if 'templated' in task_to_expand.get('labels', []):\n        normalized_content = normalize_name(task_to_expand.get('content', ''))\n        template = template_lookup.get(normalized_content)\n\n        if not template:\n            continue\n\n        # 1. Generate UPDATE action for the main task\n        original_labels = task_to_expand.get('labels', [])\n        template_labels = template.get('labels', [])\n        combined_labels = list(set(original_labels + template_labels))\n        final_labels = [label for label in combined_labels if label != 'templated']\n\n        update_payload = {\n            'task_id': task_to_expand['id'],\n            'project_id': task_to_expand['project_id'],\n            'content': template.get('content'),\n            'original_content': task_to_expand['content'],\n            'description': template.get('description'),\n            'priority': template.get('priority'),\n            'due': template.get('due', \"\"),\n            'labels': final_labels,\n            # 'TEMPLATE_SUBTASKS': template_subtasks\n        }\n        actions.append({'json': {'action': 'update_task', 'payload': update_payload}})\n\n        # 2. Generate DELETE actions for existing subtasks\n        existing_subtask_list = test_subtasks.get(task_to_expand['id'], [])\n        for subtask in existing_subtask_list:\n            delete_payload = {'task_id': subtask['id']}\n            actions.append({'json': {'action': 'delete_task', 'payload': delete_payload}})\n\n        # 3. Generate CREATE actions for new subtasks from the template\n        new_subtask_list = template_subtasks.get(template['id'], [])\n        for subtask_template in new_subtask_list:\n            create_payload = {\n                'content': subtask_template.get('content'),\n                'description': subtask_template.get('description'),\n                'priority': subtask_template.get('priority'),\n                'due': subtask_template.get('due', \"\"),\n                'labels': subtask_template.get('labels', []),\n                'parent_id': task_to_expand['id'],\n                'project_id': task_to_expand.get('project_id')\n            }\n            actions.append({'json': {'action': 'create_task', 'payload': create_payload}})\n\nreturn actions"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -196,8 +190,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 2,
       "position": [
-        1056,
-        -128
+        1072,
+        128
       ],
       "name": "Process Actions one by one",
       "id": "4bb77ff6-9351-4a70-b4e8-c4f83801e707"
@@ -235,7 +229,10 @@
         "taskId": "={{$json.payload.task_id}}",
         "updateFields": {
           "content": "={{$json.payload.content}}",
-          "labels": "={{$json.payload.labels}}"
+          "description": "={{$json.payload.description}}",
+          "labels": "={{$json.payload.labels }}",
+          "priority": "={{$json.payload.priority}}",
+          "dueDate": "={{$json.payload.due ?? \"\"}}"
         }
       },
       "type": "n8n-nodes-base.todoist",
@@ -333,6 +330,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-09T12:19:26.000Z",
-  "versionId": "83236772-20c3-438e-b0f6-c0c7c635e1d5"
+  "updatedAt": "2025-10-09T12:51:11.000Z",
+  "versionId": "9cf25a69-c33a-41eb-9c7b-1e56e8fb5e41"
 }
