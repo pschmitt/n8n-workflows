@@ -5,18 +5,87 @@
       "main": [
         [
           {
-            "node": "Get tasks to update",
+            "node": "Get Test Project Tasks",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get tasks to update": {
+    "Get Test Project Tasks": {
       "main": [
         [
           {
-            "node": "Get template tasks",
+            "node": "Merge Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get template tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge Tasks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Tasks": {
+      "main": [
+        [
+          {
+            "node": "Build Expansion Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Expansion Actions": {
+      "main": [
+        [
+          {
+            "node": "Process Actions one by one",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Actions one by one": {
+      "main": [
+        [
+          {
+            "node": "Route Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Action": {
+      "main": [
+        [
+          {
+            "node": "Update Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Task",
             "type": "main",
             "index": 0
           }
@@ -30,17 +99,17 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "name": "☑️ Todoist Template Expander (recursive, same-section)",
+  "name": "☑️ Todoist Template Expander",
   "nodes": [
     {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -224,
-        -144
+        160,
+        -224
       ],
-      "id": "eff449da-4d7b-45fa-844d-9b52647ab1c4",
+      "id": "56b0900f-c6bf-43be-a4e5-7aaca4425ab1",
       "name": "When clicking ‘Execute workflow’"
     },
     {
@@ -48,18 +117,17 @@
         "operation": "getAll",
         "returnAll": true,
         "filters": {
-          "labelId": "templated",
           "projectId": "2233792081"
         }
       },
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        0,
-        -144
+        384,
+        -224
       ],
-      "id": "b3018d99-9d45-4354-a6de-8ace5e01df5a",
-      "name": "Get tasks to update",
+      "id": "2eb68f40-c29c-4e1b-a17d-d435fd5c9752",
+      "name": "Get Test Project Tasks",
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -78,11 +146,154 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        224,
+        384,
+        -32
+      ],
+      "id": "571f4bf1-41da-4cc1-bc37-728f0a9f2469",
+      "name": "Get template tasks",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        608,
+        -128
+      ],
+      "name": "Merge Tasks",
+      "id": "67569839-a09f-4ec4-b780-d34f3154204b"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "from collections import defaultdict\n\ndef normalize_name(value):\n    if not value:\n        return ''\n    # Strips leading emojis and spaces\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    # Remove all non-alphanumeric characters\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\n# All tasks from the test project, from input 0\ntest_project_tasks = [i.json for i in _input.all(0)]\n# All tasks from the templates project, from input 1\ntemplate_project_tasks = [i.json for i in _input.all(1)]\n\n# Build a map of parent_id -> list of child tasks for both projects\ntest_subtasks = defaultdict(list)\nfor task in test_project_tasks:\n    if task.get('parent_id'):\n        test_subtasks[task['parent_id']].append(task)\n\ntemplate_subtasks = defaultdict(list)\nfor task in template_project_tasks:\n    if task.get('parent_id'):\n        template_subtasks[task['parent_id']].append(task)\n\n# Create a lookup for top-level templates by their normalized name\ntemplate_lookup = {\n    normalize_name(t.get('content', '')): t\n    for t in template_project_tasks if not t.get('parent_id')\n}\n\nactions = []\n\n# Find tasks in the test project that need to be expanded\nfor task_to_expand in test_project_tasks:\n    if 'templated' in task_to_expand.get('labels', []):\n        normalized_content = normalize_name(task_to_expand.get('content', ''))\n        template = template_lookup.get(normalized_content)\n\n        if not template:\n            continue\n\n        # 1. Generate UPDATE action for the main task\n        original_labels = task_to_expand.get('labels', [])\n        template_labels = template.get('labels', [])\n        combined_labels = list(set(original_labels + template_labels))\n        final_labels = [label for label in combined_labels if label != 'templated']\n\n        update_payload = {\n            'task_id': task_to_expand['id'],\n            'project_id': task_to_expand['project_id'],\n            'content': template.get('content'),\n            'description': template.get('description'),\n            'priority': template.get('priority'),\n            'due': template.get('due'),\n            'labels': final_labels\n        }\n        actions.append({'json': {'action': 'update_task', 'payload': update_payload}})\n\n        # 2. Generate DELETE actions for existing subtasks\n        existing_subtask_list = test_subtasks.get(task_to_expand['id'], [])\n        for subtask in existing_subtask_list:\n            delete_payload = {'task_id': subtask['id']}\n            actions.append({'json': {'action': 'delete_task', 'payload': delete_payload}})\n\n        # 3. Generate CREATE actions for new subtasks from the template\n        new_subtask_list = template_subtasks.get(template['id'], [])\n        for subtask_template in new_subtask_list:\n            create_payload = {\n                'content': subtask_template.get('content'),\n                'description': subtask_template.get('description'),\n                'priority': subtask_template.get('priority'),\n                'due': subtask_template.get('due'),\n                'labels': subtask_template.get('labels', []),\n                'parent_id': task_to_expand['id'],\n                'project_id': task_to_expand.get('project_id')\n            }\n            actions.append({'json': {'action': 'create_task', 'payload': create_payload}})\n\nreturn actions"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        -128
+      ],
+      "name": "Build Expansion Actions",
+      "id": "e4ee7940-0034-46ba-9f3d-a732030dbcf1"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        -128
+      ],
+      "name": "Process Actions one by one",
+      "id": "4bb77ff6-9351-4a70-b4e8-c4f83801e707"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.action}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "update_task"
+            },
+            {
+              "value2": "delete_task"
+            },
+            {
+              "value2": "create_task"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        1280,
         -144
       ],
-      "id": "549c5a8f-16de-4052-86a0-ec58dd859582",
-      "name": "Get template tasks",
+      "name": "Route Action",
+      "id": "24d6aea3-d537-4ec1-86f5-9fa92081b144"
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "={{$json.payload.project_id}}",
+          "mode": "id"
+        },
+        "content": "={{$json.payload.content}}",
+        "options": {
+          "description": "={{$json.payload.description}}",
+          "priority": "={{$json.payload.priority}}"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        1504,
+        -320
+      ],
+      "name": "Update Task",
+      "id": "0ddcaf97-1226-41ec-af5e-2f209a2716df",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "taskId": "={{$json.payload.task_id}}"
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        1504,
+        -128
+      ],
+      "name": "Delete Task",
+      "id": "2887ba2a-fcdb-4c98-8c60-ec98ec7a247b",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "={{$json.payload.project_id}}",
+          "mode": "id"
+        },
+        "content": "={{$json.payload.content}}",
+        "options": {
+          "description": "={{$json.payload.description}}",
+          "parentId": "={{$json.payload.parent_id}}",
+          "priority": "={{$json.payload.priority}}"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        1504,
+        64
+      ],
+      "name": "Create Task",
+      "id": "231cbe30-2e27-4bd1-852a-2e0c8072f3fb",
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -121,6 +332,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-09T10:40:26.000Z",
-  "versionId": "d85c0e69-a988-4fd7-af4a-8b2f8b9338c9"
+  "updatedAt": "2025-10-09T11:19:10.000Z",
+  "versionId": "6184c3d3-1b31-45fb-8607-0cce9788536e"
 }
