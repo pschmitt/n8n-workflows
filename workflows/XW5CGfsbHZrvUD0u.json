@@ -8,6 +8,11 @@
             "node": "Get Test Project Tasks",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Get template tasks",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -95,7 +100,7 @@
   },
   "createdAt": "2025-10-09T14:54:54.645Z",
   "id": "XW5CGfsbHZrvUD0u",
-  "isArchived": false,
+  "isArchived": true,
   "meta": null,
   "name": "☑️ Todoist Template Expander (JULES)",
   "nodes": [
@@ -104,8 +109,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        -80,
+        176
       ],
       "id": "93c3cf62-1f0d-41bf-973e-7366ca5e6d1b",
       "name": "When clicking ‘Execute workflow’"
@@ -122,7 +127,7 @@
       "typeVersion": 2.1,
       "position": [
         224,
-        0
+        96
       ],
       "id": "e5d6066c-eb56-409f-86fe-c1c3ca01cee1",
       "name": "Get Test Project Tasks",
@@ -145,7 +150,7 @@
       "typeVersion": 2.1,
       "position": [
         224,
-        224
+        288
       ],
       "id": "85265f6c-139a-4a6a-bf75-c59b7c64f611",
       "name": "Get template tasks",
@@ -162,7 +167,7 @@
       "typeVersion": 3,
       "position": [
         448,
-        112
+        192
       ],
       "name": "Merge Tasks",
       "id": "02d491c6-2505-41dd-9e32-ffaa32f4763c"
@@ -176,7 +181,7 @@
       "typeVersion": 2,
       "position": [
         672,
-        112
+        192
       ],
       "name": "Build Expansion Actions",
       "id": "b48fc681-6f09-4d8a-b919-d576c505f9c9"
@@ -190,7 +195,7 @@
       "typeVersion": 2,
       "position": [
         896,
-        112
+        192
       ],
       "name": "Process Actions one by one",
       "id": "fb4881a1-eecf-4942-885c-5934ac41a2d1"
@@ -217,7 +222,7 @@
       "typeVersion": 2,
       "position": [
         1120,
-        112
+        176
       ],
       "name": "Route Action",
       "id": "ea9e7f5c-23de-4922-a4f0-afc7f6c8f1b4"
@@ -226,9 +231,11 @@
       "parameters": {
         "project": {
           "__rl": true,
+          "value": "2233792081",
           "mode": "list",
-          "value": ""
+          "cachedResultName": "🧪 Test (meta)"
         },
+        "content": "={{$json.payload.content }}",
         "options": {
           "description": "={{$json.payload.description}}",
           "priority": "={{$json.payload.priority}}"
@@ -238,7 +245,7 @@
       "typeVersion": 2.1,
       "position": [
         1344,
-        16
+        0
       ],
       "name": "Update Task",
       "id": "df373bf9-596d-4120-9028-2b409ef4bf6b",
@@ -258,7 +265,7 @@
       "typeVersion": 2.1,
       "position": [
         1344,
-        112
+        192
       ],
       "name": "Delete Task",
       "id": "a09a8baa-7bda-4b6d-b0cf-2f19ca8c0dda",
@@ -273,8 +280,9 @@
       "parameters": {
         "project": {
           "__rl": true,
+          "value": "2233792081",
           "mode": "list",
-          "value": ""
+          "cachedResultName": "🧪 Test (meta)"
         },
         "content": "={{$json.payload.content}}",
         "options": {
@@ -287,7 +295,7 @@
       "typeVersion": 2.1,
       "position": [
         1344,
-        208
+        384
       ],
       "name": "Create Task",
       "id": "4bb16186-fccc-453c-906d-0478375a16ec",
@@ -318,6 +326,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-10-09T14:54:54.645Z",
-  "versionId": "cf6ec33e-f99a-4845-a8d9-153e99848c07"
+  "updatedAt": "2025-10-09T15:01:48.000Z",
+  "versionId": "13a7555a-05a0-4f9a-be5a-437198dc5014"
 }
