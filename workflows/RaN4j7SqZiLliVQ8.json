@@ -1,0 +1,388 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Test Project Tasks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get template tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Test Project Tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get template tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge Tasks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Tasks": {
+      "main": [
+        [
+          {
+            "node": "Build Expansion Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Expansion Actions": {
+      "main": [
+        [
+          {
+            "node": "Route Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Action": {
+      "main": [
+        [
+          {
+            "node": "Update Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Task": {
+      "main": [
+        [
+          {
+            "node": "Split Top-Level Subtasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Create Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create Recursive Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Recursive Task": {
+      "main": [
+        [
+          {
+            "node": "Split Nested Subtasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-09T16:39:03.500Z",
+  "id": "RaN4j7SqZiLliVQ8",
+  "isArchived": true,
+  "meta": null,
+  "name": "☑️ Todoist Template Expander",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        192
+      ],
+      "id": "3ec10762-fcc8-41fc-8e83-b2e1d6e12d08",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "projectId": "2233792081"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        96
+      ],
+      "id": "fdcb5467-744e-4d9f-b51d-5aa68ab8761b",
+      "name": "Get Test Project Tasks",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "projectId": "2360682540"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        288
+      ],
+      "id": "75df04c9-70ad-4705-ba20-378fa0938daa",
+      "name": "Get template tasks",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -672,
+        192
+      ],
+      "name": "Merge Tasks",
+      "id": "2bf95558-9a54-4ad9-be54-c9f8c4c1faf7"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "from collections import defaultdict\n\ndef normalize_name(value):\n    if not value:\n        return ''\n    # Strips leading emojis and spaces\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    # Remove all non-alphanumeric characters\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\ndef build_subtask_tree(parent_template_id, template_subtasks):\n    subtask_templates = template_subtasks.get(parent_template_id, [])\n    tree = []\n    for subtask_template in subtask_templates:\n        node = {\n            'content': subtask_template.get('content'),\n            'description': subtask_template.get('description'),\n            'priority': subtask_template.get('priority'),\n            'due': subtask_template.get('due'),\n            'labels': subtask_template.get('labels', []),\n            'subtasks': build_subtask_tree(subtask_template['id'], template_subtasks)\n        }\n        tree.append(node)\n    return tree\n\n# All tasks from the test project, from input 0\ntest_project_tasks = [i.json for i in _input.all(0)]\n# All tasks from the templates project, from input 1\ntemplate_project_tasks = [i.json for i in _input.all(1)]\n\n# Build a map of parent_id -> list of child tasks for both projects\ntest_subtasks = defaultdict(list)\nfor task in test_project_tasks:\n    if task.get('parent_id'):\n        test_subtasks[task['parent_id']].append(task)\n\ntemplate_subtasks = defaultdict(list)\nfor task in template_project_tasks:\n    if task.get('parent_id'):\n        template_subtasks[task['parent_id']].append(task)\n\n# Create a lookup for top-level templates by their normalized name\ntemplate_lookup = {\n    normalize_name(t.get('content', '')): t\n    for t in template_project_tasks if not t.get('parent_id')\n}\n\nactions = []\n\n# Find tasks in the test project that need to be expanded\nfor task_to_expand in test_project_tasks:\n    if 'templated' in task_to_expand.get('labels', []):\n        normalized_content = normalize_name(task_to_expand.get('content', ''))\n        template = template_lookup.get(normalized_content)\n\n        if not template:\n            continue\n\n        # 1. Generate UPDATE action for the main task\n        original_labels = task_to_expand.get('labels', [])\n        template_labels = template.get('labels', [])\n        combined_labels = list(set(original_labels + template_labels))\n        final_labels = [label for label in combined_labels if label != 'templated']\n\n        subtask_tree = build_subtask_tree(template['id'], template_subtasks)\n\n        update_payload = {\n            'task_id': task_to_expand['id'],\n            'project_id': task_to_expand['project_id'],\n            'content': template.get('content'),\n            'description': template.get('description'),\n            'priority': template.get('priority'),\n            'due': template.get('due'),\n            'labels': final_labels,\n            'subtasks': subtask_tree\n        }\n        actions.append({'json': {'action': 'update_task', 'payload': update_payload}})\n\n        # 2. Generate DELETE actions for existing subtasks\n        existing_subtask_list = test_subtasks.get(task_to_expand['id'], [])\n        for subtask in existing_subtask_list:\n            delete_payload = {'task_id': subtask['id']}\n            actions.append({'json': {'action': 'delete_task', 'payload': delete_payload}})\n\nreturn actions"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        192
+      ],
+      "name": "Build Expansion Actions",
+      "id": "b3c3244f-2c3c-4d68-9886-b320be225932"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.action}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "update_task"
+            },
+            {
+              "value2": "delete_task"
+            },
+            {
+              "value2": "create_task"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        176
+      ],
+      "name": "Route Action",
+      "id": "a56745af-81fc-4b57-98ab-eeef681e3410"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "taskId": "={{$json.payload.task_id}}",
+        "updateFields": {
+          "content": "={{$json.payload.content}}",
+          "description": "={{$json.payload.description}}",
+          "labels": "={{$json.payload.labels }}",
+          "priority": "={{$json.payload.priority}}",
+          "dueDate": "={{$json.payload.due ?? \"\"}}"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Update Task",
+      "id": "2a004b46-b54e-461b-9674-8c6ff67351c5",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "taskId": "={{$json.payload.task_id}}"
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        192
+      ],
+      "name": "Delete Task",
+      "id": "3dddd8f8-1136-4098-93dc-a984be1adb29",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "085c4252-af3c-41bc-8ca3-e1e14f146862",
+      "name": "Split Top-Level Subtasks",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "648467a3-fbe0-48b3-80c3-24a89a3047a8",
+      "name": "Start Subtask Creation",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "50df70f6-2bda-4106-aafa-6e1e027fc1c0",
+      "name": "Recursive Create Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "={{$json.project_id}}",
+          "mode": "id"
+        },
+        "content": "={{$json.content}}",
+        "options": {
+          "description": "={{$json.description}}",
+          "parentId": "={{$json.parent_id}}",
+          "priority": "={{$json.priority}}"
+        }
+      },
+      "id": "0e1b6a9b-c0c7-4580-ae1b-4d20e53fbcc4",
+      "name": "Create Recursive Task",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        528
+      ],
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3fe45436-d441-413a-98fb-bceaf2389a8f",
+      "name": "Split Nested Subtasks",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -672,
+        528
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "724f4519-0594-4fb5-a3a0-f53cbe31b2f6",
+      "name": "Create Nested Subtasks Recursively",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        528
+      ]
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n-workflows",
+  "repo_owner": "pschmitt",
+  "repo_path": "workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-09T16:39:03.503Z",
+      "updatedAt": "2025-10-09T16:39:03.503Z",
+      "role": "workflow:owner",
+      "workflowId": "RaN4j7SqZiLliVQ8",
+      "projectId": "DeJsGrmui3Dbhpxg"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-09T16:44:20.000Z",
+  "versionId": "18ab002e-9797-49e3-b42a-491555162c16"
+}
