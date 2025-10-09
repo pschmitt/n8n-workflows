@@ -147,7 +147,7 @@
   "id": "Cn52l2tyDuelpI52",
   "isArchived": false,
   "meta": null,
-  "name": "☑️ Todoist Template Expander",
+  "name": "☑️ Todoist Template Expander (with subtasks!)",
   "nodes": [
     {
       "parameters": {},
@@ -409,6 +409,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-10-09T17:08:23.000Z",
-  "versionId": "b74feb4b-3971-4016-a83d-29378f16f671"
+  "updatedAt": "2025-10-09T18:49:41.000Z",
+  "versionId": "6b71c6e4-d5cb-4e35-b668-e85e2f09da84"
 }
