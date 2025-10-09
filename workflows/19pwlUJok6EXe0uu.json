@@ -1,7 +1,7 @@
 {
   "active": true,
   "connections": {
-    "When clicking ‘Test workflow’": {
+    "When clicking \u2018Test workflow\u2019": {
       "main": [
         [
           {
@@ -61,6 +61,11 @@
         [
           {
             "node": "Fetch Template Tasks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Templated Tasks",
             "type": "main",
             "index": 0
           }
@@ -172,6 +177,17 @@
           }
         ]
       ]
+    },
+    "Fetch Templated Tasks": {
+      "main": [
+        [
+          {
+            "node": "Build Template Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-09-26T19:31:19.369Z",
@@ -180,7 +196,7 @@
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "name": "☑️ Todoist Template Expander (recursive, same-section)",
+  "name": "\u2611\ufe0f Todoist Template Expander (recursive, same-section)",
   "nodes": [
     {
       "parameters": {},
@@ -190,7 +206,7 @@
         -128,
         200
       ],
-      "name": "When clicking ‘Test workflow’",
+      "name": "When clicking \u2018Test workflow\u2019",
       "id": "dbd39a33-8420-4ab9-a82f-0581edaa808d"
     },
     {
@@ -295,7 +311,7 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "def normalize_name(value):\n    if not value:\n        return ''\n    # Strips leading emojis and spaces\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    # Remove all non-alphanumeric characters\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\nprojects = [i.json for i in _input.all()]\nfor p in projects:\n  if normalize_name(p.get('name','')) == 'templates':\n    return [{ 'json': { 'templatesProjectId': p.get('id'), 'templatesProject': p } }]\nreturn []\n"
+        "pythonCode": "def normalize_name(value):\n    if not value:\n        return ''\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\nprojects = [i.json for i in _input.all()]\n\ntemplates_project = None\ntest_project = None\n\nfor project in projects:\n    normalized = normalize_name(project.get('name', ''))\n    if normalized == 'templates' and templates_project is None:\n        templates_project = project\n    if normalized == 'testmeta' and test_project is None:\n        test_project = project\n\nif not templates_project or not test_project:\n    return []\n\nreturn [{\n    'json': {\n        'templatesProjectId': templates_project.get('id'),\n        'templatesProject': templates_project,\n        'testProjectId': test_project.get('id'),\n        'testProject': test_project,\n    }\n}]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -333,8 +349,34 @@
     },
     {
       "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "projectId": "={{$node[\"Select Templates Project\"].json.testProjectId}}",
+          "filter": "@templated"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        768,
+        8
+      ],
+      "name": "Fetch Templated Tasks",
+      "id": "5c0cf404-f81e-47be-980f-0dd9a33a2c6c",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
         "language": "python",
-        "pythonCode": "import re\nfrom collections import defaultdict\n\ndef to_key(value):\n  if value is None:\n    return None\n  if isinstance(value, str):\n    value = value.strip()\n    return value or None\n  return str(value)\n\ndef normalize_name(value):\n  if not value:\n    return ''\n  # Strips leading emojis and spaces\n  first_alnum_index = -1\n  for i, char in enumerate(value):\n      if char.isalnum():\n          first_alnum_index = i\n          break\n  if first_alnum_index == -1:\n      return ''\n  value = value[first_alnum_index:]\n  return ''.join(ch for ch in value.lower() if ch.isalnum())\n\ndef pick_value(*values):\n  for value in values:\n    if value is not None:\n      return value\n  return None\n\ndef build_payload(template, is_root):\n  return {\n    'templateId': template.get('id'),\n    'parentTemplateId': pick_value(template.get('parent_id'), template.get('parentId')),\n    'content': template.get('content', ''),\n    'description': template.get('description') or '',\n    'priority': template.get('priority'),\n    'labels': template.get('labels') or [],\n    'order': template.get('order'),\n    'childOrder': pick_value(template.get('child_order'), template.get('childOrder')),\n    'due': template.get('due') or {},\n    'isRoot': is_root,\n  }\n\ndef gather_templates():\n  tasks = []\n  for item in _('Fetch Template Tasks').all():\n    payload = getattr(item, 'json', None) or {}\n    if isinstance(payload, dict):\n      tasks.append(payload)\n  return tasks\n\ndef gather_projects():\n  items = []\n  for item in _('Fetch Projects').all():\n    payload = getattr(item, 'json', None) or {}\n    if isinstance(payload, dict):\n      items.append(payload)\n  return items\n\nsel = _('Select Templates Project').first()\nif not sel:\n  return []\nsettings = getattr(sel, 'json', {}) or {}\ntemplates_project_id = settings.get('templatesProjectId')\nif not templates_project_id:\n  return []\n\ntemplate_tasks = gather_templates()\nif not template_tasks:\n  return []\n\nprojects = gather_projects()\n\nallowed_projects = set()\nlimit_to_test_project = True\ntest_project_name = '🧪 Test (meta)'\nif limit_to_test_project:\n  for project in projects:\n    name = (project.get('name') or '').strip()\n    if name == test_project_name:\n      pid = pick_value(project.get('id'), project.get('project_id'))\n      if pid:\n        allowed_projects.add(pid)\n      break\nelse:\n  for project in projects:\n    pid = pick_value(project.get('id'), project.get('project_id'))\n    if pid and pid != templates_project_id:\n      allowed_projects.add(pid)\n\nchildren = defaultdict(list)\nfor task in template_tasks:\n  parent_raw = pick_value(task.get('parent_id'), task.get('parentId'))\n  if parent_raw:\n    parent_key = to_key(parent_raw)\n    if parent_key:\n      children[parent_key].append(task)\n\nfor siblings in children.values():\n  siblings.sort(key=lambda x: pick_value(x.get('child_order'), x.get('childOrder')) or 0)\n\ndef walk_subtree(root):\n  ordered = []\n  stack = [root]\n  while stack:\n    node = stack.pop()\n    ordered.append(node)\n    node_key = to_key(pick_value(node.get('id'), node.get('task_id'), node.get('taskId')))\n    kid_list = children.get(node_key, [])\n    for child in reversed(kid_list):\n      stack.append(child)\n  return ordered\n\nindex = []\nfor task in template_tasks:\n  name = normalize_name(task.get('content', ''))\n  if name:\n    index.append((task, name))\n\npattern = re.compile(r'^\\$\\s*(.+)$', re.I)\nresults = []\n\ndef build_placeholder(payload):\n  return {\n    'id': payload.get('id'),\n    'project_id': pick_value(payload.get('project_id'), payload.get('projectId')),\n    'projectId': payload.get('projectId'),\n    'section_id': pick_value(payload.get('section_id'), payload.get('sectionId')),\n    'sectionId': payload.get('sectionId'),\n    'parent_id': pick_value(payload.get('parent_id'), payload.get('parentId')),\n    'parentId': payload.get('parentId'),\n    'order': payload.get('order'),\n    'child_order': pick_value(payload.get('child_order'), payload.get('childOrder')),\n  }\n\nfor item in _input.all():\n  payload = getattr(item, 'json', None) or {}\n  if not isinstance(payload, dict):\n    continue\n  project_id = pick_value(payload.get('project_id'), payload.get('projectId'))\n  if project_id == templates_project_id:\n    continue\n  if allowed_projects and project_id not in allowed_projects:\n    continue\n  match = pattern.match(payload.get('content') or '')\n  if not match:\n    continue\n  template_name = normalize_name(match.group(1))\n  if not template_name:\n    continue\n  candidates = [task for task, name in index if name == template_name]\n  candidates.sort(key=lambda task: (pick_value(task.get('parent_id'), task.get('parentId')) is not None, pick_value(task.get('child_order'), task.get('childOrder')) or 0))\n  root = candidates[0] if candidates else None\n  if not root:\n    continue\n  if pick_value(root.get('parent_id'), root.get('parentId')):\n    continue\n  subtree = walk_subtree(root)\n  if not subtree:\n    continue\n\n  placeholder = build_placeholder(payload)\n  placeholder_key = to_key(placeholder.get('id'))\n  if placeholder_key is None:\n    continue\n\n  total_creates = len(subtree)\n  root_payload = build_payload(subtree[0], True)\n\n  results.append({'json': {\n    'action': 'preparePlaceholder',\n    'placeholder': placeholder,\n    'placeholderKey': placeholder_key,\n    'rootTask': root_payload,\n    'totalCreateActions': total_creates,\n  }})\n\n  for idx, tmpl in enumerate(subtree):\n    task_payload = build_payload(tmpl, idx == 0)\n    results.append({'json': {\n      'action': 'createFromTemplate',\n      'placeholder': placeholder,\n      'placeholderKey': placeholder_key,\n      'task': task_payload,\n      'isLastAction': (idx + 1) == total_creates,\n    }})\n\nreturn results"
+        "pythonCode": "from collections import defaultdict\n\ndef to_key(value):\n    if value is None:\n        return None\n    if isinstance(value, str):\n        value = value.strip()\n        return value or None\n    return str(value)\n\ndef normalize_name(value):\n    if not value:\n        return ''\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\ndef pick_value(*values):\n    for value in values:\n        if value is not None:\n            return value\n    return None\n\ndef build_payload(template, is_root):\n    return {\n        'templateId': template.get('id'),\n        'parentTemplateId': pick_value(template.get('parent_id'), template.get('parentId')),\n        'content': template.get('content', ''),\n        'description': template.get('description') or '',\n        'priority': template.get('priority'),\n        'labels': template.get('labels') or [],\n        'order': template.get('order'),\n        'childOrder': pick_value(template.get('child_order'), template.get('childOrder')),\n        'due': template.get('due') or {},\n        'isRoot': is_root,\n    }\n\ndef gather_templates():\n    tasks = []\n    for item in _('Fetch Template Tasks').all():\n        payload = getattr(item, 'json', None) or {}\n        if isinstance(payload, dict):\n            tasks.append(payload)\n    return tasks\n\ndef gather_templated_tasks():\n    tasks = []\n    for item in _('Fetch Templated Tasks').all():\n        payload = getattr(item, 'json', None) or {}\n        if isinstance(payload, dict):\n            tasks.append(payload)\n    return tasks\n\nsel = _('Select Templates Project').first()\nif not sel:\n    return []\nsettings = getattr(sel, 'json', {}) or {}\ntemplates_project_id = settings.get('templatesProjectId')\ntest_project_id = settings.get('testProjectId')\nif not templates_project_id or not test_project_id:\n    return []\n\ntemplated_tasks = gather_templated_tasks()\nif not templated_tasks:\n    return []\n\ntemplate_tasks = gather_templates()\nif not template_tasks:\n    return []\n\ntest_project_key = to_key(test_project_id)\nif test_project_key is None:\n    return []\n\nchildren = defaultdict(list)\nfor task in template_tasks:\n    parent_raw = pick_value(task.get('parent_id'), task.get('parentId'))\n    if parent_raw:\n        parent_key = to_key(parent_raw)\n        if parent_key:\n            children[parent_key].append(task)\n\nfor siblings in children.values():\n    siblings.sort(key=lambda x: pick_value(x.get('child_order'), x.get('childOrder')) or 0)\n\ndef walk_subtree(root):\n    ordered = []\n    stack = [root]\n    while stack:\n        node = stack.pop()\n        ordered.append(node)\n        node_key = to_key(pick_value(node.get('id'), node.get('task_id'), node.get('taskId')))\n        kid_list = children.get(node_key, [])\n        for child in reversed(kid_list):\n            stack.append(child)\n    return ordered\n\nindex = {}\nfor task in template_tasks:\n    if pick_value(task.get('parent_id'), task.get('parentId')):\n        continue\n    name = normalize_name(task.get('content', ''))\n    if name:\n        index.setdefault(name, []).append(task)\n\nfor candidates in index.values():\n    candidates.sort(key=lambda task: (pick_value(task.get('child_order'), task.get('childOrder')) or 0, pick_value(task.get('id'), task.get('task_id'), task.get('taskId'))))\n\ndef build_placeholder(payload):\n    return {\n        'id': payload.get('id'),\n        'project_id': pick_value(payload.get('project_id'), payload.get('projectId')),\n        'projectId': payload.get('projectId'),\n        'section_id': pick_value(payload.get('section_id'), payload.get('sectionId')),\n        'sectionId': payload.get('sectionId'),\n        'parent_id': pick_value(payload.get('parent_id'), payload.get('parentId')),\n        'parentId': payload.get('parentId'),\n        'order': payload.get('order'),\n        'child_order': pick_value(payload.get('child_order'), payload.get('childOrder')),\n    }\n\nresults = []\n\nfor payload in templated_tasks:\n    project_id = pick_value(payload.get('project_id'), payload.get('projectId'))\n    if to_key(project_id) != test_project_key:\n        continue\n    placeholder_name = normalize_name(payload.get('content') or '')\n    if not placeholder_name:\n        continue\n    candidates = index.get(placeholder_name, [])\n    if not candidates:\n        continue\n    root = candidates[0]\n    subtree = walk_subtree(root)\n    if not subtree:\n        continue\n\n    placeholder = build_placeholder(payload)\n    placeholder_key = to_key(placeholder.get('id'))\n    if placeholder_key is None:\n        continue\n\n    total_creates = len(subtree)\n    root_payload = build_payload(subtree[0], True)\n\n    results.append({'json': {\n        'action': 'preparePlaceholder',\n        'placeholder': placeholder,\n        'placeholderKey': placeholder_key,\n        'rootTask': root_payload,\n        'totalCreateActions': total_creates,\n    }})\n\n    for idx, tmpl in enumerate(subtree):\n        task_payload = build_payload(tmpl, idx == 0)\n        results.append({'json': {\n            'action': 'createFromTemplate',\n            'placeholder': placeholder,\n            'placeholderKey': placeholder_key,\n            'task': task_payload,\n            'isLastAction': (idx + 1) == total_creates,\n        }})\n\nreturn results"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
