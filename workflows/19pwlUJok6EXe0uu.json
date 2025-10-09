@@ -61,11 +61,6 @@
         ]
       ]
     },
-    "Process Actions one by one": {
-      "main": [
-        []
-      ]
-    },
     "Route Action": {
       "main": [
         [
@@ -106,7 +101,7 @@
       "typeVersion": 1,
       "position": [
         160,
-        -224
+        -128
       ],
       "id": "56b0900f-c6bf-43be-a4e5-7aaca4425ab1",
       "name": "When clicking ‘Execute workflow’"
@@ -184,20 +179,6 @@
     },
     {
       "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 2,
-      "position": [
-        1072,
-        128
-      ],
-      "name": "Process Actions one by one",
-      "id": "4bb77ff6-9351-4a70-b4e8-c4f83801e707"
-    },
-    {
-      "parameters": {
         "dataType": "string",
         "value1": "={{$json.action}}",
         "rules": {
@@ -217,7 +198,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        1280,
+        1056,
         -144
       ],
       "name": "Route Action",
@@ -238,7 +219,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1504,
+        1280,
         -320
       ],
       "name": "Update Task",
@@ -258,7 +239,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1504,
+        1280,
         -128
       ],
       "name": "Delete Task",
@@ -287,7 +268,7 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1504,
+        1280,
         64
       ],
       "name": "Create Task",
@@ -330,6 +311,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-09T12:51:11.000Z",
-  "versionId": "9cf25a69-c33a-41eb-9c7b-1e56e8fb5e41"
+  "updatedAt": "2025-10-09T12:52:46.000Z",
+  "versionId": "38a70152-c48b-46a1-beba-1d942ad58fa1"
 }
