@@ -1,0 +1,414 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Test Project Tasks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get template tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Test Project Tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get template tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge Tasks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Tasks": {
+      "main": [
+        [
+          {
+            "node": "Build Expansion Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Expansion Actions": {
+      "main": [
+        [
+          {
+            "node": "Route Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Action": {
+      "main": [
+        [
+          {
+            "node": "Update Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Initialize Loop Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Loop Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Subtasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Subtasks": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Manage Parent ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manage Parent ID": {
+      "main": [
+        [
+          {
+            "node": "Create Subtask in Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Subtask in Loop": {
+      "main": [
+        [
+          {
+            "node": "Update Temp ID Map",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Temp ID Map": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Subtasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-09T17:01:27.201Z",
+  "id": "Cn52l2tyDuelpI52",
+  "isArchived": false,
+  "meta": null,
+  "name": "☑️ Todoist Template Expander",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        192
+      ],
+      "id": "c1b79bd9-c5f3-4e74-8787-e252039bd952",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "projectId": "2233792081"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        96
+      ],
+      "id": "a794ecf8-dcef-4163-b4e3-4f71f3d18f22",
+      "name": "Get Test Project Tasks",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "projectId": "2360682540"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        288
+      ],
+      "id": "da4bd407-81d2-4e8c-8157-ae8aeb9eb674",
+      "name": "Get template tasks",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -672,
+        192
+      ],
+      "name": "Merge Tasks",
+      "id": "7b0fa216-d06c-4042-a7fa-3c8fd721d200"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "from collections import defaultdict\nimport uuid\n\ndef normalize_name(value):\n    if not value:\n        return ''\n    # Strips leading emojis and spaces\n    first_alnum_index = -1\n    for i, char in enumerate(value):\n        if char.isalnum():\n            first_alnum_index = i\n            break\n    if first_alnum_index == -1:\n        return ''\n    value = value[first_alnum_index:]\n    # Remove all non-alphanumeric characters\n    return ''.join(ch for ch in value.lower() if ch.isalnum())\n\ndef build_flat_subtask_list(parent_template_id, parent_temp_id, template_subtasks, flat_list):\n    subtask_templates = template_subtasks.get(parent_template_id, [])\n    for subtask_template in subtask_templates:\n        temp_id = str(uuid.uuid4())\n        node = {\n            'temp_id': temp_id,\n            'parent_temp_id': parent_temp_id,\n            'content': subtask_template.get('content'),\n            'description': subtask_template.get('description'),\n            'priority': subtask_template.get('priority'),\n            'due': subtask_template.get('due'),\n            'labels': subtask_template.get('labels', [])\n        }\n        flat_list.append(node)\n        build_flat_subtask_list(subtask_template['id'], temp_id, template_subtasks, flat_list)\n\n# All tasks from the test project, from input 0\ntest_project_tasks = [i.json for i in _input.all(0)]\n# All tasks from the templates project, from input 1\ntemplate_project_tasks = [i.json for i in _input.all(1)]\n\n# Build a map of parent_id -> list of child tasks for both projects\ntest_subtasks = defaultdict(list)\nfor task in test_project_tasks:\n    if task.get('parent_id'):\n        test_subtasks[task['parent_id']].append(task)\n\ntemplate_subtasks = defaultdict(list)\nfor task in template_project_tasks:\n    if task.get('parent_id'):\n        template_subtasks[task['parent_id']].append(task)\n\n# Create a lookup for top-level templates by their normalized name\ntemplate_lookup = {\n    normalize_name(t.get('content', '')): t\n    for t in template_project_tasks if not t.get('parent_id')\n}\n\nactions = []\n\n# Find tasks in the test project that need to be expanded\nfor task_to_expand in test_project_tasks:\n    if 'templated' in task_to_expand.get('labels', []):\n        normalized_content = normalize_name(task_to_expand.get('content', ''))\n        template = template_lookup.get(normalized_content)\n\n        if not template:\n            continue\n\n        # 1. Generate UPDATE action for the main task\n        original_labels = task_to_expand.get('labels', [])\n        template_labels = template.get('labels', [])\n        combined_labels = list(set(original_labels + template_labels))\n        final_labels = [label for label in combined_labels if label != 'templated']\n\n        update_payload = {\n            'task_id': task_to_expand['id'],\n            'project_id': task_to_expand['project_id'],\n            'content': template.get('content'),\n            'description': template.get('description'),\n            'priority': template.get('priority'),\n            'due': template.get('due'),\n            'labels': final_labels\n        }\n        actions.append({'json': {'action': 'update_task', 'payload': update_payload}})\n\n        # 2. Generate DELETE actions for existing subtasks\n        existing_subtask_list = test_subtasks.get(task_to_expand['id'], [])\n        for subtask in existing_subtask_list:\n            delete_payload = {'task_id': subtask['id']}\n            actions.append({'json': {'action': 'delete_task', 'payload': delete_payload}})\n\n        # 3. Generate a single CREATE_SUBTASKS action with a flat list of tasks\n        subtasks_to_create = []\n        build_flat_subtask_list(template['id'], None, template_subtasks, subtasks_to_create)\n        \n        if subtasks_to_create:\n            create_payload = {\n                'parent_id': task_to_expand['id'],\n                'project_id': task_to_expand['project_id'],\n                'subtasks': subtasks_to_create\n            }\n            actions.append({'json': {'action': 'create_subtasks', 'payload': create_payload}})\n\nreturn actions"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        192
+      ],
+      "name": "Build Expansion Actions",
+      "id": "a00ac4c4-53c8-417f-9893-b1c872bfdd19"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.action}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "update_task"
+            },
+            {
+              "value2": "delete_task"
+            },
+            {
+              "value2": "create_subtasks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        176
+      ],
+      "name": "Route Action",
+      "id": "d7bbb73c-59a5-4acd-bf9f-f9702820c92b"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "taskId": "={{$json.payload.task_id}}",
+        "updateFields": {
+          "content": "={{$json.payload.content}}",
+          "description": "={{$json.payload.description}}",
+          "labels": "={{$json.payload.labels }}",
+          "priority": "={{$json.payload.priority}}",
+          "dueDate": "={{$json.payload.due ?? \"\"}}"
+        }
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "name": "Update Task",
+      "id": "22eb9c51-8513-4680-ac1f-1e7373822c85",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "taskId": "={{$json.payload.task_id}}"
+      },
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        192
+      ],
+      "name": "Delete Task",
+      "id": "8eed08f4-2ee6-4fa6-8581-bb6743a10d0d",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Get the static data for the workflow\nworkflow_data = _getWorkflowStaticData('global')\n# Initialize the map for the upcoming loop\nworkflow_data['temp_id_map'] = {}\n\n# Pass through the input data\nreturn _input.all()"
+      },
+      "id": "554899f0-9da1-469f-83f8-526d65d8645f",
+      "name": "Initialize Loop Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f83e61d1-325c-4834-9046-265c74700e21",
+      "name": "Loop Over Subtasks",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        224,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import json\n\n# Get the static data for the workflow\nworkflow_data = _getWorkflowStaticData('global')\n\n# This should have been initialized before the loop\ntemp_id_map = workflow_data.get('temp_id_map', {})\n\n# Get the current subtask to process\nsubtask = _input.json\n\nif not subtask:\n  subtask = dict()\n\n# Get the parent_id from the initial payload (for top-level subtasks)\n# This comes from the node that triggered the loop\ninitial_parent_id = _('Loop Over Subtasks').first().json.payload.parent_id\n\nparent_id = None\nparent_temp_id = subtask.get('parent_temp_id')\n\nif parent_temp_id is None:\n    # This is a top-level subtask, its parent is the task being expanded\n    parent_id = initial_parent_id\nelse:\n    # This is a nested subtask, find its real parent ID from the map\n    parent_id = temp_id_map.get(parent_temp_id)\n\n# Prepare the payload for the 'Create Task' node\n# Add the real parent_id to the subtask object\nsubtask['parent_id'] = parent_id\n\nreturn subtask"
+      },
+      "id": "57ecd205-6cd0-4c38-8522-92f1c71b604d",
+      "name": "Manage Parent ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "={{ $('Loop Over Subtasks').first().json.payload.project_id }}",
+          "mode": "id"
+        },
+        "content": "={{ $json.content }}",
+        "options": {
+          "description": "={{ $json.description }}",
+          "parentId": "={{ $json.parent_id }}",
+          "priority": "={{ $json.priority }}"
+        }
+      },
+      "id": "0674f2ad-bada-428a-bf47-017ffcbb602a",
+      "name": "Create Subtask in Loop",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        384
+      ],
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "# Get the static data for the workflow\nworkflow_data = _getWorkflowStaticData('global')\n\n# The item from before the create node\ncurrent_subtask = $('Manage Parent ID').first().json\n\n# The result from the create task node\ncreated_task = _input.json\n\n# Update the map with the new ID\nworkflow_data['temp_id_map'][current_subtask['temp_id']] = created_task['id']\n\n# No need to return anything, we're just updating static data\nreturn None"
+      },
+      "id": "25b8eb00-81f9-44dd-ab68-66fe56d1bf23",
+      "name": "Update Temp ID Map",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        384
+      ]
+    }
+  ],
+  "pinData": {},
+  "repo_name": "n8n-workflows",
+  "repo_owner": "pschmitt",
+  "repo_path": "workflows",
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "createdAt": "2025-10-09T17:01:27.206Z",
+      "updatedAt": "2025-10-09T17:01:27.206Z",
+      "role": "workflow:owner",
+      "workflowId": "Cn52l2tyDuelpI52",
+      "projectId": "DeJsGrmui3Dbhpxg"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-10-09T17:08:23.000Z",
+  "versionId": "b74feb4b-3971-4016-a83d-29378f16f671"
+}
