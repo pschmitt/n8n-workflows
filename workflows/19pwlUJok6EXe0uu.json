@@ -458,7 +458,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
+        "path": "bba49f89-c616-4ccf-8c25-aa03916375e4",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
@@ -568,6 +568,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-10T11:25:50.000Z",
-  "versionId": "49d53fc9-9ba7-4bf7-b85f-e569a28b7a05"
+  "updatedAt": "2025-10-10T11:58:56.000Z",
+  "versionId": "154069b7-4fae-4740-872d-ccff17c79a74"
 }
