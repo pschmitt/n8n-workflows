@@ -208,7 +208,7 @@
       "typeVersion": 2,
       "position": [
         1680,
-        616
+        624
       ],
       "name": "Assign Create Parent ID",
       "id": "4f263de8-6f39-4f78-afe0-2d0c03e1076d"
@@ -245,6 +245,7 @@
         "operation": "getAll",
         "returnAll": true,
         "filters": {
+          "labelId": "templated",
           "projectId": "2233792081"
         }
       },
@@ -403,7 +404,7 @@
       "typeVersion": 2.1,
       "position": [
         1904,
-        616
+        624
       ],
       "name": "Create Task1",
       "id": "3a924696-8dd4-4b76-8f5f-c9bc748402af",
@@ -568,6 +569,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-10T12:01:02.000Z",
-  "versionId": "74f0f788-0da4-4b9f-a9c8-d39a3632d68d"
+  "updatedAt": "2025-10-10T12:21:50.000Z",
+  "versionId": "7c4f652f-4665-4bd2-88d3-c9f1dda52ac9"
 }
