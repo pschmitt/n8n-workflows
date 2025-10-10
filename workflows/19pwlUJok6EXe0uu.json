@@ -194,7 +194,7 @@
       "typeVersion": 1,
       "position": [
         336,
-        656
+        640
       ],
       "id": "56b0900f-c6bf-43be-a4e5-7aaca4425ab1",
       "name": "When clicking ‘Execute workflow’"
@@ -208,7 +208,7 @@
       "typeVersion": 2,
       "position": [
         1680,
-        608
+        616
       ],
       "name": "Assign Create Parent ID",
       "id": "4f263de8-6f39-4f78-afe0-2d0c03e1076d"
@@ -222,7 +222,7 @@
       "typeVersion": 2,
       "position": [
         2128,
-        704
+        688
       ],
       "name": "Record Created Task",
       "id": "25178366-d5fb-4776-be35-cd7a8f914cd9"
@@ -235,7 +235,7 @@
       "typeVersion": 3,
       "position": [
         1456,
-        704
+        688
       ],
       "name": "Process Create Batches",
       "id": "19eae6ab-d03a-4a93-b72c-f56f6992ad2e"
@@ -252,7 +252,7 @@
       "typeVersion": 2.1,
       "position": [
         560,
-        416
+        400
       ],
       "id": "f7c110b3-cd2a-47e6-959c-a3cd630e273e",
       "name": "Get Test Project Tasks1",
@@ -275,7 +275,7 @@
       "typeVersion": 2.1,
       "position": [
         560,
-        608
+        592
       ],
       "id": "6947cfeb-7ea0-4e28-8ab9-58f7f825fd62",
       "name": "Get template tasks1",
@@ -292,7 +292,7 @@
       "typeVersion": 3,
       "position": [
         784,
-        512
+        496
       ],
       "name": "Merge Tasks1",
       "id": "4b633fa7-bdab-407d-b63e-9b7f7f2f5934"
@@ -306,7 +306,7 @@
       "typeVersion": 2,
       "position": [
         1008,
-        512
+        496
       ],
       "name": "Build Expansion Actions1",
       "id": "4b66929f-5710-458c-9c0f-f857a29b7f29"
@@ -333,7 +333,7 @@
       "typeVersion": 2,
       "position": [
         1232,
-        496
+        480
       ],
       "name": "Route Action1",
       "id": "bc0409a7-6e08-4c30-a60b-6296602ad9da"
@@ -353,8 +353,8 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1904,
-        80
+        1696,
+        288
       ],
       "name": "Update Task1",
       "id": "55a15036-fbcf-43e5-b291-d3936972697c",
@@ -374,7 +374,7 @@
       "typeVersion": 2.1,
       "position": [
         1456,
-        512
+        496
       ],
       "name": "Delete Task1",
       "id": "52b83811-c333-4e29-93e9-07d3cd8fc66c",
@@ -403,7 +403,7 @@
       "typeVersion": 2.1,
       "position": [
         1904,
-        608
+        616
       ],
       "name": "Create Task1",
       "id": "3a924696-8dd4-4b76-8f5f-c9bc748402af",
@@ -450,7 +450,7 @@
       "typeVersion": 3.4,
       "position": [
         112,
-        368
+        352
       ],
       "id": "8d4c6532-a5be-4d6c-afdf-ca4ac3b8a54f",
       "name": "Process webhook data"
@@ -465,7 +465,7 @@
       "typeVersion": 2,
       "position": [
         -112,
-        368
+        352
       ],
       "id": "5009e2a5-cc29-4b35-b61a-186544407459",
       "name": "Task added/updated",
@@ -502,7 +502,7 @@
       "typeVersion": 2.2,
       "position": [
         336,
-        368
+        352
       ],
       "id": "39daf45c-2863-48a3-b6db-2a5fdf60a501",
       "name": "Check task"
@@ -522,7 +522,7 @@
       "typeVersion": 4.2,
       "position": [
         1456,
-        320
+        304
       ],
       "id": "17b856ff-75cf-4f61-a4cc-d169e6ef9cda",
       "name": "HTTP Request",
@@ -568,6 +568,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-10T11:58:56.000Z",
-  "versionId": "154069b7-4fae-4740-872d-ccff17c79a74"
+  "updatedAt": "2025-10-10T12:01:02.000Z",
+  "versionId": "74f0f788-0da4-4b9f-a9c8-d39a3632d68d"
 }
