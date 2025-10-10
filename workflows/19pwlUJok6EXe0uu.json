@@ -111,6 +111,7 @@
         "operation": "getAll",
         "returnAll": true,
         "filters": {
+          "labelId": "templated",
           "projectId": "2233792081"
         }
       },
@@ -311,6 +312,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-09T12:52:46.000Z",
-  "versionId": "38a70152-c48b-46a1-beba-1d942ad58fa1"
+  "updatedAt": "2025-10-10T10:09:59.000Z",
+  "versionId": "2edc304e-df44-4d6a-9c92-1ff14945cda7"
 }
