@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "connections": {
     "When clicking ‘Execute workflow’": {
       "main": [
@@ -99,7 +99,7 @@
       "main": [
         [
           {
-            "node": "Update Task1",
+            "node": "HTTP Request",
             "type": "main",
             "index": 0
           }
@@ -130,6 +130,54 @@
           }
         ]
       ]
+    },
+    "Process webhook data": {
+      "main": [
+        [
+          {
+            "node": "Check task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task added/updated": {
+      "main": [
+        [
+          {
+            "node": "Process webhook data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check task": {
+      "main": [
+        [
+          {
+            "node": "Get Test Project Tasks1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get template tasks1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Task1": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
     }
   },
   "createdAt": "2025-09-26T19:31:19.369Z",
@@ -145,8 +193,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        480
+        336,
+        656
       ],
       "id": "56b0900f-c6bf-43be-a4e5-7aaca4425ab1",
       "name": "When clicking ‘Execute workflow’"
@@ -159,8 +207,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1344,
-        600
+        1680,
+        608
       ],
       "name": "Assign Create Parent ID",
       "id": "4f263de8-6f39-4f78-afe0-2d0c03e1076d"
@@ -173,8 +221,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1792,
-        672
+        2128,
+        704
       ],
       "name": "Record Created Task",
       "id": "25178366-d5fb-4776-be35-cd7a8f914cd9"
@@ -186,8 +234,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1120,
-        672
+        1456,
+        704
       ],
       "name": "Process Create Batches",
       "id": "19eae6ab-d03a-4a93-b72c-f56f6992ad2e"
@@ -203,8 +251,8 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        224,
-        384
+        560,
+        416
       ],
       "id": "f7c110b3-cd2a-47e6-959c-a3cd630e273e",
       "name": "Get Test Project Tasks1",
@@ -226,8 +274,8 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        224,
-        576
+        560,
+        608
       ],
       "id": "6947cfeb-7ea0-4e28-8ab9-58f7f825fd62",
       "name": "Get template tasks1",
@@ -243,8 +291,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        448,
-        480
+        784,
+        512
       ],
       "name": "Merge Tasks1",
       "id": "4b633fa7-bdab-407d-b63e-9b7f7f2f5934"
@@ -257,8 +305,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        672,
-        480
+        1008,
+        512
       ],
       "name": "Build Expansion Actions1",
       "id": "4b66929f-5710-458c-9c0f-f857a29b7f29"
@@ -284,8 +332,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        896,
-        464
+        1232,
+        496
       ],
       "name": "Route Action1",
       "id": "bc0409a7-6e08-4c30-a60b-6296602ad9da"
@@ -305,8 +353,8 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1120,
-        288
+        1904,
+        80
       ],
       "name": "Update Task1",
       "id": "55a15036-fbcf-43e5-b291-d3936972697c",
@@ -325,8 +373,8 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1120,
-        480
+        1456,
+        512
       ],
       "name": "Delete Task1",
       "id": "52b83811-c333-4e29-93e9-07d3cd8fc66c",
@@ -354,11 +402,130 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1568,
-        600
+        1904,
+        608
       ],
       "name": "Create Task1",
       "id": "3a924696-8dd4-4b76-8f5f-c9bc748402af",
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
+              "name": "id",
+              "value": "={{ $json.body.event_data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "9d362483-8501-4fb8-b7f2-cf7437c06024",
+              "name": "content",
+              "value": "={{ $json.body.event_data.content }}",
+              "type": "string"
+            },
+            {
+              "id": "a0e984ff-7805-4d5a-883f-0a94c18b6679",
+              "name": "project_id",
+              "value": "={{ $json.body.event_data.project_id }}",
+              "type": "string"
+            },
+            {
+              "id": "2a74b348-f6c5-46b9-9051-ea4912bc731d",
+              "name": "labels",
+              "value": "={{ $json.body.event_data.labels }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        368
+      ],
+      "id": "8d4c6532-a5be-4d6c-afdf-ca4ac3b8a54f",
+      "name": "Process webhook data"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        368
+      ],
+      "id": "5009e2a5-cc29-4b35-b61a-186544407459",
+      "name": "Task added/updated",
+      "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68be4bbc-fbe4-4369-aa8e-6af3d8ef2d8d",
+              "leftValue": "={{ $json.labels }}",
+              "rightValue": "templated",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        368
+      ],
+      "id": "39daf45c-2863-48a3-b6db-2a5fdf60a501",
+      "name": "Check task"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.todoist.com/rest/v2/tasks/{{ $json.payload.task_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "todoistApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"labels\": [],\n  \"content\":  \"{{ $json.payload.content }}\",\n  \"description\": \"{{ $json.payload.description }}\",\n  \"priority\": {{ $json.payload.priority }},\n  \"due\": {{ $json.payload.due ?? \"null\" }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1456,
+        320
+      ],
+      "id": "17b856ff-75cf-4f61-a4cc-d169e6ef9cda",
+      "name": "HTTP Request",
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -386,6 +553,10 @@
   "staticData": {
     "node:Schedule Trigger": {
       "recurrenceRules": []
+    },
+    "global": {
+      "template_maps": {},
+      "template_pending_sequence": []
     }
   },
   "tags": [
@@ -397,6 +568,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-10T10:59:00.000Z",
-  "versionId": "cebe1b81-772d-4301-a46f-c40890a2e42b"
+  "updatedAt": "2025-10-10T11:25:50.000Z",
+  "versionId": "49d53fc9-9ba7-4bf7-b85f-e569a28b7a05"
 }
