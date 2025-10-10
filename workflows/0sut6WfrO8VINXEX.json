@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
@@ -234,8 +234,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        60,
-        -700
+        64,
+        -704
       ],
       "id": "c7ce87e6-3a4c-4d56-90cb-123049f6fcb6",
       "name": "When clicking ‘Test workflow’"
@@ -254,8 +254,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        60,
-        -520
+        64,
+        -528
       ],
       "id": "25d93d17-1740-4adc-b059-1b645bd08edb",
       "name": "Schedule Trigger"
@@ -270,7 +270,7 @@
       "typeVersion": 1,
       "position": [
         -320,
-        -620
+        -624
       ],
       "id": "9b8da226-a272-4448-bc41-f94138e3dbae",
       "name": "Sticky Note"
@@ -294,8 +294,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        340,
-        -520
+        352,
+        -528
       ],
       "id": "ec1e73b6-4b77-44ed-a58f-d63fe5f6c92a",
       "name": "Get emoji regexes",
@@ -310,8 +310,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        820,
-        -500
+        832,
+        -496
       ],
       "id": "b624aafc-21a6-46ef-82e1-05ff4f3137c4",
       "name": "Merge"
@@ -327,8 +327,8 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        340,
-        -700
+        352,
+        -704
       ],
       "id": "f3f2006d-23cf-4efb-849a-fd0be5db6ab9",
       "name": "Todoist Fetch Tasks",
@@ -349,7 +349,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1300,
+        1312,
         -480
       ],
       "id": "053c7f59-8574-485e-9880-7e3fe7f290b8",
@@ -364,7 +364,7 @@
       "typeVersion": 1,
       "position": [
         1840,
-        -180
+        -176
       ],
       "id": "1f90f76e-6b08-42f5-ad8f-d887b8d75e04",
       "name": "Groq Chat Model",
@@ -384,7 +384,7 @@
       "typeVersion": 1.2,
       "position": [
         2000,
-        -180
+        -176
       ],
       "id": "f205def7-c8e6-4945-aa4d-78ded930bbdc",
       "name": "Structured Output Parser",
@@ -410,7 +410,7 @@
       "typeVersion": 1.5,
       "position": [
         1840,
-        -420
+        -416
       ],
       "id": "bdc80e03-8bce-44a7-9ac7-78e24ddad5c3",
       "name": "Determine emoji",
@@ -424,8 +424,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1900,
-        -580
+        1904,
+        -576
       ],
       "id": "66987551-83dd-4ed5-8ea8-5051abee8c7a",
       "name": "prepare tasks for import (static)"
@@ -460,7 +460,7 @@
       "typeVersion": 2.2,
       "position": [
         1040,
-        -500
+        -496
       ],
       "id": "7aea6b75-86f6-446a-a8fc-6f6d947a5aa9",
       "name": "Tasks contain emoji"
@@ -477,7 +477,7 @@
       "typeVersion": 2.1,
       "position": [
         2560,
-        -580
+        -576
       ],
       "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
       "name": "Todoist Rename Task",
@@ -517,7 +517,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -60,
+        -64,
         -320
       ],
       "id": "267fc0c1-1571-482c-81a6-d5c0b80a74d6",
@@ -562,7 +562,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        120,
+        128,
         -320
       ],
       "id": "acbd2be5-bb8e-40c3-8b81-90817e41c98c",
@@ -597,8 +597,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2340,
-        -420
+        2352,
+        -416
       ],
       "id": "a4a1e298-37a8-4b18-af03-5406cf11dad6",
       "name": "Validate emoji"
@@ -628,7 +628,7 @@
       "typeVersion": 2,
       "position": [
         2160,
-        -420
+        -416
       ],
       "id": "0326d297-3973-4628-8802-83cd912933ab",
       "name": "Remove halucinations"
@@ -656,8 +656,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        540,
-        -520
+        544,
+        -528
       ],
       "id": "f3cfef21-b484-45cc-ab61-a8634d55e422",
       "name": "Construct regexes"
@@ -727,6 +727,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-07-07T19:49:17.000Z",
-  "versionId": "77015552-6c3f-46e4-b1b9-a5c955fd7535"
+  "updatedAt": "2025-10-10T11:12:14.000Z",
+  "versionId": "ab9c62db-c435-48c4-bebc-bffad64b3c0b"
 }
