@@ -168,16 +168,6 @@
           }
         ]
       ]
-    },
-    "Update Task1": {
-      "main": [
-        []
-      ]
-    },
-    "HTTP Request": {
-      "main": [
-        []
-      ]
     }
   },
   "createdAt": "2025-09-26T19:31:19.369Z",
@@ -193,25 +183,25 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        336,
-        640
+        -1360,
+        352
       ],
-      "id": "56b0900f-c6bf-43be-a4e5-7aaca4425ab1",
+      "id": "0e5ba9b3-5486-4699-b52c-760bfbb949f1",
       "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "\nitems = []\nglobal_data = _getWorkflowStaticData('global')\ntemplate_maps = global_data.setdefault('template_maps', {})\npending_sequence = global_data.setdefault('template_pending_sequence', [])\n\nfor item in _input.all():\n    data = dict(item.json)\n    if data.get('action') != 'create_task':\n        items.append({'json': data})\n        continue\n\n    payload = dict(data.get('payload', {}))\n    run_key = payload.get('run_key')\n    session_id = payload.get('session_id')\n\n    if session_id and global_data.get('current_session_id') != session_id:\n        template_maps.clear()\n        pending_sequence.clear()\n        global_data['current_session_id'] = session_id\n\n    if not run_key:\n        items.append({'json': data})\n        continue\n\n    if payload.get('reset_template_map'):\n        template_maps[run_key] = {payload['root_template_id']: payload['root_task_id']}\n\n    mapping = template_maps.setdefault(run_key, {})\n\n    if payload.get('parent_id') is None:\n        parent_template_id = payload.get('parent_template_id')\n        if parent_template_id not in mapping:\n            raise ValueError(f\"Missing parent mapping for template {parent_template_id}\")\n        payload['parent_id'] = mapping[parent_template_id]\n\n    pending_sequence.append({\n        'run_key': run_key,\n        'template_id': payload.get('template_id'),\n        'finalize_run': payload.get('finalize_run', False),\n    })\n\n    payload.pop('reset_template_map', None)\n    data['payload'] = payload\n    items.append({'json': data})\n\nreturn items\n"
+        "pythonCode": "\nitems = []\nglobal_data = _getWorkflowStaticData('global')\ntemplate_maps = global_data.setdefault('template_maps', {})\npending_sequence = global_data.setdefault('template_pending_sequence', [])\n\nfor item in _input.all():\n    data = dict(item.json)\n    if data.get('action') != 'create_task':\n        items.append({'json': data})\n        continue\n\n    payload = dict(data.get('payload', {}))\n    run_key = payload.get('run_key')\n    session_id = payload.get('session_id')\n\n    if session_id and global_data.get('current_session_id') != session_id:\n        template_maps = {}\n        pending_sequence = []\n        global_data['template_maps'] = template_maps\n        global_data['template_pending_sequence'] = pending_sequence\n        global_data['current_session_id'] = session_id\n\n    if not run_key:\n        items.append({'json': data})\n        continue\n\n    if payload.get('reset_template_map'):\n        template_maps[run_key] = {payload['root_template_id']: payload['root_task_id']}\n\n    mapping = template_maps.setdefault(run_key, {})\n\n    if payload.get('parent_id') is None:\n        parent_template_id = payload.get('parent_template_id')\n        if parent_template_id not in mapping:\n            raise ValueError(f\"Missing parent mapping for template {parent_template_id}\")\n        payload['parent_id'] = mapping[parent_template_id]\n\n    pending_sequence.append({\n        'run_key': run_key,\n        'template_id': payload.get('template_id'),\n        'finalize_run': payload.get('finalize_run', False),\n    })\n\n    payload.pop('reset_template_map', None)\n    data['payload'] = payload\n    items.append({'json': data})\n\nreturn items\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1680,
-        624
+        -16,
+        336
       ],
       "name": "Assign Create Parent ID",
-      "id": "4f263de8-6f39-4f78-afe0-2d0c03e1076d"
+      "id": "13831a32-629e-4a3d-b5f5-db17602ab334"
     },
     {
       "parameters": {
@@ -221,11 +211,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2128,
-        688
+        432,
+        400
       ],
       "name": "Record Created Task",
-      "id": "25178366-d5fb-4776-be35-cd7a8f914cd9"
+      "id": "fc7f1a5a-dc76-41a5-a9ac-b97808891501"
     },
     {
       "parameters": {
@@ -234,11 +224,11 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1456,
-        688
+        -240,
+        400
       ],
       "name": "Process Create Batches",
-      "id": "19eae6ab-d03a-4a93-b72c-f56f6992ad2e"
+      "id": "7c2d48bb-d07e-4ffd-a1f9-fde1fe238239"
     },
     {
       "parameters": {
@@ -252,10 +242,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        560,
-        400
+        -1136,
+        112
       ],
-      "id": "f7c110b3-cd2a-47e6-959c-a3cd630e273e",
+      "id": "13fa0a47-0caf-478b-8da0-0c9d84113504",
       "name": "Get Test Project Tasks1",
       "credentials": {
         "todoistApi": {
@@ -275,10 +265,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        560,
-        592
+        -1136,
+        304
       ],
-      "id": "6947cfeb-7ea0-4e28-8ab9-58f7f825fd62",
+      "id": "7c70b077-b62a-43a4-a72b-636f68e30bf1",
       "name": "Get template tasks1",
       "credentials": {
         "todoistApi": {
@@ -292,11 +282,11 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        784,
-        496
+        -912,
+        208
       ],
       "name": "Merge Tasks1",
-      "id": "4b633fa7-bdab-407d-b63e-9b7f7f2f5934"
+      "id": "f1e4ab1d-adc4-4581-a819-4b0b6bfc48e9"
     },
     {
       "parameters": {
@@ -306,11 +296,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1008,
-        496
+        -688,
+        208
       ],
       "name": "Build Expansion Actions1",
-      "id": "4b66929f-5710-458c-9c0f-f857a29b7f29"
+      "id": "7b2db745-7e22-4501-b212-5d8c98007973"
     },
     {
       "parameters": {
@@ -333,11 +323,11 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 2,
       "position": [
-        1232,
-        480
+        -464,
+        192
       ],
       "name": "Route Action1",
-      "id": "bc0409a7-6e08-4c30-a60b-6296602ad9da"
+      "id": "8ab58f39-1573-4164-b99e-d392285007d4"
     },
     {
       "parameters": {
@@ -354,11 +344,11 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1696,
-        288
+        0,
+        0
       ],
       "name": "Update Task1",
-      "id": "55a15036-fbcf-43e5-b291-d3936972697c",
+      "id": "e9a38896-d844-4504-bfb5-bd19f21d4b6d",
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -374,11 +364,11 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1456,
-        496
+        -240,
+        208
       ],
       "name": "Delete Task1",
-      "id": "52b83811-c333-4e29-93e9-07d3cd8fc66c",
+      "id": "4d7d878d-a2e5-4d95-90c9-d4ab9a17b334",
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -403,11 +393,11 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        1904,
-        624
+        208,
+        336
       ],
       "name": "Create Task1",
-      "id": "3a924696-8dd4-4b76-8f5f-c9bc748402af",
+      "id": "f8aeea5c-9c4d-458b-b337-4cef74a8cce3",
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -450,10 +440,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        112,
-        352
+        -1584,
+        64
       ],
-      "id": "8d4c6532-a5be-4d6c-afdf-ca4ac3b8a54f",
+      "id": "8f75e0ef-d4c9-48b2-ab9d-ec0b64553b0a",
       "name": "Process webhook data"
     },
     {
@@ -465,10 +455,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -112,
-        352
+        -1808,
+        64
       ],
-      "id": "5009e2a5-cc29-4b35-b61a-186544407459",
+      "id": "e670a31d-fc41-4ab6-a4fd-a5d6e2d0317f",
       "name": "Task added/updated",
       "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
     },
@@ -502,10 +492,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        336,
-        352
+        -1360,
+        64
       ],
-      "id": "39daf45c-2863-48a3-b6db-2a5fdf60a501",
+      "id": "00353d4b-a1d4-491e-b358-ff71bbb388a0",
       "name": "Check task"
     },
     {
@@ -522,10 +512,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1456,
-        304
+        -240,
+        16
       ],
-      "id": "17b856ff-75cf-4f61-a4cc-d169e6ef9cda",
+      "id": "f5ce8c56-0eff-434d-9c6c-156cccd17e9f",
       "name": "HTTP Request",
       "credentials": {
         "todoistApi": {
@@ -569,6 +559,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-10-10T12:21:50.000Z",
-  "versionId": "7c4f652f-4665-4bd2-88d3-c9f1dda52ac9"
+  "updatedAt": "2025-10-10T12:28:58.000Z",
+  "versionId": "8551d30e-e26e-4b67-abc0-372ceb85aa1c"
 }
