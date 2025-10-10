@@ -145,7 +145,7 @@
   },
   "createdAt": "2025-10-09T17:01:27.201Z",
   "id": "Cn52l2tyDuelpI52",
-  "isArchived": false,
+  "isArchived": true,
   "meta": null,
   "name": "☑️ Todoist Template Expander (with subtasks!)",
   "nodes": [
@@ -409,6 +409,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-10-09T18:49:41.000Z",
-  "versionId": "6b71c6e4-d5cb-4e35-b668-e85e2f09da84"
+  "updatedAt": "2025-10-10T10:06:00.000Z",
+  "versionId": "c250189d-8a95-4944-90de-0cda6bf2328d"
 }
