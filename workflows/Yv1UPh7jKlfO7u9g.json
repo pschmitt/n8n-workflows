@@ -1,5 +1,486 @@
 {
   "active": true,
+  "activeVersion": {
+    "updatedAt": "2025-11-25T10:59:07.559Z",
+    "createdAt": "2025-11-25T10:59:07.559Z",
+    "versionId": "2ac28646-338d-4f66-b920-20dc8261363f",
+    "workflowId": "Yv1UPh7jKlfO7u9g",
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -140,
+          -380
+        ],
+        "id": "26ef73ab-6b0e-49e4-aaa2-413028c79222",
+        "name": "When clicking ‘Test workflow’"
+      },
+      {
+        "parameters": {
+          "fromEmail": "n8n@brkn.lol",
+          "toEmail": "philipp@schmitt.co",
+          "subject": "NixOS/nixpkgs PRs",
+          "emailFormat": "both",
+          "text": "={{ $json.emailBodyText }}",
+          "html": "={{ $json.emailBodyHtml }}",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          1620,
+          -360
+        ],
+        "id": "5614308b-1038-48d8-8eee-84b7dc3e2522",
+        "name": "Send Email",
+        "webhookId": "739d7d1d-66da-45ba-90a5-c06548239304",
+        "credentials": {
+          "smtp": {
+            "id": "dQMUZSPTIO45Dpu7",
+            "name": "SMTP account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "language": "python",
+          "pythonCode": "# Define the repository and list of keywords\nrepo = _(\"Config\").first().json.gh_repo\nkeywords = _(\"Config\").first().json.keywords\n\n# Construct the query string\nquery = f\"repo:{repo} type:pr is:open in:title (\" + \" OR \".join(keywords) + \")\"\n\nreturn [\n  {\n    \"query\": query, \n    \"repo_owner\": repo.split(\"/\")[0], \n    \"repo_name\": repo.split(\"/\")[1]\n  }\n]"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          340,
+          -200
+        ],
+        "id": "538ab8d1-42e7-413b-8aed-23e11266a02e",
+        "name": "Build GH Query"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 30
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -140,
+          -200
+        ],
+        "id": "cb9568d7-8241-48c2-9fe9-d8a7005a0edd",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "content": "# NixOS/nixpkgs PR email digest\n\n\nThis workflow checks for new PRs in the nixpkgs repo matching certain keywords and sends out email notifications.\n\n**NOTE** The list of topics for PRs is stored in the \"Config\" node",
+          "height": 220,
+          "width": 560
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -140,
+          -700
+        ],
+        "typeVersion": 1,
+        "id": "d15c09fa-34a0-4e82-bba7-bf0dc37cec7e",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "language": "python",
+          "pythonCode": "pr_numbers = []\nprs = []\n\nfor item in _json.get(\"items\"):\n  pr_numbers.append(item.get(\"number\"))\n  prs.append(item)\n\nreturn {\"json\": {\"pr_numbers\": pr_numbers, \"prs\": prs}}"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          660,
+          -200
+        ],
+        "id": "09d4f2a9-df80-4c60-b084-6c3e0889d455",
+        "name": "Process response"
+      },
+      {
+        "parameters": {
+          "mode": "chooseBranch",
+          "useDataOfInput": 2
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          1040,
+          -360
+        ],
+        "id": "a44b7cc6-6cb6-469f-8d92-9c7d286612e7",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "fileSelector": "/data/pr_data.json",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.readWriteFile",
+        "typeVersion": 1,
+        "position": [
+          160,
+          -380
+        ],
+        "id": "c085e3b7-f320-4a02-97b0-465de783b824",
+        "name": "Read cached PR list",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "operation": "fromJson",
+          "options": {
+            "keepSource": "json"
+          }
+        },
+        "type": "n8n-nodes-base.extractFromFile",
+        "typeVersion": 1,
+        "position": [
+          340,
+          -380
+        ],
+        "id": "d0821aa2-c672-4d59-b72a-850e27916981",
+        "name": "Convert cached PR list",
+        "alwaysOutputData": true
+      },
+      {
+        "parameters": {
+          "operation": "write",
+          "fileName": "/data/pr_data.json",
+          "options": {
+            "append": false
+          }
+        },
+        "type": "n8n-nodes-base.readWriteFile",
+        "typeVersion": 1,
+        "position": [
+          1040,
+          -100
+        ],
+        "id": "cc2407f5-19c7-4f84-a5b2-8ec8643ba016",
+        "name": "Write cache file"
+      },
+      {
+        "parameters": {
+          "operation": "toJson",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.convertToFile",
+        "typeVersion": 1.1,
+        "position": [
+          820,
+          -200
+        ],
+        "id": "c7b5a80c-d441-4358-a861-06703c996315",
+        "name": "Convert JSON response to binary"
+      },
+      {
+        "parameters": {
+          "language": "python",
+          "pythonCode": "DEBUG = False\n\ncur = _('Process response').first().json\ncached_json = _('Convert cached PR list').first().json\n\ncached = {}\n# we might have not data if the cache file does not exist\nif cached_json and hasattr(cached_json, \"data\"):\n  cached = cached_json.data[0]\n\n\npr_numbers_prev = [] if DEBUG else cur.get(\"pr_numbers\", [])\npr_numbers_cur = cur.get(\"pr_numbers\", [])\npr_numbers_diff = [x for x in pr_numbers_cur if x not in pr_numbers_prev]\n\n# pr data\nnew_prs_data = [x for x in cur.get(\"prs\", []) if x.get(\"number\") in pr_numbers_diff]\n\nreturn {\n  \"json\": {\n    \"pr_numbers\": {\n      \"prev\": pr_numbers_prev,\n      \"cur\": pr_numbers_cur,\n      \"diff\": pr_numbers_diff\n    },\n    \"prs\": new_prs_data\n  }\n}"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1220,
+          -360
+        ],
+        "id": "f85b9678-4efe-4768-9e63-bc443f7ea35f",
+        "name": "Compare new and cached PR data"
+      },
+      {
+        "parameters": {
+          "language": "python",
+          "pythonCode": "import re\n\nnotified_pr_numbers = _json\nnew_pr_numbers = _json.get(\"pr_numbers\", {}).get(\"diff\")\nnew_prs = _json.get(\"prs\", [])\n\nif not new_prs:\n  return []\n\n# Build the HTML version of the email\nhtml_body = \"\"\"<html>\n<body>\n  <h2>New Open PRs from nixos/nixpkgs matching your keywords</h2>\n\"\"\"\n# Build the plain-text version\ntext_body = \"New Open PRs from nixos/nixpkgs matching your keywords:\\n\\n\"\n\n# Loop through only the new PRs\nfor pr in new_prs:\n  title = pr.get(\"title\", \"No Title\")\n  url = pr.get(\"html_url\", \"No URL\")\n  created_at = pr.get(\"created_at\", \"N/A\")\n  state = pr.get(\"state\", \"N/A\")\n  \n  html_body += f\"\"\"\n  <p>\n    <strong>Title:</strong> {title}<br>\n    <strong>URL:</strong> <a href=\"{url}\">{url}</a><br>\n    <strong>Created:</strong> {created_at}<br>\n    <strong>State:</strong> {state}\n  </p>\n  <hr>\n  \"\"\"\n  \n  text_body += f\"Title    : {title}\\n\"\n  text_body += f\"URL      : {url}\\n\"\n  text_body += f\"Created  : {created_at}\\n\"\n  text_body += f\"State    : {state}\\n\"\n  text_body += \"-\" * 50 + \"\\n\"\n\nhtml_body += \"\"\"\n</body>\n</html>\n\"\"\"\n\nreturn [{\n  \"emailBodyHtml\": html_body,\n  \"emailBodyText\": text_body\n}]"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1440,
+          -360
+        ],
+        "id": "0969f818-2fbc-4dc0-b260-b3dcb533e98b",
+        "name": "Create email body"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.github.com/graphql",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "githubApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"variables\": {\n    \"nodeId\": \"{{ $json.pr.node_id }}\"\n  },\n  \"query\": \"mutation($nodeId: ID!) { updateSubscription(input: { subscribableId: $nodeId, state: SUBSCRIBED, clientMutationId: \\\"subscribe-me\\\" }) { clientMutationId } }\"\n\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1620,
+          -160
+        ],
+        "id": "f7095f8e-0b6c-4dc6-82a0-0b332c7597f9",
+        "name": "Subscribe to PR",
+        "credentials": {
+          "githubOAuth2Api": {
+            "id": "POqP3dfytXqTmZo3",
+            "name": "GitHub account (OAuth)"
+          },
+          "githubApi": {
+            "id": "2J14Hqh22wmzbnkG",
+            "name": "GitHub account (PAT)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "url": "=https://api.github.com/search/issues?q={{ $json.query }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          500,
+          -200
+        ],
+        "id": "841ef34a-23ad-458c-9738-64d486aaca3d",
+        "name": "Fetch matching PRs"
+      },
+      {
+        "parameters": {
+          "language": "python",
+          "pythonCode": "output = []\n\nfor pr in _input.first().json.get(\"prs\"):\n  output.append({\"json\": {\"pr\": pr}})\n\nreturn output"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1440,
+          -160
+        ],
+        "id": "38577684-178e-458d-a17e-2ceaf0f15446",
+        "name": "Convert new PR data to array"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "55630feb-26e9-44e9-89cf-1c033b6f9adf",
+                "name": "gh_repo",
+                "value": "NixOS/nixpkgs",
+                "type": "string"
+              },
+              {
+                "id": "df4003e7-3775-49d6-b683-c3015fbf7920",
+                "name": "keywords",
+                "value": "[\n  \"immich\",\n  \"mealie\",\n  \"netbird\", \n  \"paperless-ngx\",\n  \"tailscale\", \n  \"waybar\"\n]",
+                "type": "array"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          160,
+          -200
+        ],
+        "id": "eda2f315-3d3d-4b00-a047-f954c09355e7",
+        "name": "Config"
+      }
+    ],
+    "connections": {
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "Read cached PR list",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build GH Query": {
+        "main": [
+          [
+            {
+              "node": "Fetch matching PRs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Read cached PR list",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Config",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process response": {
+        "main": [
+          [
+            {
+              "node": "Convert JSON response to binary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Compare new and cached PR data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Read cached PR list": {
+        "main": [
+          [
+            {
+              "node": "Convert cached PR list",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert cached PR list": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write cache file": {
+        "main": [
+          []
+        ]
+      },
+      "Convert JSON response to binary": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            },
+            {
+              "node": "Write cache file",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Compare new and cached PR data": {
+        "main": [
+          [
+            {
+              "node": "Create email body",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Convert new PR data to array",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create email body": {
+        "main": [
+          [
+            {
+              "node": "Send Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Subscribe to PR": {
+        "main": [
+          []
+        ]
+      },
+      "Fetch matching PRs": {
+        "main": [
+          [
+            {
+              "node": "Process response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Convert new PR data to array": {
+        "main": [
+          [
+            {
+              "node": "Subscribe to PR",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Config": {
+        "main": [
+          [
+            {
+              "node": "Build GH Query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "system migration",
+    "name": null,
+    "description": null
+  },
+  "activeVersionId": "2ac28646-338d-4f66-b920-20dc8261363f",
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
