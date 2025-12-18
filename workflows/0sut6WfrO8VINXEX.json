@@ -1043,8 +1043,8 @@
     },
     {
       "parameters": {
-        "language": "python",
-        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _('Construct regexes').all()]\ntask_data = [x.json for x in _input.all()]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  matched = False\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n    \n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      matched = True\n      # Break out of the inner loop once a pattern matches\n      break\n\n  if not matched and task not in llm_tasks:\n    llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
+        "language": "pythonNative",
+        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _('Construct regexes').all()]\n# emoji_mappings = [x[\"json\"] for x in workflow.get_node(\"Construct regexes\").get_items()]\ntask_data = [x.json for x in _input.all()]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  matched = False\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n    \n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      matched = True\n      # Break out of the inner loop once a pattern matches\n      break\n\n  if not matched and task not in llm_tasks:\n    llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1118,7 +1118,7 @@
     },
     {
       "parameters": {
-        "language": "python",
+        "language": "pythonNative",
         "pythonCode": "return _json.changed_tasks"
       },
       "type": "n8n-nodes-base.code",
@@ -1321,7 +1321,7 @@
     },
     {
       "parameters": {
-        "language": "python",
+        "language": "pythonNative",
         "pythonCode": "task_ids = [x.json.get(\"id\") for x in _(\"Merge\").all()]\n# return {\"json\": {\"yo\": task_ids}}\n\nllm_data = _json.output\n\noutput = []\n\nfor l in llm_data:\n  task_id = l.get(\"id\")\n  \n  print(f\"Processing LLM Task: [{task_id}] {l.get('content')}\")\n  print(f\"Real task ids: {', '.join(task_ids)} - {type(task_ids[0])}\")\n  \n  if task_id not in task_ids:\n    print(f\"Skipping halucination: task_id={task_id} - {type(task_id)}\")\n    continue\n  \n  output.append({\"json\": l})\n\nreturn output"
       },
       "type": "n8n-nodes-base.code",
@@ -1427,6 +1427,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-10-10T11:58:59.000Z",
-  "versionId": "ab9c62db-c435-48c4-bebc-bffad64b3c0b"
+  "updatedAt": "2025-12-18T20:53:25.317Z",
+  "versionId": "be2cea0f-7319-4ddb-9e0d-3255a837bc08"
 }
