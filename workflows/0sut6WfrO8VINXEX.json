@@ -808,7 +808,7 @@
       "main": [
         [
           {
-            "node": "Remove halucinations",
+            "node": "Merge llm output + tasks",
             "type": "main",
             "index": 0
           }
@@ -829,6 +829,17 @@
     "Tasks contain emoji": {
       "main": [
         [],
+        [
+          {
+            "node": "Merge mappings + tasks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge mappings + tasks": {
+      "main": [
         [
           {
             "node": "Regex replace content",
@@ -905,6 +916,11 @@
             "node": "Merge",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Merge mappings + tasks",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -914,6 +930,22 @@
         [
           {
             "node": "Determine emoji",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge llm output + tasks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge llm output + tasks": {
+      "main": [
+        [
+          {
+            "node": "Remove halucinations",
             "type": "main",
             "index": 0
           }
@@ -934,10 +966,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -112,
-        96
+        1232,
+        608
       ],
-      "id": "b4777507-64e5-41ea-b589-1c76360dc319",
+      "id": "867c63f8-9559-43ea-8621-cca4d8b2d807",
       "name": "When clicking ‘Test workflow’"
     },
     {
@@ -954,10 +986,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -112,
-        272
+        1232,
+        800
       ],
-      "id": "6f578ee6-e1fd-4138-984a-6416ae8835cc",
+      "id": "efc3c242-5eb5-46b2-93ae-7e0c163531ad",
       "name": "Schedule Trigger"
     },
     {
@@ -969,10 +1001,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -496,
-        176
+        704,
+        80
       ],
-      "id": "1bf989e4-7d9b-488c-a549-3ead22ff1907",
+      "id": "9a50cdcb-5961-49a6-98f3-5760624145ae",
       "name": "Sticky Note"
     },
     {
@@ -994,10 +1026,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        176,
+        1456,
         272
       ],
-      "id": "de506ff4-2f7d-4bfd-8417-3cac2c404f52",
+      "id": "452154f6-7ddf-4814-a8dd-8b485d87e220",
       "name": "Get emoji regexes",
       "retryOnFail": true,
       "waitBetweenTries": 2000
@@ -1010,10 +1042,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        656,
-        304
+        1904,
+        176
       ],
-      "id": "4ed56e7c-2844-48be-9fb2-e19cb22dd579",
+      "id": "24855a7c-cdb0-4477-a820-858d11c400be",
       "name": "Merge"
     },
     {
@@ -1027,10 +1059,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        176,
-        96
+        1456,
+        656
       ],
-      "id": "0b53942d-0c6f-4ebe-8ad5-f9af9e571baa",
+      "id": "59da60e8-6b88-462b-af7f-53741d168112",
       "name": "Todoist Fetch Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -1044,15 +1076,15 @@
     {
       "parameters": {
         "language": "pythonNative",
-        "pythonCode": "import re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _input.all(1)]\ntask_data = [x.json for x in _input.all(0)]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  matched = False\n\n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n\n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      matched = True\n      break\n\n  if not matched and task not in llm_tasks:\n    llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
+        "pythonCode": "import re\n\nDEBUG = False\n\npayload = [item[\"json\"] for item in _items]\n\nemoji_mappings = [\n  x\n  for x in payload\n  if isinstance(x, dict) and x.get(\"emoji\") and x.get(\"regex\")\n]\n\ntask_data = [\n  x\n  for x in payload\n  if isinstance(x, dict) and x.get(\"id\") and x.get(\"content\")\n]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  matched = False\n\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n\n    if not emoji or not re_pattern:\n      continue\n\n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      matched = True\n      break\n\n  if not matched:\n    llm_tasks.append(task)\n\nreturn [\n  {\n    \"json\": {\n      \"changed_tasks\": changed_tasks,\n      \"llm_tasks\": llm_tasks,\n    }\n  }\n]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1136,
-        320
+        2576,
+        248
       ],
-      "id": "8821a007-80ad-4fa0-b0d0-3863fd1bc096",
+      "id": "26f29f5a-cda8-449a-a30f-41567116e1aa",
       "name": "Regex replace content"
     },
     {
@@ -1063,10 +1095,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1664,
-        624
+        3032,
+        472
       ],
-      "id": "b774017d-a254-4a50-aeef-5c9f09f1c422",
+      "id": "a7a7c11e-3bb5-478b-9de3-ac9d455e2e82",
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
@@ -1083,10 +1115,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1824,
-        624
+        3160,
+        472
       ],
-      "id": "8a0763a7-200b-411d-aebe-170f19eb8294",
+      "id": "517fdaf1-22a9-4f4f-9e9a-d23173e4b9bf",
       "name": "Structured Output Parser",
       "notesInFlow": false
     },
@@ -1109,25 +1141,36 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        1664,
-        384
+        3024,
+        248
       ],
-      "id": "1b8ed18f-f3a9-4a30-aa15-07b9091cf666",
+      "id": "93a6b772-da84-470c-8e9a-fb5d8a65ef05",
       "name": "Determine emoji",
       "alwaysOutputData": true
     },
     {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3376,
+        372
+      ],
+      "id": "34ce853d-bad9-422c-826d-54adff2f0c5f",
+      "name": "Merge llm output + tasks"
+    },
+    {
       "parameters": {
         "language": "pythonNative",
-        "pythonCode": "return _json.changed_tasks"
+        "pythonCode": "changed_tasks = []\n\nif _items:\n  changed_tasks = _items[0][\"json\"].get(\"changed_tasks\", [])\n\nreturn [{\"json\": t} for t in changed_tasks]"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1728,
-        224
+        3824,
+        0
       ],
-      "id": "58716b45-6a94-4a07-8d66-ee243fdc226c",
+      "id": "0ffc75a6-2cb3-45b1-a9fb-1139fc86dc26",
       "name": "prepare tasks for import (static)"
     },
     {
@@ -1159,11 +1202,22 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        864,
-        304
+        2128,
+        176
       ],
-      "id": "6b027284-de16-4ad1-b462-d3beb1f3bd4c",
+      "id": "99f030b8-d712-4af3-b699-7bb2deff6613",
       "name": "Tasks contain emoji"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2352,
+        248
+      ],
+      "id": "889a922d-4e92-49e8-94f1-71bcd40ba8d2",
+      "name": "Merge mappings + tasks"
     },
     {
       "parameters": {
@@ -1176,10 +1230,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        2384,
-        224
+        4048,
+        248
       ],
-      "id": "a675c68f-ff5b-4765-972e-e361ab379807",
+      "id": "beed1e56-ccff-41ab-93cf-9bc324c4d84d",
       "name": "Todoist Rename Task",
       "credentials": {
         "todoistApi": {
@@ -1217,10 +1271,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -240,
-        480
+        1008,
+        392
       ],
-      "id": "ceb07498-823d-4e4a-b575-fc11470f0128",
+      "id": "a7e3450f-2ad6-44b6-b92c-730a5185e93e",
       "name": "Process webhook data"
     },
     {
@@ -1262,10 +1316,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -48,
-        480
+        1232,
+        392
       ],
-      "id": "9dcfdb04-0d37-486e-87df-ecd86ca72916",
+      "id": "a3482c26-b7da-43a6-9262-46b36252042e",
       "name": "Check task project"
     },
     {
@@ -1297,10 +1351,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2176,
-        384
+        3824,
+        372
       ],
-      "id": "e53cf377-df7a-42e2-9af5-34d449365cab",
+      "id": "29a659b2-c7ea-4d5c-a97b-e2e58d865c80",
       "name": "Validate emoji"
     },
     {
@@ -1312,25 +1366,25 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -416,
-        480
+        784,
+        392
       ],
-      "id": "5a9532f1-34b2-404b-85c6-ba67abd80e6a",
+      "id": "360b09f3-516d-4ac7-a541-4c5bfaa362d5",
       "name": "Task added/updated",
       "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
     },
     {
       "parameters": {
         "language": "pythonNative",
-        "pythonCode": "task_ids = [x.json.get(\"id\") for x in _input.all(1)]\n# return {\"json\": {\"yo\": task_ids}}\n\nllm_data = _json.output\n\noutput = []\n\nfor l in llm_data:\n  task_id = l.get(\"id\")\n\n  print(f\"Processing LLM Task: [{task_id}] {l.get('content')}\")\n  if task_ids:\n    print(f\"Real task ids: {', '.join(map(str, task_ids))} - {type(task_ids[0])}\")\n  else:\n    print(\"Real task ids: <empty>\")\n\n  if task_id not in task_ids:\n    print(f\"Skipping halucination: task_id={task_id} - {type(task_id)}\")\n    continue\n\n  output.append({\"json\": l})\n\nreturn output"
+        "pythonCode": "payload = [item[\"json\"] for item in _items]\n\nllm_item = next(\n  (x for x in payload if isinstance(x, dict) and isinstance(x.get(\"output\"), list)),\n  None,\n)\n\nsource_item = next(\n  (x for x in payload if isinstance(x, dict) and isinstance(x.get(\"llm_tasks\"), list)),\n  None,\n)\n\nllm_data = [] if llm_item is None else llm_item.get(\"output\", [])\nllm_tasks = [] if source_item is None else source_item.get(\"llm_tasks\", [])\n\ntask_ids = [\n  t.get(\"id\")\n  for t in llm_tasks\n  if isinstance(t, dict) and t.get(\"id\") is not None\n]\n\noutput = []\n\nfor l in llm_data:\n  if not isinstance(l, dict):\n    continue\n\n  task_id = l.get(\"id\")\n  if task_id not in task_ids:\n    continue\n\n  output.append({\"json\": l})\n\nreturn output"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1984,
-        384
+        3600,
+        372
       ],
-      "id": "65a77c12-3eb9-497e-b0ec-56c79c8efdaf",
+      "id": "10eb5c48-258e-44ba-ab86-7d510204e49b",
       "name": "Remove halucinations"
     },
     {
@@ -1356,10 +1410,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        368,
+        1680,
         272
       ],
-      "id": "133f54a8-f27f-488f-9182-67f836508f58",
+      "id": "96e1869c-9009-4786-b063-1ab57d41ae2e",
       "name": "Construct regexes"
     },
     {
@@ -1390,10 +1444,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1424,
-        400
+        2800,
+        372
       ],
-      "id": "a51429f2-e4ce-4dd8-b67e-dd0f013e3859",
+      "id": "2253ec8b-0bd8-48d9-bfe6-cf02dc94ff6d",
       "name": "If llm tasks not empty"
     }
   ],
@@ -1427,6 +1481,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-12-19T18:47:45.654Z",
-  "versionId": "e0cbab14-38c9-4dc5-a908-b9c250523d94"
+  "updatedAt": "2025-12-19T19:24:05.982Z",
+  "versionId": "b6c18c6a-69c6-4e90-8d53-3ea2635e99c6"
 }
