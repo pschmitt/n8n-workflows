@@ -934,10 +934,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        64,
-        -704
+        -112,
+        96
       ],
-      "id": "c7ce87e6-3a4c-4d56-90cb-123049f6fcb6",
+      "id": "b4777507-64e5-41ea-b589-1c76360dc319",
       "name": "When clicking ‘Test workflow’"
     },
     {
@@ -954,10 +954,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        64,
-        -528
+        -112,
+        272
       ],
-      "id": "25d93d17-1740-4adc-b059-1b645bd08edb",
+      "id": "6f578ee6-e1fd-4138-984a-6416ae8835cc",
       "name": "Schedule Trigger"
     },
     {
@@ -969,10 +969,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -320,
-        -624
+        -496,
+        176
       ],
-      "id": "9b8da226-a272-4448-bc41-f94138e3dbae",
+      "id": "1bf989e4-7d9b-488c-a549-3ead22ff1907",
       "name": "Sticky Note"
     },
     {
@@ -994,10 +994,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        352,
-        -528
+        176,
+        272
       ],
-      "id": "ec1e73b6-4b77-44ed-a58f-d63fe5f6c92a",
+      "id": "de506ff4-2f7d-4bfd-8417-3cac2c404f52",
       "name": "Get emoji regexes",
       "retryOnFail": true,
       "waitBetweenTries": 2000
@@ -1010,10 +1010,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        832,
-        -496
+        656,
+        304
       ],
-      "id": "b624aafc-21a6-46ef-82e1-05ff4f3137c4",
+      "id": "4ed56e7c-2844-48be-9fb2-e19cb22dd579",
       "name": "Merge"
     },
     {
@@ -1027,10 +1027,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        352,
-        -704
+        176,
+        96
       ],
-      "id": "f3f2006d-23cf-4efb-849a-fd0be5db6ab9",
+      "id": "0b53942d-0c6f-4ebe-8ad5-f9af9e571baa",
       "name": "Todoist Fetch Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -1044,15 +1044,15 @@
     {
       "parameters": {
         "language": "pythonNative",
-        "pythonCode": "import json\nimport re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _('Construct regexes').all()]\n# emoji_mappings = [x[\"json\"] for x in workflow.get_node(\"Construct regexes\").get_items()]\ntask_data = [x.json for x in _input.all()]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  matched = False\n    \n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n    \n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      matched = True\n      # Break out of the inner loop once a pattern matches\n      break\n\n  if not matched and task not in llm_tasks:\n    llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
+        "pythonCode": "import re\n\nDEBUG = False\n\nemoji_mappings = [x.json for x in _input.all(1)]\ntask_data = [x.json for x in _input.all(0)]\n\nchanged_tasks = []\nllm_tasks = []\n\nfor task in task_data:\n  content = task.get(\"content\", \"\")\n  matched = False\n\n  # Loop over each emoji and its associated regex patterns\n  for em in emoji_mappings:\n    emoji = em.get(\"emoji\")\n    re_pattern = em.get(\"regex\")\n\n    if DEBUG:\n      print(f\"content: '{content}' - emoji: '{emoji}' - re: '{re_pattern}'\")\n\n    if re.match(re_pattern, content, re.IGNORECASE):\n      task[\"content\"] = f\"{emoji} {content}\"\n      changed_tasks.append(task)\n      matched = True\n      break\n\n  if not matched and task not in llm_tasks:\n    llm_tasks.append(task)\n\nreturn {\"changed_tasks\": changed_tasks, \"llm_tasks\": llm_tasks}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1312,
-        -480
+        1136,
+        320
       ],
-      "id": "053c7f59-8574-485e-9880-7e3fe7f290b8",
+      "id": "8821a007-80ad-4fa0-b0d0-3863fd1bc096",
       "name": "Regex replace content"
     },
     {
@@ -1063,10 +1063,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1840,
-        -176
+        1664,
+        624
       ],
-      "id": "1f90f76e-6b08-42f5-ad8f-d887b8d75e04",
+      "id": "b774017d-a254-4a50-aeef-5c9f09f1c422",
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
@@ -1083,10 +1083,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        2000,
-        -176
+        1824,
+        624
       ],
-      "id": "f205def7-c8e6-4945-aa4d-78ded930bbdc",
+      "id": "8a0763a7-200b-411d-aebe-170f19eb8294",
       "name": "Structured Output Parser",
       "notesInFlow": false
     },
@@ -1109,10 +1109,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        1840,
-        -416
+        1664,
+        384
       ],
-      "id": "bdc80e03-8bce-44a7-9ac7-78e24ddad5c3",
+      "id": "1b8ed18f-f3a9-4a30-aa15-07b9091cf666",
       "name": "Determine emoji",
       "alwaysOutputData": true
     },
@@ -1124,10 +1124,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1904,
-        -576
+        1728,
+        224
       ],
-      "id": "66987551-83dd-4ed5-8ea8-5051abee8c7a",
+      "id": "58716b45-6a94-4a07-8d66-ee243fdc226c",
       "name": "prepare tasks for import (static)"
     },
     {
@@ -1159,10 +1159,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1040,
-        -496
+        864,
+        304
       ],
-      "id": "7aea6b75-86f6-446a-a8fc-6f6d947a5aa9",
+      "id": "6b027284-de16-4ad1-b462-d3beb1f3bd4c",
       "name": "Tasks contain emoji"
     },
     {
@@ -1176,10 +1176,10 @@
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.1,
       "position": [
-        2560,
-        -576
+        2384,
+        224
       ],
-      "id": "ff1d59f2-4c76-4fef-89cb-5097ec148ddc",
+      "id": "a675c68f-ff5b-4765-972e-e361ab379807",
       "name": "Todoist Rename Task",
       "credentials": {
         "todoistApi": {
@@ -1217,10 +1217,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -64,
-        -320
+        -240,
+        480
       ],
-      "id": "267fc0c1-1571-482c-81a6-d5c0b80a74d6",
+      "id": "ceb07498-823d-4e4a-b575-fc11470f0128",
       "name": "Process webhook data"
     },
     {
@@ -1262,10 +1262,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        128,
-        -320
+        -48,
+        480
       ],
-      "id": "acbd2be5-bb8e-40c3-8b81-90817e41c98c",
+      "id": "9dcfdb04-0d37-486e-87df-ecd86ca72916",
       "name": "Check task project"
     },
     {
@@ -1297,10 +1297,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2352,
-        -416
+        2176,
+        384
       ],
-      "id": "a4a1e298-37a8-4b18-af03-5406cf11dad6",
+      "id": "e53cf377-df7a-42e2-9af5-34d449365cab",
       "name": "Validate emoji"
     },
     {
@@ -1312,25 +1312,25 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -240,
-        -320
+        -416,
+        480
       ],
-      "id": "d5087dba-6994-4155-ada1-0bdfe4a849c2",
+      "id": "5a9532f1-34b2-404b-85c6-ba67abd80e6a",
       "name": "Task added/updated",
       "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
     },
     {
       "parameters": {
         "language": "pythonNative",
-        "pythonCode": "task_ids = [x.json.get(\"id\") for x in _(\"Merge\").all()]\n# return {\"json\": {\"yo\": task_ids}}\n\nllm_data = _json.output\n\noutput = []\n\nfor l in llm_data:\n  task_id = l.get(\"id\")\n  \n  print(f\"Processing LLM Task: [{task_id}] {l.get('content')}\")\n  print(f\"Real task ids: {', '.join(task_ids)} - {type(task_ids[0])}\")\n  \n  if task_id not in task_ids:\n    print(f\"Skipping halucination: task_id={task_id} - {type(task_id)}\")\n    continue\n  \n  output.append({\"json\": l})\n\nreturn output"
+        "pythonCode": "task_ids = [x.json.get(\"id\") for x in _input.all(1)]\n# return {\"json\": {\"yo\": task_ids}}\n\nllm_data = _json.output\n\noutput = []\n\nfor l in llm_data:\n  task_id = l.get(\"id\")\n\n  print(f\"Processing LLM Task: [{task_id}] {l.get('content')}\")\n  if task_ids:\n    print(f\"Real task ids: {', '.join(map(str, task_ids))} - {type(task_ids[0])}\")\n  else:\n    print(\"Real task ids: <empty>\")\n\n  if task_id not in task_ids:\n    print(f\"Skipping halucination: task_id={task_id} - {type(task_id)}\")\n    continue\n\n  output.append({\"json\": l})\n\nreturn output"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2160,
-        -416
+        1984,
+        384
       ],
-      "id": "0326d297-3973-4628-8802-83cd912933ab",
+      "id": "65a77c12-3eb9-497e-b0ec-56c79c8efdaf",
       "name": "Remove halucinations"
     },
     {
@@ -1356,10 +1356,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        544,
-        -528
+        368,
+        272
       ],
-      "id": "f3cfef21-b484-45cc-ab61-a8634d55e422",
+      "id": "133f54a8-f27f-488f-9182-67f836508f58",
       "name": "Construct regexes"
     },
     {
@@ -1390,10 +1390,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1600,
-        -400
+        1424,
+        400
       ],
-      "id": "3691e9f1-b7b7-456c-9ee6-de1b3fd83422",
+      "id": "a51429f2-e4ce-4dd8-b67e-dd0f013e3859",
       "name": "If llm tasks not empty"
     }
   ],
@@ -1427,6 +1427,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-12-18T20:53:25.317Z",
-  "versionId": "be2cea0f-7319-4ddb-9e0d-3255a837bc08"
+  "updatedAt": "2025-12-19T18:47:45.654Z",
+  "versionId": "e0cbab14-38c9-4dc5-a908-b9c250523d94"
 }
