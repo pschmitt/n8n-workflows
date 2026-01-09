@@ -1083,7 +1083,7 @@
       "typeVersion": 2,
       "position": [
         2576,
-        248
+        256
       ],
       "id": "26f29f5a-cda8-449a-a30f-41567116e1aa",
       "name": "Regex replace content"
@@ -1096,8 +1096,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        3032,
-        472
+        3040,
+        480
       ],
       "id": "a7a7c11e-3bb5-478b-9de3-ac9d455e2e82",
       "name": "Groq Chat Model",
@@ -1116,8 +1116,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        3160,
-        472
+        3168,
+        480
       ],
       "id": "517fdaf1-22a9-4f4f-9e9a-d23173e4b9bf",
       "name": "Structured Output Parser",
@@ -1143,7 +1143,7 @@
       "typeVersion": 1.5,
       "position": [
         3024,
-        248
+        256
       ],
       "id": "93a6b772-da84-470c-8e9a-fb5d8a65ef05",
       "name": "Determine emoji",
@@ -1155,7 +1155,7 @@
       "typeVersion": 3,
       "position": [
         3376,
-        372
+        384
       ],
       "id": "34ce853d-bad9-422c-826d-54adff2f0c5f",
       "name": "Merge llm output + tasks"
@@ -1215,7 +1215,7 @@
       "typeVersion": 3,
       "position": [
         2352,
-        248
+        256
       ],
       "id": "889a922d-4e92-49e8-94f1-71bcd40ba8d2",
       "name": "Merge mappings + tasks"
@@ -1232,7 +1232,7 @@
       "typeVersion": 2.1,
       "position": [
         4048,
-        248
+        256
       ],
       "id": "beed1e56-ccff-41ab-93cf-9bc324c4d84d",
       "name": "Todoist Rename Task",
@@ -1273,7 +1273,7 @@
       "typeVersion": 3.4,
       "position": [
         1008,
-        392
+        400
       ],
       "id": "a7e3450f-2ad6-44b6-b92c-730a5185e93e",
       "name": "Process webhook data"
@@ -1318,7 +1318,7 @@
       "typeVersion": 2.2,
       "position": [
         1232,
-        392
+        400
       ],
       "id": "a3482c26-b7da-43a6-9262-46b36252042e",
       "name": "Check task project"
@@ -1353,7 +1353,7 @@
       "typeVersion": 2.2,
       "position": [
         3824,
-        372
+        384
       ],
       "id": "29a659b2-c7ea-4d5c-a97b-e2e58d865c80",
       "name": "Validate emoji"
@@ -1368,7 +1368,7 @@
       "typeVersion": 2,
       "position": [
         784,
-        392
+        400
       ],
       "id": "360b09f3-516d-4ac7-a541-4c5bfaa362d5",
       "name": "Task added/updated",
@@ -1383,7 +1383,7 @@
       "typeVersion": 2,
       "position": [
         3600,
-        372
+        384
       ],
       "id": "10eb5c48-258e-44ba-ab86-7d510204e49b",
       "name": "Remove halucinations"
@@ -1446,13 +1446,89 @@
       "typeVersion": 2.2,
       "position": [
         2800,
-        372
+        384
       ],
       "id": "2253ec8b-0bd8-48d9-bfe6-cf02dc94ff6d",
       "name": "If llm tasks not empty"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Task added/updated": [
+      {
+        "json": {
+          "headers": {
+            "connection": "close",
+            "host": "n8n.brkn.lol",
+            "x-real-ip": "54.167.205.8",
+            "x-forwarded-for": "54.167.205.8",
+            "x-forwarded-proto": "https",
+            "x-forwarded-host": "n8n.brkn.lol",
+            "x-forwarded-server": "rofl-10",
+            "content-length": "989",
+            "user-agent": "Todoist-Webhooks",
+            "content-type": "application/json",
+            "x-todoist-hmac-sha256": "AukPdEZ4c6+0huULr3l/4Nh6xFACi65Qn7M5T99d52M=",
+            "x-todoist-delivery-id": "1c83dc23-4fe6-475e-9e94-b167c05f4d96",
+            "x-app-id": "31903",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event_data": {
+              "added_at": "2026-01-09T22:18:57.292509Z",
+              "added_by_uid": "1087845",
+              "assigned_by_uid": null,
+              "checked": false,
+              "child_order": 3,
+              "collapsed": false,
+              "completed_at": null,
+              "completed_by_uid": null,
+              "content": "salat",
+              "day_order": -1,
+              "deadline": null,
+              "description": "",
+              "due": null,
+              "duration": null,
+              "id": "9901663169",
+              "is_deleted": false,
+              "labels": [],
+              "note_count": 0,
+              "parent_id": null,
+              "priority": 1,
+              "project_id": "2233547438",
+              "responsible_uid": null,
+              "section_id": "70307381",
+              "sync_id": "9901663169",
+              "updated_at": "2026-01-09T22:18:57.292525Z",
+              "url": "https://app.todoist.com/app/task/6fj7FpGjRW43g5Rp?sync_id=9901663169",
+              "user_id": "1087845",
+              "v2_id": "6fj7FpGjRW43g5Rp",
+              "v2_parent_id": null,
+              "v2_project_id": "6Crcx5cJrWQ6w4cG",
+              "v2_section_id": "64hJqv9CW29FCWGG"
+            },
+            "event_name": "item:added",
+            "initiator": {
+              "email": "philipp@schmitt.co",
+              "full_name": "pschmitt",
+              "id": "1087845",
+              "image_id": "02854bc8a8f64adfa0cc079a40de52b7",
+              "is_premium": true
+            },
+            "triggered_at": "2026-01-09T22:18:57.502899Z",
+            "user_id": "1087845",
+            "version": "9"
+          },
+          "webhookUrl": "https://n8n.brkn.lol/webhook/ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "repo_name": "n8n-workflows",
   "repo_owner": "pschmitt",
   "repo_path": "workflows",
@@ -1482,6 +1558,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2025-12-19T19:24:05.982Z",
-  "versionId": "b6c18c6a-69c6-4e90-8d53-3ea2635e99c6"
+  "updatedAt": "2026-01-09T22:23:24.874Z",
+  "versionId": "9eb05510-82ee-4c86-91df-22d2a7bf6edd"
 }
