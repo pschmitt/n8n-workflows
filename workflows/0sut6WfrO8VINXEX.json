@@ -1587,7 +1587,8 @@
   "repo_owner": "pschmitt",
   "repo_path": "workflows",
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": true
   },
   "shared": [
     {
@@ -1612,6 +1613,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2026-01-09T22:23:24.874Z",
+  "updatedAt": "2026-02-07T14:15:21.354Z",
   "versionId": "9eb05510-82ee-4c86-91df-22d2a7bf6edd"
 }
