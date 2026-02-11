@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-01-22T11:12:24.000Z",
-    "createdAt": "2026-01-09T22:23:24.876Z",
-    "versionId": "9eb05510-82ee-4c86-91df-22d2a7bf6edd",
+    "updatedAt": "2026-02-11T19:15:34.000Z",
+    "createdAt": "2026-02-11T19:15:31.152Z",
+    "versionId": "f99a175d-274c-43fc-ada9-5fc6400c08f0",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -11,10 +11,10 @@
         "type": "n8n-nodes-base.manualTrigger",
         "typeVersion": 1,
         "position": [
-          1232,
-          608
+          -1600,
+          -416
         ],
-        "id": "867c63f8-9559-43ea-8621-cca4d8b2d807",
+        "id": "60b80270-7569-412d-a62f-690f51213fef",
         "name": "When clicking ‘Test workflow’"
       },
       {
@@ -31,10 +31,10 @@
         "type": "n8n-nodes-base.scheduleTrigger",
         "typeVersion": 1.2,
         "position": [
-          1232,
-          800
+          -1600,
+          -224
         ],
-        "id": "efc3c242-5eb5-46b2-93ae-7e0c163531ad",
+        "id": "0c2865dd-df65-46ef-a040-d723f4aa255c",
         "name": "Schedule Trigger"
       },
       {
@@ -46,10 +46,10 @@
         "type": "n8n-nodes-base.stickyNote",
         "typeVersion": 1,
         "position": [
-          704,
-          80
+          -2128,
+          -944
         ],
-        "id": "9a50cdcb-5961-49a6-98f3-5760624145ae",
+        "id": "b2bcfdaf-64dc-497f-a753-f6bcf971395c",
         "name": "Sticky Note"
       },
       {
@@ -71,10 +71,10 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          1456,
-          272
+          -1376,
+          -752
         ],
-        "id": "452154f6-7ddf-4814-a8dd-8b485d87e220",
+        "id": "f7e4710d-bce4-46f0-a49a-efb41c93373b",
         "name": "Get emoji regexes",
         "retryOnFail": true,
         "waitBetweenTries": 2000
@@ -87,10 +87,10 @@
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3,
         "position": [
-          1904,
-          176
+          -928,
+          -848
         ],
-        "id": "24855a7c-cdb0-4477-a820-858d11c400be",
+        "id": "2ff0dda4-79c6-47a4-922e-9e328942bb97",
         "name": "Merge"
       },
       {
@@ -98,16 +98,16 @@
           "operation": "getAll",
           "returnAll": true,
           "filters": {
-            "projectId": "2233547438"
+            "projectId": "6Crcx5cJrWQ6w4cG"
           }
         },
         "type": "n8n-nodes-base.todoist",
-        "typeVersion": 2.1,
+        "typeVersion": 2.2,
         "position": [
-          1456,
-          656
+          -1376,
+          -368
         ],
-        "id": "59da60e8-6b88-462b-af7f-53741d168112",
+        "id": "44e2f1fa-01f0-49ae-8fe0-a08f00844682",
         "name": "Todoist Fetch Tasks",
         "retryOnFail": true,
         "waitBetweenTries": 2000,
@@ -126,10 +126,10 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          2576,
-          256
+          -256,
+          -768
         ],
-        "id": "26f29f5a-cda8-449a-a30f-41567116e1aa",
+        "id": "38361d64-d86e-49de-8423-ee9a7ebb0ae0",
         "name": "Regex replace content"
       },
       {
@@ -140,10 +140,10 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
         "typeVersion": 1,
         "position": [
-          3040,
-          480
+          208,
+          -544
         ],
-        "id": "a7a7c11e-3bb5-478b-9de3-ac9d455e2e82",
+        "id": "861a8c26-5a8c-4510-b1f4-c269b794e2b9",
         "name": "Groq Chat Model",
         "credentials": {
           "groqApi": {
@@ -160,10 +160,10 @@
         "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
         "typeVersion": 1.2,
         "position": [
-          3168,
-          480
+          336,
+          -544
         ],
-        "id": "517fdaf1-22a9-4f4f-9e9a-d23173e4b9bf",
+        "id": "5d37c7ab-1457-4601-9e33-9e6d189aba0c",
         "name": "Structured Output Parser",
         "notesInFlow": false
       },
@@ -186,10 +186,10 @@
         "type": "@n8n/n8n-nodes-langchain.chainLlm",
         "typeVersion": 1.5,
         "position": [
-          3024,
-          256
+          192,
+          -768
         ],
-        "id": "93a6b772-da84-470c-8e9a-fb5d8a65ef05",
+        "id": "fe30bff2-0a8d-491b-ac1e-50a05a0bfedd",
         "name": "Determine emoji",
         "alwaysOutputData": true
       },
@@ -198,10 +198,10 @@
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3,
         "position": [
-          3376,
-          384
+          544,
+          -640
         ],
-        "id": "34ce853d-bad9-422c-826d-54adff2f0c5f",
+        "id": "022f5eaf-367b-4b5e-a60f-2c183726b238",
         "name": "Merge llm output + tasks"
       },
       {
@@ -212,10 +212,10 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          3824,
-          0
+          992,
+          -1024
         ],
-        "id": "0ffc75a6-2cb3-45b1-a9fb-1139fc86dc26",
+        "id": "e65acdf7-189c-4b32-a2ae-84040a68f6db",
         "name": "prepare tasks for import (static)"
       },
       {
@@ -247,10 +247,10 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          2128,
-          176
+          -656,
+          -928
         ],
-        "id": "99f030b8-d712-4af3-b699-7bb2deff6613",
+        "id": "160cb138-f0a1-429b-a59e-23633bef3e24",
         "name": "Tasks contain emoji"
       },
       {
@@ -258,10 +258,10 @@
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3,
         "position": [
-          2352,
-          256
+          -480,
+          -768
         ],
-        "id": "889a922d-4e92-49e8-94f1-71bcd40ba8d2",
+        "id": "63b12a8f-3cf3-4956-8885-862ac58480ca",
         "name": "Merge mappings + tasks"
       },
       {
@@ -273,12 +273,12 @@
           }
         },
         "type": "n8n-nodes-base.todoist",
-        "typeVersion": 2.1,
+        "typeVersion": 2.2,
         "position": [
-          4048,
-          256
+          1216,
+          -768
         ],
-        "id": "beed1e56-ccff-41ab-93cf-9bc324c4d84d",
+        "id": "c649b3f1-b58a-4df5-bf0d-47512771a23d",
         "name": "Todoist Rename Task",
         "credentials": {
           "todoistApi": {
@@ -294,7 +294,7 @@
               {
                 "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
                 "name": "id",
-                "value": "={{ $json.body.event_data.id }}",
+                "value": "={{ $json.body.event_data.v2_id }}",
                 "type": "string"
               },
               {
@@ -306,7 +306,7 @@
               {
                 "id": "a0e984ff-7805-4d5a-883f-0a94c18b6679",
                 "name": "project_id",
-                "value": "={{ $json.body.event_data.project_id }}",
+                "value": "={{ $json.body.event_data.v2_project_id }}",
                 "type": "string"
               }
             ]
@@ -316,10 +316,10 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          1008,
-          400
+          -1824,
+          -624
         ],
-        "id": "a7e3450f-2ad6-44b6-b92c-730a5185e93e",
+        "id": "b79b6735-445b-43e5-a2cb-8451b021e9c4",
         "name": "Process webhook data"
       },
       {
@@ -335,7 +335,7 @@
               {
                 "id": "68d338c3-1807-4831-83c6-18d273a25d00",
                 "leftValue": "={{ $json.project_id }}",
-                "rightValue": "=2233547438",
+                "rightValue": "=6Crcx5cJrWQ6w4cG",
                 "operator": {
                   "type": "string",
                   "operation": "equals",
@@ -361,10 +361,10 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          1232,
-          400
+          -1600,
+          -624
         ],
-        "id": "a3482c26-b7da-43a6-9262-46b36252042e",
+        "id": "4850d6ac-7005-4c90-a9dc-3057383fe1b2",
         "name": "Check task project"
       },
       {
@@ -396,10 +396,10 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          3824,
-          384
+          992,
+          -640
         ],
-        "id": "29a659b2-c7ea-4d5c-a97b-e2e58d865c80",
+        "id": "7eb8a6fe-93fa-4709-890e-c011b0ad3e46",
         "name": "Validate emoji"
       },
       {
@@ -411,10 +411,10 @@
         "type": "n8n-nodes-base.webhook",
         "typeVersion": 2,
         "position": [
-          784,
-          400
+          -2048,
+          -624
         ],
-        "id": "360b09f3-516d-4ac7-a541-4c5bfaa362d5",
+        "id": "19da4c6c-7fa5-4b15-9be5-bce788d7fd85",
         "name": "Task added/updated",
         "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
       },
@@ -426,10 +426,10 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          3600,
-          384
+          768,
+          -640
         ],
-        "id": "10eb5c48-258e-44ba-ab86-7d510204e49b",
+        "id": "361c0ce6-2a0d-4d77-a7e2-e59de3f91f17",
         "name": "Remove halucinations"
       },
       {
@@ -455,10 +455,10 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          1680,
-          272
+          -1152,
+          -752
         ],
-        "id": "96e1869c-9009-4786-b063-1ab57d41ae2e",
+        "id": "223fa842-6284-4f89-b80e-fe63f1376862",
         "name": "Construct regexes"
       },
       {
@@ -489,10 +489,10 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.2,
         "position": [
-          2800,
-          384
+          -32,
+          -640
         ],
-        "id": "2253ec8b-0bd8-48d9-bfe6-cf02dc94ff6d",
+        "id": "3ad7def1-cdac-46dd-83c8-210da96a9b9e",
         "name": "If llm tasks not empty"
       }
     ],
@@ -750,11 +750,11 @@
       }
     },
     "authors": "Philipp Schmitt",
-    "name": "Version 9eb05510",
+    "name": "Version f99a175d",
     "description": "",
-    "autosaved": false
+    "autosaved": true
   },
-  "activeVersionId": "9eb05510-82ee-4c86-91df-22d2a7bf6edd",
+  "activeVersionId": "f99a175d-274c-43fc-ada9-5fc6400c08f0",
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
@@ -1021,10 +1021,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        1232,
-        608
+        -1600,
+        -416
       ],
-      "id": "867c63f8-9559-43ea-8621-cca4d8b2d807",
+      "id": "60b80270-7569-412d-a62f-690f51213fef",
       "name": "When clicking ‘Test workflow’"
     },
     {
@@ -1041,10 +1041,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        1232,
-        800
+        -1600,
+        -224
       ],
-      "id": "efc3c242-5eb5-46b2-93ae-7e0c163531ad",
+      "id": "0c2865dd-df65-46ef-a040-d723f4aa255c",
       "name": "Schedule Trigger"
     },
     {
@@ -1056,10 +1056,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        704,
-        80
+        -2128,
+        -944
       ],
-      "id": "9a50cdcb-5961-49a6-98f3-5760624145ae",
+      "id": "b2bcfdaf-64dc-497f-a753-f6bcf971395c",
       "name": "Sticky Note"
     },
     {
@@ -1081,10 +1081,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1456,
-        272
+        -1376,
+        -752
       ],
-      "id": "452154f6-7ddf-4814-a8dd-8b485d87e220",
+      "id": "f7e4710d-bce4-46f0-a49a-efb41c93373b",
       "name": "Get emoji regexes",
       "retryOnFail": true,
       "waitBetweenTries": 2000
@@ -1097,10 +1097,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        1904,
-        176
+        -928,
+        -848
       ],
-      "id": "24855a7c-cdb0-4477-a820-858d11c400be",
+      "id": "2ff0dda4-79c6-47a4-922e-9e328942bb97",
       "name": "Merge"
     },
     {
@@ -1108,16 +1108,16 @@
         "operation": "getAll",
         "returnAll": true,
         "filters": {
-          "projectId": "2233547438"
+          "projectId": "6Crcx5cJrWQ6w4cG"
         }
       },
       "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.1,
+      "typeVersion": 2.2,
       "position": [
-        1456,
-        656
+        -1376,
+        -368
       ],
-      "id": "59da60e8-6b88-462b-af7f-53741d168112",
+      "id": "44e2f1fa-01f0-49ae-8fe0-a08f00844682",
       "name": "Todoist Fetch Tasks",
       "retryOnFail": true,
       "waitBetweenTries": 2000,
@@ -1136,10 +1136,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2576,
-        256
+        -256,
+        -768
       ],
-      "id": "26f29f5a-cda8-449a-a30f-41567116e1aa",
+      "id": "38361d64-d86e-49de-8423-ee9a7ebb0ae0",
       "name": "Regex replace content"
     },
     {
@@ -1150,10 +1150,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        3040,
-        480
+        208,
+        -544
       ],
-      "id": "a7a7c11e-3bb5-478b-9de3-ac9d455e2e82",
+      "id": "861a8c26-5a8c-4510-b1f4-c269b794e2b9",
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
@@ -1170,10 +1170,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        3168,
-        480
+        336,
+        -544
       ],
-      "id": "517fdaf1-22a9-4f4f-9e9a-d23173e4b9bf",
+      "id": "5d37c7ab-1457-4601-9e33-9e6d189aba0c",
       "name": "Structured Output Parser",
       "notesInFlow": false
     },
@@ -1196,10 +1196,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.5,
       "position": [
-        3024,
-        256
+        192,
+        -768
       ],
-      "id": "93a6b772-da84-470c-8e9a-fb5d8a65ef05",
+      "id": "fe30bff2-0a8d-491b-ac1e-50a05a0bfedd",
       "name": "Determine emoji",
       "alwaysOutputData": true
     },
@@ -1208,10 +1208,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        3376,
-        384
+        544,
+        -640
       ],
-      "id": "34ce853d-bad9-422c-826d-54adff2f0c5f",
+      "id": "022f5eaf-367b-4b5e-a60f-2c183726b238",
       "name": "Merge llm output + tasks"
     },
     {
@@ -1222,10 +1222,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3824,
-        0
+        992,
+        -1024
       ],
-      "id": "0ffc75a6-2cb3-45b1-a9fb-1139fc86dc26",
+      "id": "e65acdf7-189c-4b32-a2ae-84040a68f6db",
       "name": "prepare tasks for import (static)"
     },
     {
@@ -1257,10 +1257,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2128,
-        176
+        -656,
+        -928
       ],
-      "id": "99f030b8-d712-4af3-b699-7bb2deff6613",
+      "id": "160cb138-f0a1-429b-a59e-23633bef3e24",
       "name": "Tasks contain emoji"
     },
     {
@@ -1268,10 +1268,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3,
       "position": [
-        2352,
-        256
+        -480,
+        -768
       ],
-      "id": "889a922d-4e92-49e8-94f1-71bcd40ba8d2",
+      "id": "63b12a8f-3cf3-4956-8885-862ac58480ca",
       "name": "Merge mappings + tasks"
     },
     {
@@ -1283,12 +1283,12 @@
         }
       },
       "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.1,
+      "typeVersion": 2.2,
       "position": [
-        4048,
-        256
+        1216,
+        -768
       ],
-      "id": "beed1e56-ccff-41ab-93cf-9bc324c4d84d",
+      "id": "c649b3f1-b58a-4df5-bf0d-47512771a23d",
       "name": "Todoist Rename Task",
       "credentials": {
         "todoistApi": {
@@ -1304,7 +1304,7 @@
             {
               "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
               "name": "id",
-              "value": "={{ $json.body.event_data.id }}",
+              "value": "={{ $json.body.event_data.v2_id }}",
               "type": "string"
             },
             {
@@ -1316,7 +1316,7 @@
             {
               "id": "a0e984ff-7805-4d5a-883f-0a94c18b6679",
               "name": "project_id",
-              "value": "={{ $json.body.event_data.project_id }}",
+              "value": "={{ $json.body.event_data.v2_project_id }}",
               "type": "string"
             }
           ]
@@ -1326,10 +1326,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1008,
-        400
+        -1824,
+        -624
       ],
-      "id": "a7e3450f-2ad6-44b6-b92c-730a5185e93e",
+      "id": "b79b6735-445b-43e5-a2cb-8451b021e9c4",
       "name": "Process webhook data"
     },
     {
@@ -1345,7 +1345,7 @@
             {
               "id": "68d338c3-1807-4831-83c6-18d273a25d00",
               "leftValue": "={{ $json.project_id }}",
-              "rightValue": "=2233547438",
+              "rightValue": "=6Crcx5cJrWQ6w4cG",
               "operator": {
                 "type": "string",
                 "operation": "equals",
@@ -1371,10 +1371,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1232,
-        400
+        -1600,
+        -624
       ],
-      "id": "a3482c26-b7da-43a6-9262-46b36252042e",
+      "id": "4850d6ac-7005-4c90-a9dc-3057383fe1b2",
       "name": "Check task project"
     },
     {
@@ -1406,10 +1406,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3824,
-        384
+        992,
+        -640
       ],
-      "id": "29a659b2-c7ea-4d5c-a97b-e2e58d865c80",
+      "id": "7eb8a6fe-93fa-4709-890e-c011b0ad3e46",
       "name": "Validate emoji"
     },
     {
@@ -1421,10 +1421,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        784,
-        400
+        -2048,
+        -624
       ],
-      "id": "360b09f3-516d-4ac7-a541-4c5bfaa362d5",
+      "id": "19da4c6c-7fa5-4b15-9be5-bce788d7fd85",
       "name": "Task added/updated",
       "webhookId": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
     },
@@ -1436,10 +1436,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3600,
-        384
+        768,
+        -640
       ],
-      "id": "10eb5c48-258e-44ba-ab86-7d510204e49b",
+      "id": "361c0ce6-2a0d-4d77-a7e2-e59de3f91f17",
       "name": "Remove halucinations"
     },
     {
@@ -1465,10 +1465,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1680,
-        272
+        -1152,
+        -752
       ],
-      "id": "96e1869c-9009-4786-b063-1ab57d41ae2e",
+      "id": "223fa842-6284-4f89-b80e-fe63f1376862",
       "name": "Construct regexes"
     },
     {
@@ -1499,10 +1499,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2800,
-        384
+        -32,
+        -640
       ],
-      "id": "2253ec8b-0bd8-48d9-bfe6-cf02dc94ff6d",
+      "id": "3ad7def1-cdac-46dd-83c8-210da96a9b9e",
       "name": "If llm tasks not empty"
     }
   ],
@@ -1613,6 +1613,6 @@
     }
   ],
   "triggerCount": 2,
-  "updatedAt": "2026-02-11T18:54:13.422Z",
-  "versionId": "9eb05510-82ee-4c86-91df-22d2a7bf6edd"
+  "updatedAt": "2026-02-11T19:15:31.151Z",
+  "versionId": "f99a175d-274c-43fc-ada9-5fc6400c08f0"
 }
