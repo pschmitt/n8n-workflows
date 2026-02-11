@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-11T19:21:03.000Z",
-    "createdAt": "2026-02-11T19:20:25.540Z",
-    "versionId": "956ec3e3-dc1f-4e9b-8845-db359ff3dd82",
+    "updatedAt": "2026-02-11T19:40:29.000Z",
+    "createdAt": "2026-02-11T19:40:13.244Z",
+    "versionId": "0bcdc636-5f90-415f-a4a5-7723791bf895",
     "workflowId": "19pwlUJok6EXe0uu",
     "nodes": [
       {
@@ -12,7 +12,7 @@
         "typeVersion": 1,
         "position": [
           -8192,
-          1312
+          1520
         ],
         "id": "f44f615d-81b5-4709-b127-2e1ab0dadc4d",
         "name": "When clicking ‘Execute workflow’"
@@ -24,8 +24,8 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          -6848,
-          1296
+          -6624,
+          1496
         ],
         "name": "Assign Create Parent ID",
         "id": "5b3201f2-6735-49d5-ad26-1f2c771252be"
@@ -37,8 +37,8 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          -6400,
-          1360
+          -6176,
+          1568
         ],
         "name": "Record Created Task",
         "id": "e4ba41d5-75d4-4625-ade3-795da6da8b1d"
@@ -50,8 +50,8 @@
         "type": "n8n-nodes-base.splitInBatches",
         "typeVersion": 3,
         "position": [
-          -7072,
-          1360
+          -6848,
+          1568
         ],
         "name": "Process Create Batches",
         "id": "02d2bc9c-4132-48c8-abdd-60659a9f56ed"
@@ -61,15 +61,14 @@
           "operation": "getAll",
           "returnAll": true,
           "filters": {
-            "labelId": "templated",
-            "projectId": "2233792081"
+            "projectId": "6Crcx5cJvmr22H3G"
           }
         },
         "type": "n8n-nodes-base.todoist",
         "typeVersion": 2.2,
         "position": [
           -7968,
-          1072
+          1280
         ],
         "id": "52b24987-d5a8-4559-a16b-4409be848b32",
         "name": "Get Test Project Tasks1",
@@ -98,8 +97,8 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          -7840,
-          1072
+          -7744,
+          1280
         ],
         "id": "dcd108f2-3e4d-4597-b970-399301b71ce4",
         "name": "Tag test tasks1"
@@ -109,14 +108,14 @@
           "operation": "getAll",
           "returnAll": true,
           "filters": {
-            "projectId": "2360682540"
+            "projectId": "6cxWC8m6pfCgHVCg"
           }
         },
         "type": "n8n-nodes-base.todoist",
         "typeVersion": 2.2,
         "position": [
           -7968,
-          1264
+          1472
         ],
         "id": "a3f46e53-c925-4054-a59a-e612fb5ed00a",
         "name": "Get template tasks1",
@@ -145,8 +144,8 @@
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
         "position": [
-          -7840,
-          1264
+          -7744,
+          1472
         ],
         "id": "dd41882e-e082-49d8-9747-901e2270189a",
         "name": "Tag template tasks1"
@@ -156,8 +155,8 @@
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3,
         "position": [
-          -7744,
-          1168
+          -7520,
+          1376
         ],
         "name": "Merge Tasks1",
         "id": "13134ff1-7374-403b-8d51-f51fa1d9668c"
@@ -170,8 +169,8 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          -7520,
-          1168
+          -7296,
+          1376
         ],
         "name": "Build Expansion Actions1",
         "id": "194efa2d-20e6-4bcf-a7db-c704cadd4e0f"
@@ -197,8 +196,8 @@
         "type": "n8n-nodes-base.switch",
         "typeVersion": 2,
         "position": [
-          -7296,
-          1152
+          -7072,
+          1360
         ],
         "name": "Route Action1",
         "id": "439720ea-7b78-43ff-86c7-641adda2a50a"
@@ -218,7 +217,7 @@
         "type": "n8n-nodes-base.todoist",
         "typeVersion": 2.2,
         "position": [
-          -6832,
+          -8640,
           960
         ],
         "name": "Update Task1",
@@ -238,8 +237,8 @@
         "type": "n8n-nodes-base.todoist",
         "typeVersion": 2.2,
         "position": [
-          -7072,
-          1168
+          -6848,
+          1376
         ],
         "name": "Delete Task1",
         "id": "eb12ec90-1d5e-4b0b-8a86-f2776293c171",
@@ -267,8 +266,8 @@
         "type": "n8n-nodes-base.todoist",
         "typeVersion": 2.2,
         "position": [
-          -6624,
-          1296
+          -6400,
+          1496
         ],
         "name": "Create Task1",
         "id": "e2774ef5-8226-4eed-a1a4-a5c4e04a4408",
@@ -315,7 +314,7 @@
         "typeVersion": 3.4,
         "position": [
           -8416,
-          1024
+          1232
         ],
         "id": "17470c95-1a10-4322-830e-ca6c32c810b6",
         "name": "Process webhook data"
@@ -330,7 +329,7 @@
         "typeVersion": 2,
         "position": [
           -8640,
-          1024
+          1232
         ],
         "id": "3d6ab08f-fba8-4a7d-8530-fcaa053b37bc",
         "name": "Task added/updated",
@@ -367,7 +366,7 @@
         "typeVersion": 2.2,
         "position": [
           -8192,
-          1024
+          1232
         ],
         "id": "a4da5e82-fe2f-470f-b911-44c668338628",
         "name": "Check task"
@@ -375,7 +374,7 @@
       {
         "parameters": {
           "method": "POST",
-          "url": "=https://api.todoist.com/rest/v2/tasks/{{ $json.payload.task_id }}",
+          "url": "=https://api.todoist.com/api/v1/tasks/{{ $json.payload.task_id }}",
           "authentication": "predefinedCredentialType",
           "nodeCredentialType": "todoistApi",
           "sendBody": true,
@@ -386,8 +385,8 @@
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
         "position": [
-          -7072,
-          976
+          -6848,
+          1184
         ],
         "id": "d1cc77a9-a6a7-4d5c-827c-901950e477e1",
         "name": "HTTP Request",
@@ -592,11 +591,11 @@
       }
     },
     "authors": "Philipp Schmitt",
-    "name": "Version 956ec3e3",
+    "name": "Version 0bcdc636",
     "description": "",
     "autosaved": true
   },
-  "activeVersionId": "956ec3e3-dc1f-4e9b-8845-db359ff3dd82",
+  "activeVersionId": "0bcdc636-5f90-415f-a4a5-7723791bf895",
   "connections": {
     "When clicking ‘Execute workflow’": {
       "main": [
@@ -852,8 +851,7 @@
         "operation": "getAll",
         "returnAll": true,
         "filters": {
-          "labelId": "templated",
-          "projectId": "6cxWC8m6pfCgHVCg"
+          "projectId": "6Crcx5cJvmr22H3G"
         }
       },
       "type": "n8n-nodes-base.todoist",
@@ -1166,7 +1164,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://api.todoist.com/rest/v2/tasks/{{ $json.payload.task_id }}",
+        "url": "=https://api.todoist.com/api/v1/tasks/{{ $json.payload.task_id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "todoistApi",
         "sendBody": true,
@@ -1298,6 +1296,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-02-11T19:29:04.227Z",
-  "versionId": "c6a0f09d-66bc-4320-a586-dedb6784148d"
+  "updatedAt": "2026-02-11T19:40:13.243Z",
+  "versionId": "0bcdc636-5f90-415f-a4a5-7723791bf895"
 }
