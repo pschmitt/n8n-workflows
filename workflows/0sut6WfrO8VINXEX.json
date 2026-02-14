@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-11T19:15:34.000Z",
-    "createdAt": "2026-02-11T19:15:31.152Z",
-    "versionId": "f99a175d-274c-43fc-ada9-5fc6400c08f0",
+    "updatedAt": "2026-02-14T17:26:05.000Z",
+    "createdAt": "2026-02-14T17:24:53.427Z",
+    "versionId": "b08ed49f-ad66-467a-b729-21c0481f05af",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -294,7 +294,7 @@
               {
                 "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
                 "name": "id",
-                "value": "={{ $json.body.event_data.v2_id }}",
+                "value": "={{ $json.body.event_data.id }}",
                 "type": "string"
               },
               {
@@ -306,7 +306,7 @@
               {
                 "id": "a0e984ff-7805-4d5a-883f-0a94c18b6679",
                 "name": "project_id",
-                "value": "={{ $json.body.event_data.v2_project_id }}",
+                "value": "={{ $json.body.event_data.project_id }}",
                 "type": "string"
               }
             ]
@@ -750,11 +750,11 @@
       }
     },
     "authors": "Philipp Schmitt",
-    "name": "Version f99a175d",
+    "name": "Version b08ed49f",
     "description": "",
     "autosaved": true
   },
-  "activeVersionId": "f99a175d-274c-43fc-ada9-5fc6400c08f0",
+  "activeVersionId": "b08ed49f-ad66-467a-b729-21c0481f05af",
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
@@ -1304,7 +1304,7 @@
             {
               "id": "02f2e06e-0dc6-472b-a4c4-691a8a3ced6f",
               "name": "id",
-              "value": "={{ $json.body.event_data.v2_id }}",
+              "value": "={{ $json.body.event_data.id }}",
               "type": "string"
             },
             {
@@ -1316,7 +1316,7 @@
             {
               "id": "a0e984ff-7805-4d5a-883f-0a94c18b6679",
               "name": "project_id",
-              "value": "={{ $json.body.event_data.v2_project_id }}",
+              "value": "={{ $json.body.event_data.project_id }}",
               "type": "string"
             }
           ]
@@ -1518,49 +1518,44 @@
             "x-forwarded-proto": "https",
             "x-forwarded-host": "n8n.brkn.lol",
             "x-forwarded-server": "rofl-10",
-            "content-length": "989",
+            "content-length": "871",
+            "content-type": "application/json",
+            "x-todoist-hmac-sha256": "0RQuSfGAeyRTUWMZkxQAM97m88QUpn72i7teL1r5wpo=",
+            "x-todoist-delivery-id": "f329032b-4560-4551-9bdd-72817d6bd63c",
             "x-app-id": "31903",
             "user-agent": "Todoist-Webhooks",
-            "content-type": "application/json",
-            "x-todoist-hmac-sha256": "/6Z6m+z+321kQlaqWz3+3hQg849D3ol8VQCjgKSSv7g=",
-            "x-todoist-delivery-id": "6103a911-50ba-4e47-ad4a-300047b73a52",
             "accept-encoding": "gzip"
           },
           "params": {},
           "query": {},
           "body": {
             "event_data": {
-              "added_at": "2026-02-11T18:43:05.571192Z",
+              "added_at": "2026-02-14T17:22:54.905067Z",
               "added_by_uid": "1087845",
               "assigned_by_uid": null,
               "checked": false,
-              "child_order": 4,
-              "collapsed": false,
+              "child_order": 2,
               "completed_at": null,
               "completed_by_uid": null,
-              "content": "ds",
+              "content": "eia",
               "day_order": -1,
               "deadline": null,
               "description": "",
               "due": null,
               "duration": null,
-              "id": "10008908810",
+              "id": "6g2VVXfm2GhhC38G",
+              "is_collapsed": false,
               "is_deleted": false,
               "labels": [],
               "note_count": 0,
               "parent_id": null,
               "priority": 1,
-              "project_id": "2233547438",
+              "project_id": "6Crcx5cJrWQ6w4cG",
               "responsible_uid": null,
-              "section_id": "70307381",
-              "sync_id": "10008908810",
-              "updated_at": "2026-02-11T18:43:05.571205Z",
-              "url": "https://app.todoist.com/app/task/6fxqQVPM9xPRJjJp?sync_id=10008908810",
-              "user_id": "1087845",
-              "v2_id": "6fxqQVPM9xPRJjJp",
-              "v2_parent_id": null,
-              "v2_project_id": "6Crcx5cJrWQ6w4cG",
-              "v2_section_id": "64hJqv9CW29FCWGG"
+              "section_id": "64hJqv9CW29FCWGG",
+              "updated_at": "2026-02-14T17:22:54.905089Z",
+              "url": "https://app.todoist.com/app/task/6g2VVXfm2GhhC38G?sync_id=10017504226",
+              "user_id": "1087845"
             },
             "event_name": "item:added",
             "initiator": {
@@ -1570,9 +1565,9 @@
               "image_id": "02854bc8a8f64adfa0cc079a40de52b7",
               "is_premium": true
             },
-            "triggered_at": "2026-02-11T18:43:05.796264Z",
+            "triggered_at": "2026-02-14T17:22:55.228617Z",
             "user_id": "1087845",
-            "version": "9"
+            "version": "1"
           },
           "webhookUrl": "https://n8n.brkn.lol/webhook/ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
           "executionMode": "production"
@@ -1588,7 +1583,7 @@
   "repo_path": "workflows",
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": true
+    "availableInMCP": false
   },
   "shared": [
     {
@@ -1604,15 +1599,8 @@
       "recurrenceRules": []
     }
   },
-  "tags": [
-    {
-      "updatedAt": "2025-03-01T06:50:52.672Z",
-      "createdAt": "2025-03-01T06:50:52.672Z",
-      "id": "mjfF2OqntfnQP15x",
-      "name": "todoist"
-    }
-  ],
+  "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-02-11T19:15:31.151Z",
-  "versionId": "f99a175d-274c-43fc-ada9-5fc6400c08f0"
+  "updatedAt": "2026-02-14T17:24:53.426Z",
+  "versionId": "b08ed49f-ad66-467a-b729-21c0481f05af"
 }
