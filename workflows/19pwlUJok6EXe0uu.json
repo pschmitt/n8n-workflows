@@ -1283,8 +1283,27 @@
       "recurrenceRules": []
     },
     "global": {
-      "template_maps": {},
-      "template_pending_sequence": []
+      "template_maps": {
+        "6gRF4rJPWGmPW86G::6cxWCG8589jX6XJg": {
+          "6cxWCG8589jX6XJg": "6gRF4rJPWGmPW86G",
+          "6cxWCQmVVCChRX68": "6gRF4rjpcxXMp6qG",
+          "6f663F45XxH26jR8": "6gRF4rqmx9WMcCmp",
+          "6f6H2J3fPJp3Vp3g": "6gRF4rqgqjhJvQvp",
+          "6cxffFQffcjFJ6m8": "6gRF4rvFQ6MxV38G",
+          "6cxWCVf4VCmwR2v8": "6gRF4rwxxxrHW2PG",
+          "6cxfhHmw58W7PjH8": "6gRF4v2G857PH3rp",
+          "6cxfhM782Cw7WvP8": "6gRF4v2qFVHCxW7p",
+          "6f68J25VHWwvgcpg": "6gRF4vQXjQGfcv7G"
+        }
+      },
+      "template_pending_sequence": [
+        {
+          "run_key": "6gRF4rJPWGmPW86G::6cxWCG8589jX6XJg",
+          "template_id": "6cxfg4jPmFhjW22g",
+          "finalize_run": false
+        }
+      ],
+      "current_session_id": "32e37b35a4eb4f0e8c51fcd765859ee7"
     }
   },
   "tags": [
