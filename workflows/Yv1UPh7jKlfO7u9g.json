@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2025-11-25T10:59:07.559Z",
-    "createdAt": "2025-11-25T10:59:07.559Z",
-    "versionId": "2ac28646-338d-4f66-b920-20dc8261363f",
+    "updatedAt": "2026-05-16T06:59:53.912Z",
+    "createdAt": "2026-05-16T06:59:53.912Z",
+    "versionId": "f1a898f7-697f-4d7d-bbc6-3cfe1efaf7bc",
     "workflowId": "Yv1UPh7jKlfO7u9g",
     "nodes": [
       {
@@ -124,7 +124,7 @@
       },
       {
         "parameters": {
-          "fileSelector": "/data/pr_data.json",
+          "fileSelector": "/home/node/.n8n-files/pr_data.json",
           "options": {}
         },
         "type": "n8n-nodes-base.readWriteFile",
@@ -157,7 +157,7 @@
       {
         "parameters": {
           "operation": "write",
-          "fileName": "/data/pr_data.json",
+          "fileName": "/home/node/.n8n-files/pr_data.json",
           "options": {
             "append": false
           }
@@ -476,12 +476,12 @@
         ]
       }
     },
-    "authors": "system migration",
+    "authors": "Philipp Schmitt",
     "name": null,
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "2ac28646-338d-4f66-b920-20dc8261363f",
+  "activeVersionId": "f1a898f7-697f-4d7d-bbc6-3cfe1efaf7bc",
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
@@ -783,7 +783,7 @@
     },
     {
       "parameters": {
-        "fileSelector": "/data/pr_data.json",
+        "fileSelector": "/home/node/.n8n-files/pr_data.json",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -816,7 +816,7 @@
     {
       "parameters": {
         "operation": "write",
-        "fileName": "/data/pr_data.json",
+        "fileName": "/home/node/.n8n-files/pr_data.json",
         "options": {
           "append": false
         }
@@ -1000,6 +1000,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-02-07T14:15:15.110Z",
-  "versionId": "2ac28646-338d-4f66-b920-20dc8261363f"
+  "updatedAt": "2026-05-16T06:59:53.911Z",
+  "versionId": "f1a898f7-697f-4d7d-bbc6-3cfe1efaf7bc"
 }
