@@ -213,7 +213,8 @@
   "repo_owner": "pschmitt",
   "repo_path": "workflows",
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": true
   },
   "shared": [
     {
@@ -234,6 +235,6 @@
     }
   ],
   "triggerCount": 0,
-  "updatedAt": "2025-03-21T22:34:10.000Z",
+  "updatedAt": "2026-05-16T15:58:43.770Z",
   "versionId": "8f954ae1-7570-4be3-b6c5-b044896e98ca"
 }
