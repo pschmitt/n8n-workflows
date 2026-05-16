@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-05-16T16:29:22.769Z",
-    "createdAt": "2026-05-16T16:29:22.769Z",
-    "versionId": "1b553b69-118a-43df-8421-b1e39a549ec1",
+    "updatedAt": "2026-05-16T16:44:02.820Z",
+    "createdAt": "2026-05-16T16:44:02.820Z",
+    "versionId": "6e461e95-0269-45bc-8d9d-b0373e7770ec",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -17,19 +17,42 @@
         ]
       },
       {
-        "id": "6d098964-e5df-49aa-a6c6-a1aa464091b5",
-        "name": "Fetch All Tasks",
+        "id": "7d4add93-1ae8-49f9-be32-9f95f22adc4b",
+        "name": "Fetch Nerdery",
         "type": "n8n-nodes-base.todoist",
         "typeVersion": 2.2,
         "position": [
           -1750,
-          100
+          50
         ],
         "parameters": {
           "operation": "getAll",
           "returnAll": true,
           "filters": {
-            "filter": "project:6Crcx5cJrWQ6w4cG | project:6gfWcx5q832xJ6XJ"
+            "projectId": "6gfWcx5q832xJ6XJ"
+          }
+        },
+        "credentials": {
+          "todoistApi": {
+            "id": "7jDBSQS5HIVX5LSR",
+            "name": "Todoist account (API Key)"
+          }
+        }
+      },
+      {
+        "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
+        "name": "Fetch Groceries",
+        "type": "n8n-nodes-base.todoist",
+        "typeVersion": 2.2,
+        "position": [
+          -1750,
+          150
+        ],
+        "parameters": {
+          "operation": "getAll",
+          "returnAll": true,
+          "filters": {
+            "projectId": "6Crcx5cJrWQ6w4cG"
           }
         },
         "credentials": {
@@ -106,7 +129,7 @@
           "httpMethod": "POST",
           "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
         },
-        "webhookId": "319d8938-8172-46b1-bf9a-13c8531e8efb"
+        "webhookId": "6be62a8b-63e7-4c45-ba10-8a4e739dc323"
       },
       {
         "id": "6e5bce62-5665-4d8a-abbc-e66a6de874f1",
@@ -114,12 +137,12 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          -1250,
+          -1300,
           -100
         ],
         "parameters": {
           "language": "javaScript",
-          "jsCode": "\nconst G = '6Crcx5cJrWQ6w4cG';\nconst N = '6gfWcx5q832xJ6XJ';\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u; // Matches if starts with emoji or symbols\nreturn $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  // Only process if it's one of our projects and DOES NOT start with an emoji/symbol\n  return (pid === G || pid === N) && t.content && !eRegex.test(t.content.trim());\n}).map(i => ({ json: { ...i.json, project_type: String(i.json.project_id) === G ? 'groceries' : 'nerdery' } }));\n"
+          "jsCode": "\nconst G = '6Crcx5cJrWQ6w4cG';\nconst N = '6gfWcx5q832xJ6XJ';\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);\n"
         }
       },
       {
@@ -136,28 +159,34 @@
             "values": [
               {
                 "conditions": {
+                  "options": {
+                    "caseSensitive": true
+                  },
+                  "combinator": "and",
                   "conditions": [
                     {
-                      "leftValue": "={{ $json.project_type }}",
+                      "leftValue": "={{ $json.is_groceries }}",
                       "operator": {
-                        "type": "string",
-                        "operation": "equals"
-                      },
-                      "rightValue": "groceries"
+                        "type": "boolean",
+                        "operation": "true"
+                      }
                     }
                   ]
                 }
               },
               {
                 "conditions": {
+                  "options": {
+                    "caseSensitive": true
+                  },
+                  "combinator": "and",
                   "conditions": [
                     {
-                      "leftValue": "={{ $json.project_type }}",
+                      "leftValue": "={{ $json.is_groceries }}",
                       "operator": {
-                        "type": "string",
-                        "operation": "equals"
-                      },
-                      "rightValue": "nerdery"
+                        "type": "boolean",
+                        "operation": "false"
+                      }
                     }
                   ]
                 }
@@ -197,7 +226,7 @@
         ],
         "parameters": {
           "language": "pythonNative",
-          "pythonCode": "\nimport re\nitems = [item[\"json\"] for item in _items]\nmappings = [x for x in items if \"emoji\" in x and \"patterns\" in x]\ntasks = [x for x in items if x.get(\"project_type\") == 'groceries']\nout = []\nfor t in tasks:\n    matched = False\n    for m in mappings:\n        if re.search(\"^\\\\s*(\" + \"|\".join(m[\"patterns\"]) + \")\", t[\"content\"], re.IGNORECASE):\n            t[\"content\"] = f\"{m['emoji']} {t['content']}\"\n            out.append({\"json\": {**t, \"is_matched\": \"yes\"}})\n            matched = True\n            break\n    if not matched:\n        out.append({\"json\": {**t, \"is_matched\": \"no\"}})\nreturn out\n"
+          "pythonCode": "\nimport re\nitems = [item[\"json\"] for item in _items]\nmappings = [x for x in items if \"emoji\" in x and \"patterns\" in x]\ntasks = [x for x in items if x.get(\"is_groceries\")]\nout = []\nfor t in tasks:\n    matched = False\n    for m in mappings:\n        if re.search(\"^\\\\s*(\" + \"|\".join(m[\"patterns\"]) + \")\", t[\"content\"], re.IGNORECASE):\n            t[\"content\"] = f\"{m['emoji']} {t['content']}\"\n            out.append({\"json\": {**t, \"is_matched\": \"yes\"}})\n            matched = True\n            break\n    if not matched:\n        out.append({\"json\": {**t, \"is_matched\": \"no\"}})\nreturn out\n"
         }
       },
       {
@@ -206,7 +235,7 @@
         "type": "n8n-nodes-base.switch",
         "typeVersion": 3,
         "position": [
-          -250,
+          -300,
           -250
         ],
         "parameters": {
@@ -214,6 +243,10 @@
             "values": [
               {
                 "conditions": {
+                  "options": {
+                    "caseSensitive": true
+                  },
+                  "combinator": "and",
                   "conditions": [
                     {
                       "leftValue": "={{ $json.is_matched }}",
@@ -228,6 +261,10 @@
               },
               {
                 "conditions": {
+                  "options": {
+                    "caseSensitive": true
+                  },
+                  "combinator": "and",
                   "conditions": [
                     {
                       "leftValue": "={{ $json.is_matched }}",
@@ -323,8 +360,8 @@
         }
       },
       {
-        "id": "2b9b6f6f-8d13-4bb3-8b4c-55718d2953d4",
-        "name": "Flatten LLM Output",
+        "id": "6ff7e94e-6949-4944-8356-a053510d6ac8",
+        "name": "Flatten",
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
@@ -342,14 +379,30 @@
         "main": [
           [
             {
-              "node": "Fetch All Tasks",
+              "node": "Fetch Nerdery",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Fetch Groceries",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Fetch All Tasks": {
+      "Fetch Nerdery": {
+        "main": [
+          [
+            {
+              "node": "Normalize Task",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Groceries": {
         "main": [
           [
             {
@@ -364,7 +417,12 @@
         "main": [
           [
             {
-              "node": "Fetch All Tasks",
+              "node": "Fetch Nerdery",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Fetch Groceries",
               "type": "main",
               "index": 0
             }
@@ -466,7 +524,7 @@
         "main": [
           [
             {
-              "node": "Flatten LLM Output",
+              "node": "Flatten",
               "type": "main",
               "index": 0
             }
@@ -495,7 +553,7 @@
           ]
         ]
       },
-      "Flatten LLM Output": {
+      "Flatten": {
         "main": [
           [
             {
@@ -512,20 +570,36 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "1b553b69-118a-43df-8421-b1e39a549ec1",
+  "activeVersionId": "6e461e95-0269-45bc-8d9d-b0373e7770ec",
   "connections": {
     "Manual Trigger": {
       "main": [
         [
           {
-            "node": "Fetch All Tasks",
+            "node": "Fetch Nerdery",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Groceries",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch All Tasks": {
+    "Fetch Nerdery": {
+      "main": [
+        [
+          {
+            "node": "Normalize Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Groceries": {
       "main": [
         [
           {
@@ -540,7 +614,12 @@
       "main": [
         [
           {
-            "node": "Fetch All Tasks",
+            "node": "Fetch Nerdery",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Groceries",
             "type": "main",
             "index": 0
           }
@@ -642,7 +721,7 @@
       "main": [
         [
           {
-            "node": "Flatten LLM Output",
+            "node": "Flatten",
             "type": "main",
             "index": 0
           }
@@ -671,7 +750,7 @@
         ]
       ]
     },
-    "Flatten LLM Output": {
+    "Flatten": {
       "main": [
         [
           {
@@ -703,19 +782,42 @@
       ]
     },
     {
-      "id": "6d098964-e5df-49aa-a6c6-a1aa464091b5",
-      "name": "Fetch All Tasks",
+      "id": "7d4add93-1ae8-49f9-be32-9f95f22adc4b",
+      "name": "Fetch Nerdery",
       "type": "n8n-nodes-base.todoist",
       "typeVersion": 2.2,
       "position": [
         -1750,
-        100
+        50
       ],
       "parameters": {
         "operation": "getAll",
         "returnAll": true,
         "filters": {
-          "filter": "project:6Crcx5cJrWQ6w4cG | project:6gfWcx5q832xJ6XJ"
+          "projectId": "6gfWcx5q832xJ6XJ"
+        }
+      },
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
+      "name": "Fetch Groceries",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.2,
+      "position": [
+        -1750,
+        150
+      ],
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "projectId": "6Crcx5cJrWQ6w4cG"
         }
       },
       "credentials": {
@@ -792,7 +894,7 @@
         "httpMethod": "POST",
         "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
       },
-      "webhookId": "319d8938-8172-46b1-bf9a-13c8531e8efb"
+      "webhookId": "6be62a8b-63e7-4c45-ba10-8a4e739dc323"
     },
     {
       "id": "6e5bce62-5665-4d8a-abbc-e66a6de874f1",
@@ -800,12 +902,12 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1250,
+        -1300,
         -100
       ],
       "parameters": {
         "language": "javaScript",
-        "jsCode": "\nconst G = '6Crcx5cJrWQ6w4cG';\nconst N = '6gfWcx5q832xJ6XJ';\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u; // Matches if starts with emoji or symbols\nreturn $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  // Only process if it's one of our projects and DOES NOT start with an emoji/symbol\n  return (pid === G || pid === N) && t.content && !eRegex.test(t.content.trim());\n}).map(i => ({ json: { ...i.json, project_type: String(i.json.project_id) === G ? 'groceries' : 'nerdery' } }));\n"
+        "jsCode": "\nconst G = '6Crcx5cJrWQ6w4cG';\nconst N = '6gfWcx5q832xJ6XJ';\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);\n"
       }
     },
     {
@@ -822,28 +924,34 @@
           "values": [
             {
               "conditions": {
+                "options": {
+                  "caseSensitive": true
+                },
+                "combinator": "and",
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.project_type }}",
+                    "leftValue": "={{ $json.is_groceries }}",
                     "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    },
-                    "rightValue": "groceries"
+                      "type": "boolean",
+                      "operation": "true"
+                    }
                   }
                 ]
               }
             },
             {
               "conditions": {
+                "options": {
+                  "caseSensitive": true
+                },
+                "combinator": "and",
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.project_type }}",
+                    "leftValue": "={{ $json.is_groceries }}",
                     "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    },
-                    "rightValue": "nerdery"
+                      "type": "boolean",
+                      "operation": "false"
+                    }
                   }
                 ]
               }
@@ -883,7 +991,7 @@
       ],
       "parameters": {
         "language": "pythonNative",
-        "pythonCode": "\nimport re\nitems = [item[\"json\"] for item in _items]\nmappings = [x for x in items if \"emoji\" in x and \"patterns\" in x]\ntasks = [x for x in items if x.get(\"project_type\") == 'groceries']\nout = []\nfor t in tasks:\n    matched = False\n    for m in mappings:\n        if re.search(\"^\\\\s*(\" + \"|\".join(m[\"patterns\"]) + \")\", t[\"content\"], re.IGNORECASE):\n            t[\"content\"] = f\"{m['emoji']} {t['content']}\"\n            out.append({\"json\": {**t, \"is_matched\": \"yes\"}})\n            matched = True\n            break\n    if not matched:\n        out.append({\"json\": {**t, \"is_matched\": \"no\"}})\nreturn out\n"
+        "pythonCode": "\nimport re\nitems = [item[\"json\"] for item in _items]\nmappings = [x for x in items if \"emoji\" in x and \"patterns\" in x]\ntasks = [x for x in items if x.get(\"is_groceries\")]\nout = []\nfor t in tasks:\n    matched = False\n    for m in mappings:\n        if re.search(\"^\\\\s*(\" + \"|\".join(m[\"patterns\"]) + \")\", t[\"content\"], re.IGNORECASE):\n            t[\"content\"] = f\"{m['emoji']} {t['content']}\"\n            out.append({\"json\": {**t, \"is_matched\": \"yes\"}})\n            matched = True\n            break\n    if not matched:\n        out.append({\"json\": {**t, \"is_matched\": \"no\"}})\nreturn out\n"
       }
     },
     {
@@ -892,7 +1000,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
       "position": [
-        -250,
+        -300,
         -250
       ],
       "parameters": {
@@ -900,6 +1008,10 @@
           "values": [
             {
               "conditions": {
+                "options": {
+                  "caseSensitive": true
+                },
+                "combinator": "and",
                 "conditions": [
                   {
                     "leftValue": "={{ $json.is_matched }}",
@@ -914,6 +1026,10 @@
             },
             {
               "conditions": {
+                "options": {
+                  "caseSensitive": true
+                },
+                "combinator": "and",
                 "conditions": [
                   {
                     "leftValue": "={{ $json.is_matched }}",
@@ -1009,8 +1125,8 @@
       }
     },
     {
-      "id": "2b9b6f6f-8d13-4bb3-8b4c-55718d2953d4",
-      "name": "Flatten LLM Output",
+      "id": "6ff7e94e-6949-4944-8356-a053510d6ac8",
+      "name": "Flatten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -1118,6 +1234,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-05-16T16:29:22.768Z",
-  "versionId": "1b553b69-118a-43df-8421-b1e39a549ec1"
+  "updatedAt": "2026-05-16T16:44:02.820Z",
+  "versionId": "6e461e95-0269-45bc-8d9d-b0373e7770ec"
 }
