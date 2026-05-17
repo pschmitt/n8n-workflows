@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-05-16T16:44:02.820Z",
-    "createdAt": "2026-05-16T16:44:02.820Z",
-    "versionId": "6e461e95-0269-45bc-8d9d-b0373e7770ec",
+    "updatedAt": "2026-05-17T12:23:24.267Z",
+    "createdAt": "2026-05-17T12:23:24.267Z",
+    "versionId": "559234d6-53ca-493f-b1ff-8e12cdde1efb",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -26,6 +26,7 @@
           50
         ],
         "parameters": {
+          "resource": "task",
           "operation": "getAll",
           "returnAll": true,
           "filters": {
@@ -40,49 +41,6 @@
         }
       },
       {
-        "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
-        "name": "Fetch Groceries",
-        "type": "n8n-nodes-base.todoist",
-        "typeVersion": 2.2,
-        "position": [
-          -1750,
-          150
-        ],
-        "parameters": {
-          "operation": "getAll",
-          "returnAll": true,
-          "filters": {
-            "projectId": "6Crcx5cJrWQ6w4cG"
-          }
-        },
-        "credentials": {
-          "todoistApi": {
-            "id": "7jDBSQS5HIVX5LSR",
-            "name": "Todoist account (API Key)"
-          }
-        }
-      },
-      {
-        "id": "2d949aeb-085f-4fe0-a155-6bedb8c57fcf",
-        "name": "Schedule Trigger",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "typeVersion": 1.2,
-        "position": [
-          -2000,
-          200
-        ],
-        "parameters": {
-          "rule": {
-            "interval": [
-              {
-                "field": "minutes",
-                "minutesInterval": 30
-              }
-            ]
-          }
-        }
-      },
-      {
         "id": "90b10ca4-31ac-4e8f-943b-eaff68258df7",
         "name": "Normalize Task",
         "type": "n8n-nodes-base.set",
@@ -92,6 +50,7 @@
           -100
         ],
         "parameters": {
+          "mode": "manual",
           "assignments": {
             "assignments": [
               {
@@ -117,10 +76,54 @@
         }
       },
       {
+        "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
+        "name": "Fetch Groceries",
+        "type": "n8n-nodes-base.todoist",
+        "typeVersion": 2.2,
+        "position": [
+          -1750,
+          150
+        ],
+        "parameters": {
+          "resource": "task",
+          "operation": "getAll",
+          "returnAll": true,
+          "filters": {
+            "projectId": "6Crcx5cJrWQ6w4cG"
+          }
+        },
+        "credentials": {
+          "todoistApi": {
+            "id": "7jDBSQS5HIVX5LSR",
+            "name": "Todoist account (API Key)"
+          }
+        }
+      },
+      {
+        "id": "2d949aeb-085f-4fe0-a155-6bedb8c57fcf",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          -2000,
+          200
+        ],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 30
+              }
+            ]
+          }
+        }
+      },
+      {
         "id": "12ed3cf4-cb1d-4e9d-9405-cdfe1b640a30",
         "name": "Task added/updated",
         "type": "n8n-nodes-base.webhook",
-        "typeVersion": 2,
+        "typeVersion": 2.1,
         "position": [
           -2000,
           -200
@@ -129,7 +132,7 @@
           "httpMethod": "POST",
           "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
         },
-        "webhookId": "6be62a8b-63e7-4c45-ba10-8a4e739dc323"
+        "webhookId": "90bcdf24-649c-4e0c-9418-49bed6ec90a3"
       },
       {
         "id": "6e5bce62-5665-4d8a-abbc-e66a6de874f1",
@@ -141,20 +144,22 @@
           -100
         ],
         "parameters": {
+          "mode": "runOnceForAllItems",
           "language": "javaScript",
-          "jsCode": "\nconst G = '6Crcx5cJrWQ6w4cG';\nconst N = '6gfWcx5q832xJ6XJ';\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);\n"
+          "jsCode": "const G = \"6Crcx5cJrWQ6w4cG\";\nconst N = \"6gfWcx5q832xJ6XJ\";\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);"
         }
       },
       {
         "id": "052d0a03-4e22-475d-a90b-033704424a46",
         "name": "Switch",
         "type": "n8n-nodes-base.switch",
-        "typeVersion": 3,
+        "typeVersion": 3.4,
         "position": [
           -1000,
           -100
         ],
         "parameters": {
+          "mode": "rules",
           "rules": {
             "values": [
               {
@@ -199,21 +204,20 @@
         "id": "d3b89066-5ad0-40d8-8fe1-bc7bd126f34b",
         "name": "Get Static Mappings",
         "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
+        "typeVersion": 4.4,
         "position": [
           -750,
           -250
         ],
         "parameters": {
           "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
-          "options": {
+          "response": {
             "response": {
-              "response": {
-                "responseFormat": "json"
-              }
+              "responseFormat": "json"
             }
           }
-        }
+        },
+        "executeOnce": true
       },
       {
         "id": "1eeb186b-023d-4057-be06-7807d6f85766",
@@ -225,20 +229,22 @@
           -250
         ],
         "parameters": {
-          "language": "pythonNative",
-          "pythonCode": "\nimport re\nitems = [item[\"json\"] for item in _items]\nmappings = [x for x in items if \"emoji\" in x and \"patterns\" in x]\ntasks = [x for x in items if x.get(\"is_groceries\")]\nout = []\nfor t in tasks:\n    matched = False\n    for m in mappings:\n        if re.search(\"^\\\\s*(\" + \"|\".join(m[\"patterns\"]) + \")\", t[\"content\"], re.IGNORECASE):\n            t[\"content\"] = f\"{m['emoji']} {t['content']}\"\n            out.append({\"json\": {**t, \"is_matched\": \"yes\"}})\n            matched = True\n            break\n    if not matched:\n        out.append({\"json\": {**t, \"is_matched\": \"no\"}})\nreturn out\n"
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "const mappings = $input.all().map(i => i.json).filter(m => m.emoji && m.patterns);\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});"
         }
       },
       {
         "id": "22937f17-831f-4ca1-8e63-d9a003121499",
         "name": "Switch 1",
         "type": "n8n-nodes-base.switch",
-        "typeVersion": 3,
+        "typeVersion": 3.4,
         "position": [
           -300,
           -250
         ],
         "parameters": {
+          "mode": "rules",
           "rules": {
             "values": [
               {
@@ -282,10 +288,34 @@
         }
       },
       {
+        "id": "dc4f5376-8209-4a08-95f8-5bd5a8f3fc26",
+        "name": "Update Todoist",
+        "type": "n8n-nodes-base.todoist",
+        "typeVersion": 2.2,
+        "position": [
+          600,
+          -100
+        ],
+        "parameters": {
+          "resource": "task",
+          "operation": "update",
+          "taskId": "={{ $json.id }}",
+          "updateFields": {
+            "content": "={{ $json.content }}"
+          }
+        },
+        "credentials": {
+          "todoistApi": {
+            "id": "7jDBSQS5HIVX5LSR",
+            "name": "Todoist account (API Key)"
+          }
+        }
+      },
+      {
         "id": "1f8397f8-f05f-436f-bf9a-35c962422b05",
         "name": "LLM Emojify",
         "type": "@n8n/n8n-nodes-langchain.chainLlm",
-        "typeVersion": 1.5,
+        "typeVersion": 1.9,
         "position": [
           100,
           50
@@ -309,8 +339,8 @@
         "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
         "typeVersion": 1,
         "position": [
-          100,
-          250
+          1808,
+          592
         ],
         "parameters": {
           "model": "qwen/qwen3-32b"
@@ -326,37 +356,14 @@
         "id": "d8e27bf0-5397-4088-be4e-d7cd730f3d8b",
         "name": "Parser",
         "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-        "typeVersion": 1.2,
+        "typeVersion": 1.3,
         "position": [
-          250,
-          250
+          1936,
+          592
         ],
         "parameters": {
           "schemaType": "manual",
           "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\"},\"content\":{\"type\":\"string\"}},\"required\":[\"id\",\"content\"]}}"
-        }
-      },
-      {
-        "id": "dc4f5376-8209-4a08-95f8-5bd5a8f3fc26",
-        "name": "Update Todoist",
-        "type": "n8n-nodes-base.todoist",
-        "typeVersion": 2.2,
-        "position": [
-          600,
-          -100
-        ],
-        "parameters": {
-          "operation": "update",
-          "taskId": "={{ $json.id }}",
-          "updateFields": {
-            "content": "={{ $json.content }}"
-          }
-        },
-        "credentials": {
-          "todoistApi": {
-            "id": "7jDBSQS5HIVX5LSR",
-            "name": "Todoist account (API Key)"
-          }
         }
       },
       {
@@ -369,8 +376,9 @@
           50
         ],
         "parameters": {
+          "mode": "runOnceForAllItems",
           "language": "javaScript",
-          "jsCode": "\nreturn $input.item.json.output.map(i => ({ json: i }));\n"
+          "jsCode": "return $input.item.json.output.map(i => ({ json: i }));"
         }
       }
     ],
@@ -402,6 +410,17 @@
           ]
         ]
       },
+      "Normalize Task": {
+        "main": [
+          [
+            {
+              "node": "Identify Task",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
       "Fetch Groceries": {
         "main": [
           [
@@ -423,17 +442,6 @@
             },
             {
               "node": "Fetch Groceries",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Normalize Task": {
-        "main": [
-          [
-            {
-              "node": "Identify Task",
               "type": "main",
               "index": 0
             }
@@ -570,7 +578,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "6e461e95-0269-45bc-8d9d-b0373e7770ec",
+  "activeVersionId": "559234d6-53ca-493f-b1ff-8e12cdde1efb",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -599,6 +607,17 @@
         ]
       ]
     },
+    "Normalize Task": {
+      "main": [
+        [
+          {
+            "node": "Identify Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Fetch Groceries": {
       "main": [
         [
@@ -620,17 +639,6 @@
           },
           {
             "node": "Fetch Groceries",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Normalize Task": {
-      "main": [
-        [
-          {
-            "node": "Identify Task",
             "type": "main",
             "index": 0
           }
@@ -791,6 +799,7 @@
         50
       ],
       "parameters": {
+        "resource": "task",
         "operation": "getAll",
         "returnAll": true,
         "filters": {
@@ -805,49 +814,6 @@
       }
     },
     {
-      "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
-      "name": "Fetch Groceries",
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.2,
-      "position": [
-        -1750,
-        150
-      ],
-      "parameters": {
-        "operation": "getAll",
-        "returnAll": true,
-        "filters": {
-          "projectId": "6Crcx5cJrWQ6w4cG"
-        }
-      },
-      "credentials": {
-        "todoistApi": {
-          "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account (API Key)"
-        }
-      }
-    },
-    {
-      "id": "2d949aeb-085f-4fe0-a155-6bedb8c57fcf",
-      "name": "Schedule Trigger",
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        -2000,
-        200
-      ],
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "minutes",
-              "minutesInterval": 30
-            }
-          ]
-        }
-      }
-    },
-    {
       "id": "90b10ca4-31ac-4e8f-943b-eaff68258df7",
       "name": "Normalize Task",
       "type": "n8n-nodes-base.set",
@@ -857,6 +823,7 @@
         -100
       ],
       "parameters": {
+        "mode": "manual",
         "assignments": {
           "assignments": [
             {
@@ -882,10 +849,54 @@
       }
     },
     {
+      "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
+      "name": "Fetch Groceries",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.2,
+      "position": [
+        -1750,
+        150
+      ],
+      "parameters": {
+        "resource": "task",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "projectId": "6Crcx5cJrWQ6w4cG"
+        }
+      },
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "id": "2d949aeb-085f-4fe0-a155-6bedb8c57fcf",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2000,
+        200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      }
+    },
+    {
       "id": "12ed3cf4-cb1d-4e9d-9405-cdfe1b640a30",
       "name": "Task added/updated",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
+      "typeVersion": 2.1,
       "position": [
         -2000,
         -200
@@ -894,7 +905,7 @@
         "httpMethod": "POST",
         "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
       },
-      "webhookId": "6be62a8b-63e7-4c45-ba10-8a4e739dc323"
+      "webhookId": "90bcdf24-649c-4e0c-9418-49bed6ec90a3"
     },
     {
       "id": "6e5bce62-5665-4d8a-abbc-e66a6de874f1",
@@ -906,20 +917,22 @@
         -100
       ],
       "parameters": {
+        "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "\nconst G = '6Crcx5cJrWQ6w4cG';\nconst N = '6gfWcx5q832xJ6XJ';\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);\n"
+        "jsCode": "const G = \"6Crcx5cJrWQ6w4cG\";\nconst N = \"6gfWcx5q832xJ6XJ\";\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);"
       }
     },
     {
       "id": "052d0a03-4e22-475d-a90b-033704424a46",
       "name": "Switch",
       "type": "n8n-nodes-base.switch",
-      "typeVersion": 3,
+      "typeVersion": 3.4,
       "position": [
         -1000,
         -100
       ],
       "parameters": {
+        "mode": "rules",
         "rules": {
           "values": [
             {
@@ -964,21 +977,20 @@
       "id": "d3b89066-5ad0-40d8-8fe1-bc7bd126f34b",
       "name": "Get Static Mappings",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "typeVersion": 4.4,
       "position": [
         -750,
         -250
       ],
       "parameters": {
         "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
-        "options": {
+        "response": {
           "response": {
-            "response": {
-              "responseFormat": "json"
-            }
+            "responseFormat": "json"
           }
         }
-      }
+      },
+      "executeOnce": true
     },
     {
       "id": "1eeb186b-023d-4057-be06-7807d6f85766",
@@ -990,20 +1002,22 @@
         -250
       ],
       "parameters": {
-        "language": "pythonNative",
-        "pythonCode": "\nimport re\nitems = [item[\"json\"] for item in _items]\nmappings = [x for x in items if \"emoji\" in x and \"patterns\" in x]\ntasks = [x for x in items if x.get(\"is_groceries\")]\nout = []\nfor t in tasks:\n    matched = False\n    for m in mappings:\n        if re.search(\"^\\\\s*(\" + \"|\".join(m[\"patterns\"]) + \")\", t[\"content\"], re.IGNORECASE):\n            t[\"content\"] = f\"{m['emoji']} {t['content']}\"\n            out.append({\"json\": {**t, \"is_matched\": \"yes\"}})\n            matched = True\n            break\n    if not matched:\n        out.append({\"json\": {**t, \"is_matched\": \"no\"}})\nreturn out\n"
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "const mappings = $input.all().map(i => i.json).filter(m => m.emoji && m.patterns);\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});"
       }
     },
     {
       "id": "22937f17-831f-4ca1-8e63-d9a003121499",
       "name": "Switch 1",
       "type": "n8n-nodes-base.switch",
-      "typeVersion": 3,
+      "typeVersion": 3.4,
       "position": [
         -300,
         -250
       ],
       "parameters": {
+        "mode": "rules",
         "rules": {
           "values": [
             {
@@ -1047,10 +1061,34 @@
       }
     },
     {
+      "id": "dc4f5376-8209-4a08-95f8-5bd5a8f3fc26",
+      "name": "Update Todoist",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        -100
+      ],
+      "parameters": {
+        "resource": "task",
+        "operation": "update",
+        "taskId": "={{ $json.id }}",
+        "updateFields": {
+          "content": "={{ $json.content }}"
+        }
+      },
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
       "id": "1f8397f8-f05f-436f-bf9a-35c962422b05",
       "name": "LLM Emojify",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.5,
+      "typeVersion": 1.9,
       "position": [
         100,
         50
@@ -1074,8 +1112,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        100,
-        250
+        1808,
+        592
       ],
       "parameters": {
         "model": "qwen/qwen3-32b"
@@ -1091,37 +1129,14 @@
       "id": "d8e27bf0-5397-4088-be4e-d7cd730f3d8b",
       "name": "Parser",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.2,
+      "typeVersion": 1.3,
       "position": [
-        250,
-        250
+        1936,
+        592
       ],
       "parameters": {
         "schemaType": "manual",
         "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\"},\"content\":{\"type\":\"string\"}},\"required\":[\"id\",\"content\"]}}"
-      }
-    },
-    {
-      "id": "dc4f5376-8209-4a08-95f8-5bd5a8f3fc26",
-      "name": "Update Todoist",
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.2,
-      "position": [
-        600,
-        -100
-      ],
-      "parameters": {
-        "operation": "update",
-        "taskId": "={{ $json.id }}",
-        "updateFields": {
-          "content": "={{ $json.content }}"
-        }
-      },
-      "credentials": {
-        "todoistApi": {
-          "id": "7jDBSQS5HIVX5LSR",
-          "name": "Todoist account (API Key)"
-        }
       }
     },
     {
@@ -1134,8 +1149,9 @@
         50
       ],
       "parameters": {
+        "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "\nreturn $input.item.json.output.map(i => ({ json: i }));\n"
+        "jsCode": "return $input.item.json.output.map(i => ({ json: i }));"
       }
     }
   ],
@@ -1234,6 +1250,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-05-16T16:44:02.820Z",
-  "versionId": "6e461e95-0269-45bc-8d9d-b0373e7770ec"
+  "updatedAt": "2026-05-17T12:23:24.260Z",
+  "versionId": "559234d6-53ca-493f-b1ff-8e12cdde1efb"
 }
