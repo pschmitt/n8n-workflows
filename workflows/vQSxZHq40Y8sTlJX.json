@@ -1,0 +1,86 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-05-19T11:25:45.997Z",
+  "id": "vQSxZHq40Y8sTlJX",
+  "isArchived": false,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "name": "Fetch Boursorama Balances",
+  "nodes": [
+    {
+      "id": "18f9d1fa-8f98-4604-a47f-a88a5b01c04b",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "77353f75-a1be-46bf-bfc2-fdd7e40ae9c9",
+      "name": "Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "q": "from:boursorama",
+          "receivedAfter": "2026-05-04T00:00:00Z"
+        }
+      },
+      "webhookId": "10013cd9-de16-41cf-83c0-736111b87e80",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "G3fTqcDsYVtNzHmB",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": null,
+  "repo_name": "n8n-workflows",
+  "repo_owner": "pschmitt",
+  "repo_path": "workflows",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-05-19T11:25:46.002Z",
+      "createdAt": "2026-05-19T11:25:46.002Z",
+      "role": "workflow:owner",
+      "workflowId": "vQSxZHq40Y8sTlJX",
+      "projectId": "DeJsGrmui3Dbhpxg"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-19T11:25:45.997Z",
+  "versionId": "75aad15f-64fe-4c5b-8c2a-39fe59e7ccc3"
+}
