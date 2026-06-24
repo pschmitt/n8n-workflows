@@ -796,6 +796,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "☑️ Todoist Template Expander",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {},
