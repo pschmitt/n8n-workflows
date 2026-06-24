@@ -38,6 +38,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "🤣 emoji api",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
