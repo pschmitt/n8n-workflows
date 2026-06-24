@@ -48,6 +48,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "⚗️ The Lab",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {},
