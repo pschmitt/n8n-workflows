@@ -150,6 +150,7 @@
   "isArchived": true,
   "meta": null,
   "name": "☑️ Todoist Template Expander (with subtasks!)",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {},
