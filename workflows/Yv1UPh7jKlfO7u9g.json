@@ -628,6 +628,7 @@
     "builderVariant": "mcp"
   },
   "name": "📮 GitHub nixpkgs PR Digest",
+  "nodeGroups": [],
   "nodes": [
     {
       "id": "a2643cab-aff0-4333-bc70-53ccc50c738c",
