@@ -23,6 +23,7 @@
     "builderVariant": "mcp"
   },
   "name": "Fetch Boursorama Balances",
+  "nodeGroups": [],
   "nodes": [
     {
       "id": "18f9d1fa-8f98-4604-a47f-a88a5b01c04b",
