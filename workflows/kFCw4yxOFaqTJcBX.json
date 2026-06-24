@@ -933,6 +933,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "🔙 Back Up n8n Workflows to GitHub",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {},
