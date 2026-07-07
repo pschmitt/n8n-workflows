@@ -1118,7 +1118,7 @@
         592
       ],
       "parameters": {
-        "model": "qwen/qwen3-32b"
+        "model": "llama-3.3-70b-versatile"
       },
       "credentials": {
         "groqApi": {
@@ -1257,6 +1257,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-05-17T12:23:24.260Z",
-  "versionId": "559234d6-53ca-493f-b1ff-8e12cdde1efb"
+  "updatedAt": "2026-07-07T20:45:02.624Z",
+  "versionId": "3267f20a-a7fe-47f8-b361-b518b586b0a7"
 }
