@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-07-07T20:45:02.627Z",
-    "createdAt": "2026-07-07T20:45:02.627Z",
-    "versionId": "3267f20a-a7fe-47f8-b361-b518b586b0a7",
+    "updatedAt": "2026-07-24T08:13:52.669Z",
+    "createdAt": "2026-07-24T08:13:52.669Z",
+    "versionId": "71bed803-59d9-47f6-be1e-a68e6ab2cd55",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -231,7 +231,8 @@
         "parameters": {
           "mode": "runOnceForAllItems",
           "language": "javaScript",
-          "jsCode": "const mappings = $input.all().map(i => i.json).filter(m => m.emoji && m.patterns);\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});"
+          "jsCode": "const rawItems = $input.all().map(i => i.json);\nlet mappings;\nif (rawItems.length === 1 && typeof rawItems[0].data === \"string\") {\n  mappings = JSON.parse(rawItems[0].data);\n} else if (rawItems.length === 1 && Array.isArray(rawItems[0].data)) {\n  mappings = rawItems[0].data;\n} else {\n  mappings = rawItems;\n}\nmappings = mappings.filter(m => m.emoji && m.patterns);\n\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});",
+          "parameters": null
         }
       },
       {
@@ -575,11 +576,11 @@
     },
     "nodeGroups": [],
     "authors": "Philipp Schmitt (via MCP)",
-    "name": null,
-    "description": null,
+    "name": "Fix static map JSON parsing (path fix)",
+    "description": "Previous update used the wrong JSON Pointer path (/parameters/jsCode) which nested a stray 'parameters' object inside the node's parameters instead of replacing jsCode directly. n8n kept running the old broken code. This corrects the path to /jsCode.",
     "autosaved": false
   },
-  "activeVersionId": "3267f20a-a7fe-47f8-b361-b518b586b0a7",
+  "activeVersionId": "71bed803-59d9-47f6-be1e-a68e6ab2cd55",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1006,7 +1007,8 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const mappings = $input.all().map(i => i.json).filter(m => m.emoji && m.patterns);\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});"
+        "jsCode": "const rawItems = $input.all().map(i => i.json);\nlet mappings;\nif (rawItems.length === 1 && typeof rawItems[0].data === \"string\") {\n  mappings = JSON.parse(rawItems[0].data);\n} else if (rawItems.length === 1 && Array.isArray(rawItems[0].data)) {\n  mappings = rawItems[0].data;\n} else {\n  mappings = rawItems;\n}\nmappings = mappings.filter(m => m.emoji && m.patterns);\n\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});",
+        "parameters": null
       }
     },
     {
@@ -1257,6 +1259,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-07-07T20:45:02.624Z",
-  "versionId": "3267f20a-a7fe-47f8-b361-b518b586b0a7"
+  "updatedAt": "2026-07-24T08:13:52.668Z",
+  "versionId": "71bed803-59d9-47f6-be1e-a68e6ab2cd55"
 }
