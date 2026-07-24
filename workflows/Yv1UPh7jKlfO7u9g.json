@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-05-20T15:08:54.465Z",
-    "createdAt": "2026-05-20T15:08:54.465Z",
-    "versionId": "2d9e6099-cc88-434f-8544-02c723fe9508",
+    "updatedAt": "2026-07-24T09:26:09.647Z",
+    "createdAt": "2026-07-24T09:26:09.647Z",
+    "versionId": "44181554-0ae3-465e-9c40-a12b93966a71",
     "workflowId": "Yv1UPh7jKlfO7u9g",
     "nodes": [
       {
@@ -81,8 +81,8 @@
           "rule": {
             "interval": [
               {
-                "field": "minutes",
-                "minutesInterval": 30
+                "field": "hours",
+                "hoursInterval": 4
               }
             ]
           }
@@ -111,7 +111,7 @@
           48
         ],
         "parameters": {
-          "url": "=https://api.github.com/search/issues?q={{ $json.query }}",
+          "url": "=https://api.github.com/search/issues?q={{ $json.query }}&sort=created&order=desc&per_page=100",
           "options": {}
         }
       },
@@ -134,8 +134,8 @@
         "type": "n8n-nodes-base.convertToFile",
         "typeVersion": 1.1,
         "position": [
-          1120,
-          0
+          1792,
+          480
         ],
         "parameters": {
           "operation": "toJson",
@@ -148,8 +148,8 @@
         "type": "n8n-nodes-base.readWriteFile",
         "typeVersion": 1,
         "position": [
-          1344,
-          0
+          2016,
+          480
         ],
         "parameters": {
           "operation": "write",
@@ -195,7 +195,7 @@
           240
         ],
         "parameters": {
-          "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual\n};\n"
+          "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual,\n  cache_payload: { pr_numbers: pr_numbers_cur, prs: cur.prs || [] }\n};\n"
         }
       },
       {
@@ -281,6 +281,21 @@
             "name": "GitHub account (PAT)"
           }
         }
+      },
+      {
+        "id": "70bc5f3f-065f-4728-973e-a828cfff24ff",
+        "name": "Prepare Cache Write",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1568,
+          480
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "return { json: $input.first().json.cache_payload };"
+        }
       }
     ],
     "connections": {
@@ -364,11 +379,6 @@
         "main": [
           [
             {
-              "node": "Convert JSON response to binary",
-              "type": "main",
-              "index": 0
-            },
-            {
               "node": "Merge",
               "type": "main",
               "index": 1
@@ -421,6 +431,11 @@
               "node": "Convert new PR data to array",
               "type": "main",
               "index": 0
+            },
+            {
+              "node": "Prepare Cache Write",
+              "type": "main",
+              "index": 0
             }
           ]
         ]
@@ -446,15 +461,26 @@
             }
           ]
         ]
+      },
+      "Prepare Cache Write": {
+        "main": [
+          [
+            {
+              "node": "Convert JSON response to binary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "nodeGroups": [],
-    "authors": "Philipp Schmitt",
-    "name": null,
-    "description": null,
+    "authors": "Philipp Schmitt (via MCP)",
+    "name": "Reduce schedule to every 4 hours",
+    "description": "30-minute polling was overkill for a PR digest; switched to every 4 hours.",
     "autosaved": false
   },
-  "activeVersionId": "2d9e6099-cc88-434f-8544-02c723fe9508",
+  "activeVersionId": "44181554-0ae3-465e-9c40-a12b93966a71",
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
@@ -536,11 +562,6 @@
       "main": [
         [
           {
-            "node": "Convert JSON response to binary",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Merge",
             "type": "main",
             "index": 1
@@ -593,6 +614,11 @@
             "node": "Convert new PR data to array",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Prepare Cache Write",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -613,6 +639,17 @@
         [
           {
             "node": "Subscribe to PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cache Write": {
+      "main": [
+        [
+          {
+            "node": "Convert JSON response to binary",
             "type": "main",
             "index": 0
           }
@@ -705,8 +742,8 @@
         "rule": {
           "interval": [
             {
-              "field": "minutes",
-              "minutesInterval": 30
+              "field": "hours",
+              "hoursInterval": 4
             }
           ]
         }
@@ -735,7 +772,7 @@
         48
       ],
       "parameters": {
-        "url": "=https://api.github.com/search/issues?q={{ $json.query }}",
+        "url": "=https://api.github.com/search/issues?q={{ $json.query }}&sort=created&order=desc&per_page=100",
         "options": {}
       }
     },
@@ -758,8 +795,8 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1120,
-        0
+        1792,
+        480
       ],
       "parameters": {
         "operation": "toJson",
@@ -772,8 +809,8 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        1344,
-        0
+        2016,
+        480
       ],
       "parameters": {
         "operation": "write",
@@ -819,7 +856,7 @@
         240
       ],
       "parameters": {
-        "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual\n};\n"
+        "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual,\n  cache_payload: { pr_numbers: pr_numbers_cur, prs: cur.prs || [] }\n};\n"
       }
     },
     {
@@ -905,6 +942,21 @@
           "name": "GitHub account (PAT)"
         }
       }
+    },
+    {
+      "id": "70bc5f3f-065f-4728-973e-a828cfff24ff",
+      "name": "Prepare Cache Write",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        480
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "return { json: $input.first().json.cache_payload };"
+      }
     }
   ],
   "pinData": {},
@@ -931,7 +983,7 @@
         null
       ],
       "recurrenceRuleSignatures": [
-        null
+        "hours:4"
       ]
     },
     "global": {
@@ -953,6 +1005,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-05-20T15:08:54.464Z",
-  "versionId": "2d9e6099-cc88-434f-8544-02c723fe9508"
+  "updatedAt": "2026-07-24T09:26:09.645Z",
+  "versionId": "44181554-0ae3-465e-9c40-a12b93966a71"
 }
