@@ -1,12 +1,13 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-07-24T09:26:09.647Z",
-    "createdAt": "2026-07-24T09:26:09.647Z",
-    "versionId": "44181554-0ae3-465e-9c40-a12b93966a71",
+    "updatedAt": "2026-07-29T14:14:28.000Z",
+    "createdAt": "2026-07-29T14:14:21.597Z",
+    "versionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c",
     "workflowId": "Yv1UPh7jKlfO7u9g",
     "nodes": [
       {
+        "parameters": {},
         "id": "a2643cab-aff0-4333-bc70-53ccc50c738c",
         "name": "When clicking ‘Test workflow’",
         "type": "n8n-nodes-base.manualTrigger",
@@ -17,14 +18,6 @@
         ]
       },
       {
-        "id": "30ec3394-24b9-4eeb-a09b-bdd3d492cbe2",
-        "name": "Config",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "position": [
-          224,
-          48
-        ],
         "parameters": {
           "assignments": {
             "assignments": [
@@ -37,22 +30,27 @@
               {
                 "id": "keywords-id",
                 "name": "keywords",
-                "value": [
-                  "immich",
-                  "mealie",
-                  "netbird",
-                  "netbox",
-                  "paperless-ngx",
-                  "tailscale",
-                  "waybar"
-                ],
+                "value": "immich,mealie,netbird,netbox,paperless-ngx,tailscale,waybar,vaultwarden",
                 "type": "array"
               }
             ]
-          }
-        }
+          },
+          "options": {}
+        },
+        "id": "30ec3394-24b9-4eeb-a09b-bdd3d492cbe2",
+        "name": "Config",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          224,
+          48
+        ]
       },
       {
+        "parameters": {
+          "fileSelector": "/home/node/.n8n-files/pr_data.json",
+          "options": {}
+        },
         "id": "25334503-ed2c-4dde-8f54-9cadedf90af3",
         "name": "Read cached PR list",
         "type": "n8n-nodes-base.readWriteFile",
@@ -61,22 +59,10 @@
           224,
           288
         ],
-        "parameters": {
-          "fileSelector": "/home/node/.n8n-files/pr_data.json",
-          "options": {}
-        },
         "alwaysOutputData": true,
         "onError": "continueRegularOutput"
       },
       {
-        "id": "d8be3a6c-56c5-40f7-9ec6-8aeddca0bbcf",
-        "name": "Schedule Trigger",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "typeVersion": 1.2,
-        "position": [
-          0,
-          336
-        ],
         "parameters": {
           "rule": {
             "interval": [
@@ -86,9 +72,20 @@
               }
             ]
           }
-        }
+        },
+        "id": "d8be3a6c-56c5-40f7-9ec6-8aeddca0bbcf",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          336
+        ]
       },
       {
+        "parameters": {
+          "jsCode": "\nconst repo = $input.first().json.gh_repo;\nconst keywords = $input.first().json.keywords;\nconst date = new Date();\ndate.setDate(date.getDate() - 180);\nconst dateString = date.toISOString().split('T')[0];\nconst chunks = [];\nfor (let i = 0; i < keywords.length; i += 5) {\n  chunks.push(keywords.slice(i, i + 5));\n}\nreturn chunks.map(chunk => ({\n  query: `repo:${repo} type:pr created:>${dateString} in:title (${chunk.join(' OR ')})`,\n  repo_owner: repo.split('/')[0],\n  repo_name: repo.split('/')[1]\n}));\n"
+        },
         "id": "390c82d7-0880-4992-9311-9b3a2f7efcf0",
         "name": "Build GH Query",
         "type": "n8n-nodes-base.code",
@@ -96,12 +93,13 @@
         "position": [
           448,
           48
-        ],
-        "parameters": {
-          "jsCode": "\nconst repo = $input.first().json.gh_repo;\nconst keywords = $input.first().json.keywords;\nconst date = new Date();\ndate.setDate(date.getDate() - 180);\nconst dateString = date.toISOString().split('T')[0];\nconst chunks = [];\nfor (let i = 0; i < keywords.length; i += 5) {\n  chunks.push(keywords.slice(i, i + 5));\n}\nreturn chunks.map(chunk => ({\n  query: `repo:${repo} type:pr created:>${dateString} in:title (${chunk.join(' OR ')})`,\n  repo_owner: repo.split('/')[0],\n  repo_name: repo.split('/')[1]\n}));\n"
-        }
+        ]
       },
       {
+        "parameters": {
+          "url": "=https://api.github.com/search/issues?q={{ $json.query }}&sort=created&order=desc&per_page=100",
+          "options": {}
+        },
         "id": "867cdc6a-d024-4586-9bea-b1467bff8aeb",
         "name": "Fetch matching PRs",
         "type": "n8n-nodes-base.httpRequest",
@@ -109,13 +107,12 @@
         "position": [
           672,
           48
-        ],
-        "parameters": {
-          "url": "=https://api.github.com/search/issues?q={{ $json.query }}&sort=created&order=desc&per_page=100",
-          "options": {}
-        }
+        ]
       },
       {
+        "parameters": {
+          "jsCode": "\nconst all_responses = $input.all();\nconst pr_numbers = [];\nconst prs = [];\nconst seen = new Set();\n\nfor (const response of all_responses) {\n  const items = response.json.items || [];\n  for (const item of items) {\n    const title = item.title || \"\";\n    if (title.toLowerCase().includes(\"[backport\")) continue;\n    \n    // Determine state\n    const isMerged = !!(item.pull_request && item.pull_request.merged_at);\n    const state = isMerged ? 'merged' : item.state;\n    \n    // Track number and state to detect state changes\n    const key = `${item.number}:${state}`;\n    \n    if (!seen.has(item.number)) {\n      seen.add(item.number);\n      pr_numbers.push(key);\n      prs.push(item);\n    }\n  }\n}\nreturn {\n  pr_numbers: pr_numbers,\n  prs: prs\n};\n"
+        },
         "id": "f32dbbe9-c6ef-4e67-aa88-66b19e789bcb",
         "name": "Process response",
         "type": "n8n-nodes-base.code",
@@ -123,12 +120,13 @@
         "position": [
           896,
           48
-        ],
-        "parameters": {
-          "jsCode": "\nconst all_responses = $input.all();\nconst pr_numbers = [];\nconst prs = [];\nconst seen = new Set();\n\nfor (const response of all_responses) {\n  const items = response.json.items || [];\n  for (const item of items) {\n    const title = item.title || \"\";\n    if (title.toLowerCase().includes(\"[backport\")) continue;\n    \n    // Determine state\n    const isMerged = !!(item.pull_request && item.pull_request.merged_at);\n    const state = isMerged ? 'merged' : item.state;\n    \n    // Track number and state to detect state changes\n    const key = `${item.number}:${state}`;\n    \n    if (!seen.has(item.number)) {\n      seen.add(item.number);\n      pr_numbers.push(key);\n      prs.push(item);\n    }\n  }\n}\nreturn {\n  pr_numbers: pr_numbers,\n  prs: prs\n};\n"
-        }
+        ]
       },
       {
+        "parameters": {
+          "operation": "toJson",
+          "options": {}
+        },
         "id": "30732d4e-35ba-4e08-a7f9-74d88952edec",
         "name": "Convert JSON response to binary",
         "type": "n8n-nodes-base.convertToFile",
@@ -136,13 +134,14 @@
         "position": [
           1792,
           480
-        ],
-        "parameters": {
-          "operation": "toJson",
-          "options": {}
-        }
+        ]
       },
       {
+        "parameters": {
+          "operation": "write",
+          "fileName": "/home/node/.n8n-files/pr_data.json",
+          "options": {}
+        },
         "id": "152bafeb-63c2-4743-9eea-70816a3b89c0",
         "name": "Write cache file",
         "type": "n8n-nodes-base.readWriteFile",
@@ -150,14 +149,10 @@
         "position": [
           2016,
           480
-        ],
-        "parameters": {
-          "operation": "write",
-          "fileName": "/home/node/.n8n-files/pr_data.json",
-          "options": {}
-        }
+        ]
       },
       {
+        "parameters": {},
         "id": "4c76312d-755f-47e3-b435-c2024f71e1ff",
         "name": "Merge",
         "type": "n8n-nodes-base.merge",
@@ -168,6 +163,12 @@
         ]
       },
       {
+        "parameters": {
+          "operation": "fromJson",
+          "options": {
+            "keepSource": "json"
+          }
+        },
         "id": "e0190372-22ea-42be-a311-64d705738b96",
         "name": "Convert cached PR list",
         "type": "n8n-nodes-base.extractFromFile",
@@ -176,16 +177,13 @@
           448,
           288
         ],
-        "parameters": {
-          "operation": "fromJson",
-          "options": {
-            "keepSource": "json"
-          }
-        },
         "alwaysOutputData": true,
         "onError": "continueRegularOutput"
       },
       {
+        "parameters": {
+          "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual,\n  cache_payload: { pr_numbers: pr_numbers_cur, prs: cur.prs || [] }\n};\n"
+        },
         "id": "82d5d0a3-30e8-4448-9aa7-2b6512024554",
         "name": "Compare new and cached PR data",
         "type": "n8n-nodes-base.code",
@@ -193,12 +191,12 @@
         "position": [
           1344,
           240
-        ],
-        "parameters": {
-          "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual,\n  cache_payload: { pr_numbers: pr_numbers_cur, prs: cur.prs || [] }\n};\n"
-        }
+        ]
       },
       {
+        "parameters": {
+          "jsCode": "\nconst item = $input.first().json;\nconst new_prs = item.prs || [];\nif (new_prs.length === 0) return [];\n\nconst keywords = $node[\"Config\"].json.keywords || [];\nconst workflowId = $workflow.id;\nconst workflowName = $workflow.name;\nconst executionId = $execution.id;\n\nconst escapeHtml = (unsafe) => (unsafe || \"\").toString().replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\").replace(/'/g, \"&#039;\");\nconst formatDate = (isoString) => {\n  if (!isoString) return \"N/A\";\n  const d = new Date(isoString);\n  const months = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  return `${months[d.getMonth()]} ${d.getDate()}`;\n};\n\nconst IMG_PR_OPEN = 'https://img.shields.io/static/v1.png?label=&message=%20&color=238636&logo=git-pull-request&logoColor=white&style=flat-square';\nconst IMG_PR_MERGED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=8957e5&logo=git-merge&logoColor=white&style=flat-square';\nconst IMG_PR_CLOSED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=cf222e&logo=git-pull-request&logoColor=white&style=flat-square';\n\nconst groupedPrs = {};\nfor (const kw of keywords) groupedPrs[kw] = [];\nfor (const pr of new_prs) {\n  const titleLower = pr.title.toLowerCase();\n  for (const kw of keywords) if (titleLower.includes(kw.toLowerCase())) groupedPrs[kw].push(pr);\n}\n\nfor (const kw of keywords) {\n  groupedPrs[kw].sort((a, b) => {\n    const aMerged = !!(a.pull_request && a.pull_request.merged_at);\n    const bMerged = !!(b.pull_request && b.pull_request.merged_at);\n    const aClosed = a.state === 'closed' && !aMerged;\n    const bClosed = b.state === 'closed' && !bMerged;\n    const aScore = aMerged ? 0 : (aClosed ? 2 : 1);\n    const bScore = bMerged ? 0 : (bClosed ? 2 : 1);\n    if (aScore !== bScore) return aScore - bScore;\n    const aDate = new Date(aMerged ? a.pull_request.merged_at : (aClosed ? a.closed_at : a.created_at));\n    const bDate = new Date(bMerged ? b.pull_request.merged_at : (bClosed ? b.closed_at : b.created_at));\n    return bDate - aDate;\n  });\n}\n\nlet html_body = `<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><style>\nbody { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial, sans-serif; line-height: 1.5; color: #24292f; background-color: #f6f8fa; margin: 0; padding: 10px; }\n.container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; overflow: hidden; }\n.header { padding: 16px 20px; background-color: #24292f; color: #ffffff; }\n.header h1 { margin: 0; font-size: 18px; font-weight: 600; }\n.content { padding: 20px; }\n.keyword-section { margin-bottom: 32px; }\n.keyword-title-link { font-size: 14px; font-weight: 600; color: #57606a; text-transform: uppercase; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; margin-bottom: 16px; display: block; text-decoration: none; }\n.keyword-title-link:hover { color: #0969da; border-bottom-color: #0969da; }\n.pr-item { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed #d0d7de; display: table; width: 100%; border-collapse: collapse; }\n.pr-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }\n.status-icon-cell { display: table-cell; width: 22px; vertical-align: top; padding-top: 4px; padding-right: 6px; }\n.pr-main-cell { display: table-cell; vertical-align: top; min-width: 0; }\n.pr-title { font-size: 16px; font-weight: 600; color: #0969da; text-decoration: none; display: block; margin-bottom: 2px; word-break: break-word; }\n.pr-title:hover { text-decoration: underline; }\n.pr-meta { font-size: 12px; color: #6e7781; display: block; line-height: 18px; }\n.avatar { border-radius: 50%; vertical-align: middle; margin: 0 4px; }\n.author-link { color: inherit; text-decoration: none; font-weight: 600; }\n.author-link:hover { text-decoration: underline; color: #0969da; }\n.footer { padding: 16px 20px; background-color: #f6f8fa; border-top: 1px solid #d0d7de; font-size: 12px; color: #57606a; }\n.keywords { margin-top: 8px; margin-bottom: 16px; }\n.keyword-tag { background-color: #ddf4ff; color: #0969da; padding: 2px 8px; border-radius: 12px; font-weight: 500; display: inline-block; margin: 2px; text-decoration: none; font-size: 11px; }\n.keyword-tag:hover { background-color: #0969da; color: #ffffff; }\n.debug-links { border-top: 1px solid #d0d7de; padding-top: 12px; margin-top: 12px; }\n.debug-links a { color: #0969da; text-decoration: none; margin-right: 12px; }\n@media (max-width: 480px) { body { padding: 5px; } .header h1 { font-size: 16px; } .content { padding: 15px; } .pr-title { font-size: 15px; } }\n</style></head><body><div class=\"container\"><div class=\"header\"><h1>📮 GitHub nixpkgs PR Digest</h1></div><div class=\"content\">`;\n\nfor (const kw of keywords) {\n  const prs = groupedPrs[kw];\n  if (prs.length === 0) continue;\n  const searchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<div class=\"keyword-section\"><a href=\"${searchUrl}\" class=\"keyword-title-link\">🔖 ${escapeHtml(kw)} (${prs.length})</a>`;\n  for (const pr of prs) {\n    const title = escapeHtml(pr.title);\n    const url = pr.html_url || \"#\";\n    const number = pr.number;\n    const user = pr.user?.login || \"unknown\";\n    const userAvatar = pr.user?.avatar_url || \"\";\n    const userUrl = pr.user?.html_url || \"#\";\n    const isMerged = !!(pr.pull_request && pr.pull_request.merged_at);\n    const isClosed = pr.state === 'closed' && !isMerged;\n    let actionText = 'opened';\n    let iconUrl = IMG_PR_OPEN;\n    let statusAlt = 'Open';\n    let dateStr = formatDate(pr.created_at);\n    if (isMerged) {\n      actionText = 'merged';\n      iconUrl = IMG_PR_MERGED;\n      statusAlt = 'Merged';\n      dateStr = formatDate(pr.pull_request.merged_at);\n    } else if (isClosed) {\n      actionText = 'closed';\n      iconUrl = IMG_PR_CLOSED;\n      statusAlt = 'Closed';\n      dateStr = formatDate(pr.closed_at);\n    }\n    const statusImg = `<img src=\"${iconUrl}\" height=\"20\" border=\"0\" style=\"display:block; border:0; height:20px; border-radius: 2px;\" alt=\"${statusAlt}\">`;\n    html_body += `<div class=\"pr-item\"><div class=\"status-icon-cell\">${statusImg}</div><div class=\"pr-main-cell\"><a href=\"${url}\" class=\"pr-title\">${title}</a><div class=\"pr-meta\">#${number} by <a href=\"${userUrl}\" class=\"author-link\"><img src=\"${userAvatar}\" width=\"14\" height=\"14\" class=\"avatar\" alt=\"\" border=\"0\" style=\"border-radius:50%;\">${user}</a> ${actionText} on ${dateStr}</div></div></div>`;\n  }\n  html_body += `</div>`;\n}\n\nhtml_body += `</div><div class=\"footer\"><div style=\"font-weight: 600; margin-bottom: 4px;\">Active Keywords:</div><div class=\"keywords\">`;\nfor (const kw of keywords) {\n  const tagSearchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<a href=\"${tagSearchUrl}\" class=\"keyword-tag\">${escapeHtml(kw)}</a>`;\n}\nhtml_body += `</div><div class=\"debug-links\"><div style=\"margin-bottom: 8px; font-weight: 600; color: #24292f;\">${escapeHtml(workflowName)}</div><a href=\"https://n8n.brkn.lol/workflow/${workflowId}\">📝 Edit Workflow</a><a href=\"https://n8n.brkn.lol/workflow/${workflowId}/executions/${executionId}\">🔍 View Execution</a></div><p style=\"margin-top: 16px; font-style: italic; opacity: 0.8;\">Automated digest from n8n.brkn.lol</p></div></div></body></html>`;\n\nreturn { emailBodyHtml: html_body, emailBodyText: \"PR Digest updated with merged/closed distinction.\" };\n"
+        },
         "id": "2a758fdf-54ce-43e6-b91c-7c6beb83f2f8",
         "name": "Create email body",
         "type": "n8n-nodes-base.code",
@@ -206,20 +204,9 @@
         "position": [
           1568,
           144
-        ],
-        "parameters": {
-          "jsCode": "\nconst item = $input.first().json;\nconst new_prs = item.prs || [];\nif (new_prs.length === 0) return [];\n\nconst keywords = $node[\"Config\"].json.keywords || [];\nconst workflowId = $workflow.id;\nconst workflowName = $workflow.name;\nconst executionId = $execution.id;\n\nconst escapeHtml = (unsafe) => (unsafe || \"\").toString().replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\").replace(/'/g, \"&#039;\");\nconst formatDate = (isoString) => {\n  if (!isoString) return \"N/A\";\n  const d = new Date(isoString);\n  const months = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  return `${months[d.getMonth()]} ${d.getDate()}`;\n};\n\nconst IMG_PR_OPEN = 'https://img.shields.io/static/v1.png?label=&message=%20&color=238636&logo=git-pull-request&logoColor=white&style=flat-square';\nconst IMG_PR_MERGED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=8957e5&logo=git-merge&logoColor=white&style=flat-square';\nconst IMG_PR_CLOSED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=cf222e&logo=git-pull-request&logoColor=white&style=flat-square';\n\nconst groupedPrs = {};\nfor (const kw of keywords) groupedPrs[kw] = [];\nfor (const pr of new_prs) {\n  const titleLower = pr.title.toLowerCase();\n  for (const kw of keywords) if (titleLower.includes(kw.toLowerCase())) groupedPrs[kw].push(pr);\n}\n\nfor (const kw of keywords) {\n  groupedPrs[kw].sort((a, b) => {\n    const aMerged = !!(a.pull_request && a.pull_request.merged_at);\n    const bMerged = !!(b.pull_request && b.pull_request.merged_at);\n    const aClosed = a.state === 'closed' && !aMerged;\n    const bClosed = b.state === 'closed' && !bMerged;\n    const aScore = aMerged ? 0 : (aClosed ? 2 : 1);\n    const bScore = bMerged ? 0 : (bClosed ? 2 : 1);\n    if (aScore !== bScore) return aScore - bScore;\n    const aDate = new Date(aMerged ? a.pull_request.merged_at : (aClosed ? a.closed_at : a.created_at));\n    const bDate = new Date(bMerged ? b.pull_request.merged_at : (bClosed ? b.closed_at : b.created_at));\n    return bDate - aDate;\n  });\n}\n\nlet html_body = `<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><style>\nbody { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial, sans-serif; line-height: 1.5; color: #24292f; background-color: #f6f8fa; margin: 0; padding: 10px; }\n.container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; overflow: hidden; }\n.header { padding: 16px 20px; background-color: #24292f; color: #ffffff; }\n.header h1 { margin: 0; font-size: 18px; font-weight: 600; }\n.content { padding: 20px; }\n.keyword-section { margin-bottom: 32px; }\n.keyword-title-link { font-size: 14px; font-weight: 600; color: #57606a; text-transform: uppercase; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; margin-bottom: 16px; display: block; text-decoration: none; }\n.keyword-title-link:hover { color: #0969da; border-bottom-color: #0969da; }\n.pr-item { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed #d0d7de; display: table; width: 100%; border-collapse: collapse; }\n.pr-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }\n.status-icon-cell { display: table-cell; width: 22px; vertical-align: top; padding-top: 4px; padding-right: 6px; }\n.pr-main-cell { display: table-cell; vertical-align: top; min-width: 0; }\n.pr-title { font-size: 16px; font-weight: 600; color: #0969da; text-decoration: none; display: block; margin-bottom: 2px; word-break: break-word; }\n.pr-title:hover { text-decoration: underline; }\n.pr-meta { font-size: 12px; color: #6e7781; display: block; line-height: 18px; }\n.avatar { border-radius: 50%; vertical-align: middle; margin: 0 4px; }\n.author-link { color: inherit; text-decoration: none; font-weight: 600; }\n.author-link:hover { text-decoration: underline; color: #0969da; }\n.footer { padding: 16px 20px; background-color: #f6f8fa; border-top: 1px solid #d0d7de; font-size: 12px; color: #57606a; }\n.keywords { margin-top: 8px; margin-bottom: 16px; }\n.keyword-tag { background-color: #ddf4ff; color: #0969da; padding: 2px 8px; border-radius: 12px; font-weight: 500; display: inline-block; margin: 2px; text-decoration: none; font-size: 11px; }\n.keyword-tag:hover { background-color: #0969da; color: #ffffff; }\n.debug-links { border-top: 1px solid #d0d7de; padding-top: 12px; margin-top: 12px; }\n.debug-links a { color: #0969da; text-decoration: none; margin-right: 12px; }\n@media (max-width: 480px) { body { padding: 5px; } .header h1 { font-size: 16px; } .content { padding: 15px; } .pr-title { font-size: 15px; } }\n</style></head><body><div class=\"container\"><div class=\"header\"><h1>📮 GitHub nixpkgs PR Digest</h1></div><div class=\"content\">`;\n\nfor (const kw of keywords) {\n  const prs = groupedPrs[kw];\n  if (prs.length === 0) continue;\n  const searchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<div class=\"keyword-section\"><a href=\"${searchUrl}\" class=\"keyword-title-link\">🔖 ${escapeHtml(kw)} (${prs.length})</a>`;\n  for (const pr of prs) {\n    const title = escapeHtml(pr.title);\n    const url = pr.html_url || \"#\";\n    const number = pr.number;\n    const user = pr.user?.login || \"unknown\";\n    const userAvatar = pr.user?.avatar_url || \"\";\n    const userUrl = pr.user?.html_url || \"#\";\n    const isMerged = !!(pr.pull_request && pr.pull_request.merged_at);\n    const isClosed = pr.state === 'closed' && !isMerged;\n    let actionText = 'opened';\n    let iconUrl = IMG_PR_OPEN;\n    let statusAlt = 'Open';\n    let dateStr = formatDate(pr.created_at);\n    if (isMerged) {\n      actionText = 'merged';\n      iconUrl = IMG_PR_MERGED;\n      statusAlt = 'Merged';\n      dateStr = formatDate(pr.pull_request.merged_at);\n    } else if (isClosed) {\n      actionText = 'closed';\n      iconUrl = IMG_PR_CLOSED;\n      statusAlt = 'Closed';\n      dateStr = formatDate(pr.closed_at);\n    }\n    const statusImg = `<img src=\"${iconUrl}\" height=\"20\" border=\"0\" style=\"display:block; border:0; height:20px; border-radius: 2px;\" alt=\"${statusAlt}\">`;\n    html_body += `<div class=\"pr-item\"><div class=\"status-icon-cell\">${statusImg}</div><div class=\"pr-main-cell\"><a href=\"${url}\" class=\"pr-title\">${title}</a><div class=\"pr-meta\">#${number} by <a href=\"${userUrl}\" class=\"author-link\"><img src=\"${userAvatar}\" width=\"14\" height=\"14\" class=\"avatar\" alt=\"\" border=\"0\" style=\"border-radius:50%;\">${user}</a> ${actionText} on ${dateStr}</div></div></div>`;\n  }\n  html_body += `</div>`;\n}\n\nhtml_body += `</div><div class=\"footer\"><div style=\"font-weight: 600; margin-bottom: 4px;\">Active Keywords:</div><div class=\"keywords\">`;\nfor (const kw of keywords) {\n  const tagSearchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<a href=\"${tagSearchUrl}\" class=\"keyword-tag\">${escapeHtml(kw)}</a>`;\n}\nhtml_body += `</div><div class=\"debug-links\"><div style=\"margin-bottom: 8px; font-weight: 600; color: #24292f;\">${escapeHtml(workflowName)}</div><a href=\"https://n8n.brkn.lol/workflow/${workflowId}\">📝 Edit Workflow</a><a href=\"https://n8n.brkn.lol/workflow/${workflowId}/executions/${executionId}\">🔍 View Execution</a></div><p style=\"margin-top: 16px; font-style: italic; opacity: 0.8;\">Automated digest from n8n.brkn.lol</p></div></div></body></html>`;\n\nreturn { emailBodyHtml: html_body, emailBodyText: \"PR Digest updated with merged/closed distinction.\" };\n"
-        }
+        ]
       },
       {
-        "id": "755f205b-5b1c-433e-a074-3d5d786de55c",
-        "name": "Send Email",
-        "type": "n8n-nodes-base.emailSend",
-        "typeVersion": 2.1,
-        "position": [
-          1792,
-          144
-        ],
         "parameters": {
           "fromEmail": "n8n <n8n@brkn.lol>",
           "toEmail": "philipp@schmitt.co",
@@ -231,6 +218,14 @@
             "appendAttribution": false
           }
         },
+        "id": "755f205b-5b1c-433e-a074-3d5d786de55c",
+        "name": "Send Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          1792,
+          144
+        ],
         "webhookId": "b0598d4a-c8e9-4c2f-8db0-5cfb4f6501eb",
         "credentials": {
           "smtp": {
@@ -240,6 +235,9 @@
         }
       },
       {
+        "parameters": {
+          "jsCode": "\nconst prs = $json.prs || [];\nreturn prs.map(pr => ({ pr }));\n"
+        },
         "id": "9fdb09f3-b2b8-45ec-b84e-5cd54e5064f7",
         "name": "Convert new PR data to array",
         "type": "n8n-nodes-base.code",
@@ -247,20 +245,9 @@
         "position": [
           1568,
           336
-        ],
-        "parameters": {
-          "jsCode": "\nconst prs = $json.prs || [];\nreturn prs.map(pr => ({ pr }));\n"
-        }
+        ]
       },
       {
-        "id": "5387644a-4d80-41df-b582-2f97dd347eec",
-        "name": "Subscribe to PR",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "position": [
-          1792,
-          336
-        ],
         "parameters": {
           "method": "POST",
           "url": "https://api.github.com/graphql",
@@ -271,6 +258,14 @@
           "jsonBody": "={\n  \"variables\": {\n    \"nodeId\": \"{{ $json.pr.node_id }}\"\n  },\n  \"query\": \"mutation($nodeId: ID!) { updateSubscription(input: { subscribableId: $nodeId, state: SUBSCRIBED, clientMutationId: \\\"subscribe-me\\\" }) { clientMutationId } }\" \n}",
           "options": {}
         },
+        "id": "5387644a-4d80-41df-b582-2f97dd347eec",
+        "name": "Subscribe to PR",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1792,
+          336
+        ],
         "credentials": {
           "githubOAuth2Api": {
             "id": "POqP3dfytXqTmZo3",
@@ -283,6 +278,9 @@
         }
       },
       {
+        "parameters": {
+          "jsCode": "return { json: $input.first().json.cache_payload };"
+        },
         "id": "70bc5f3f-065f-4728-973e-a828cfff24ff",
         "name": "Prepare Cache Write",
         "type": "n8n-nodes-base.code",
@@ -290,12 +288,7 @@
         "position": [
           1568,
           480
-        ],
-        "parameters": {
-          "mode": "runOnceForAllItems",
-          "language": "javaScript",
-          "jsCode": "return { json: $input.first().json.cache_payload };"
-        }
+        ]
       }
     ],
     "connections": {
@@ -475,12 +468,12 @@
       }
     },
     "nodeGroups": [],
-    "authors": "Philipp Schmitt (via MCP)",
-    "name": "Reduce schedule to every 4 hours",
-    "description": "30-minute polling was overkill for a PR digest; switched to every 4 hours.",
-    "autosaved": false
+    "authors": "Philipp Schmitt",
+    "name": "Version 5fdd16a8",
+    "description": "",
+    "autosaved": true
   },
-  "activeVersionId": "44181554-0ae3-465e-9c40-a12b93966a71",
+  "activeVersionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c",
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
@@ -668,6 +661,7 @@
   "nodeGroups": [],
   "nodes": [
     {
+      "parameters": {},
       "id": "a2643cab-aff0-4333-bc70-53ccc50c738c",
       "name": "When clicking ‘Test workflow’",
       "type": "n8n-nodes-base.manualTrigger",
@@ -678,14 +672,6 @@
       ]
     },
     {
-      "id": "30ec3394-24b9-4eeb-a09b-bdd3d492cbe2",
-      "name": "Config",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        224,
-        48
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -698,22 +684,27 @@
             {
               "id": "keywords-id",
               "name": "keywords",
-              "value": [
-                "immich",
-                "mealie",
-                "netbird",
-                "netbox",
-                "paperless-ngx",
-                "tailscale",
-                "waybar"
-              ],
+              "value": "immich,mealie,netbird,netbox,paperless-ngx,tailscale,waybar,vaultwarden",
               "type": "array"
             }
           ]
-        }
-      }
+        },
+        "options": {}
+      },
+      "id": "30ec3394-24b9-4eeb-a09b-bdd3d492cbe2",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        48
+      ]
     },
     {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/pr_data.json",
+        "options": {}
+      },
       "id": "25334503-ed2c-4dde-8f54-9cadedf90af3",
       "name": "Read cached PR list",
       "type": "n8n-nodes-base.readWriteFile",
@@ -722,22 +713,10 @@
         224,
         288
       ],
-      "parameters": {
-        "fileSelector": "/home/node/.n8n-files/pr_data.json",
-        "options": {}
-      },
       "alwaysOutputData": true,
       "onError": "continueRegularOutput"
     },
     {
-      "id": "d8be3a6c-56c5-40f7-9ec6-8aeddca0bbcf",
-      "name": "Schedule Trigger",
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        0,
-        336
-      ],
       "parameters": {
         "rule": {
           "interval": [
@@ -747,9 +726,20 @@
             }
           ]
         }
-      }
+      },
+      "id": "d8be3a6c-56c5-40f7-9ec6-8aeddca0bbcf",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        336
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "\nconst repo = $input.first().json.gh_repo;\nconst keywords = $input.first().json.keywords;\nconst date = new Date();\ndate.setDate(date.getDate() - 180);\nconst dateString = date.toISOString().split('T')[0];\nconst chunks = [];\nfor (let i = 0; i < keywords.length; i += 5) {\n  chunks.push(keywords.slice(i, i + 5));\n}\nreturn chunks.map(chunk => ({\n  query: `repo:${repo} type:pr created:>${dateString} in:title (${chunk.join(' OR ')})`,\n  repo_owner: repo.split('/')[0],\n  repo_name: repo.split('/')[1]\n}));\n"
+      },
       "id": "390c82d7-0880-4992-9311-9b3a2f7efcf0",
       "name": "Build GH Query",
       "type": "n8n-nodes-base.code",
@@ -757,12 +747,13 @@
       "position": [
         448,
         48
-      ],
-      "parameters": {
-        "jsCode": "\nconst repo = $input.first().json.gh_repo;\nconst keywords = $input.first().json.keywords;\nconst date = new Date();\ndate.setDate(date.getDate() - 180);\nconst dateString = date.toISOString().split('T')[0];\nconst chunks = [];\nfor (let i = 0; i < keywords.length; i += 5) {\n  chunks.push(keywords.slice(i, i + 5));\n}\nreturn chunks.map(chunk => ({\n  query: `repo:${repo} type:pr created:>${dateString} in:title (${chunk.join(' OR ')})`,\n  repo_owner: repo.split('/')[0],\n  repo_name: repo.split('/')[1]\n}));\n"
-      }
+      ]
     },
     {
+      "parameters": {
+        "url": "=https://api.github.com/search/issues?q={{ $json.query }}&sort=created&order=desc&per_page=100",
+        "options": {}
+      },
       "id": "867cdc6a-d024-4586-9bea-b1467bff8aeb",
       "name": "Fetch matching PRs",
       "type": "n8n-nodes-base.httpRequest",
@@ -770,13 +761,12 @@
       "position": [
         672,
         48
-      ],
-      "parameters": {
-        "url": "=https://api.github.com/search/issues?q={{ $json.query }}&sort=created&order=desc&per_page=100",
-        "options": {}
-      }
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "\nconst all_responses = $input.all();\nconst pr_numbers = [];\nconst prs = [];\nconst seen = new Set();\n\nfor (const response of all_responses) {\n  const items = response.json.items || [];\n  for (const item of items) {\n    const title = item.title || \"\";\n    if (title.toLowerCase().includes(\"[backport\")) continue;\n    \n    // Determine state\n    const isMerged = !!(item.pull_request && item.pull_request.merged_at);\n    const state = isMerged ? 'merged' : item.state;\n    \n    // Track number and state to detect state changes\n    const key = `${item.number}:${state}`;\n    \n    if (!seen.has(item.number)) {\n      seen.add(item.number);\n      pr_numbers.push(key);\n      prs.push(item);\n    }\n  }\n}\nreturn {\n  pr_numbers: pr_numbers,\n  prs: prs\n};\n"
+      },
       "id": "f32dbbe9-c6ef-4e67-aa88-66b19e789bcb",
       "name": "Process response",
       "type": "n8n-nodes-base.code",
@@ -784,12 +774,13 @@
       "position": [
         896,
         48
-      ],
-      "parameters": {
-        "jsCode": "\nconst all_responses = $input.all();\nconst pr_numbers = [];\nconst prs = [];\nconst seen = new Set();\n\nfor (const response of all_responses) {\n  const items = response.json.items || [];\n  for (const item of items) {\n    const title = item.title || \"\";\n    if (title.toLowerCase().includes(\"[backport\")) continue;\n    \n    // Determine state\n    const isMerged = !!(item.pull_request && item.pull_request.merged_at);\n    const state = isMerged ? 'merged' : item.state;\n    \n    // Track number and state to detect state changes\n    const key = `${item.number}:${state}`;\n    \n    if (!seen.has(item.number)) {\n      seen.add(item.number);\n      pr_numbers.push(key);\n      prs.push(item);\n    }\n  }\n}\nreturn {\n  pr_numbers: pr_numbers,\n  prs: prs\n};\n"
-      }
+      ]
     },
     {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
       "id": "30732d4e-35ba-4e08-a7f9-74d88952edec",
       "name": "Convert JSON response to binary",
       "type": "n8n-nodes-base.convertToFile",
@@ -797,13 +788,14 @@
       "position": [
         1792,
         480
-      ],
-      "parameters": {
-        "operation": "toJson",
-        "options": {}
-      }
+      ]
     },
     {
+      "parameters": {
+        "operation": "write",
+        "fileName": "/home/node/.n8n-files/pr_data.json",
+        "options": {}
+      },
       "id": "152bafeb-63c2-4743-9eea-70816a3b89c0",
       "name": "Write cache file",
       "type": "n8n-nodes-base.readWriteFile",
@@ -811,14 +803,10 @@
       "position": [
         2016,
         480
-      ],
-      "parameters": {
-        "operation": "write",
-        "fileName": "/home/node/.n8n-files/pr_data.json",
-        "options": {}
-      }
+      ]
     },
     {
+      "parameters": {},
       "id": "4c76312d-755f-47e3-b435-c2024f71e1ff",
       "name": "Merge",
       "type": "n8n-nodes-base.merge",
@@ -829,6 +817,12 @@
       ]
     },
     {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {
+          "keepSource": "json"
+        }
+      },
       "id": "e0190372-22ea-42be-a311-64d705738b96",
       "name": "Convert cached PR list",
       "type": "n8n-nodes-base.extractFromFile",
@@ -837,16 +831,13 @@
         448,
         288
       ],
-      "parameters": {
-        "operation": "fromJson",
-        "options": {
-          "keepSource": "json"
-        }
-      },
       "alwaysOutputData": true,
       "onError": "continueRegularOutput"
     },
     {
+      "parameters": {
+        "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual,\n  cache_payload: { pr_numbers: pr_numbers_cur, prs: cur.prs || [] }\n};\n"
+      },
       "id": "82d5d0a3-30e8-4448-9aa7-2b6512024554",
       "name": "Compare new and cached PR data",
       "type": "n8n-nodes-base.code",
@@ -854,12 +845,12 @@
       "position": [
         1344,
         240
-      ],
-      "parameters": {
-        "jsCode": "\nconst all_items = $input.all();\nconst cached_item = all_items[0]?.json?.data?.[0] || {};\nconst cur = all_items[1]?.json || {};\n\nconst pr_numbers_prev_raw = cached_item.pr_numbers || [];\nconst pr_numbers_prev = pr_numbers_prev_raw.map(x => x.toString().includes(':') ? x : `${x}:open`);\nconst pr_numbers_cur = cur.pr_numbers || [];\n\nconst pr_numbers_diff = pr_numbers_cur.filter(x => !pr_numbers_prev.includes(x));\nconst diff_numbers = pr_numbers_diff.map(x => parseInt(x.split(':')[0]));\n\nconst isManual = $execution.mode === 'manual' || $execution.mode === 'test';\nconst new_prs_data = isManual \n  ? (cur.prs || []) \n  : (cur.prs || []).filter(x => diff_numbers.includes(x.number));\n\nreturn {\n  pr_numbers: { prev: pr_numbers_prev, cur: pr_numbers_cur, diff: pr_numbers_diff },\n  prs: new_prs_data,\n  isManual: isManual,\n  cache_payload: { pr_numbers: pr_numbers_cur, prs: cur.prs || [] }\n};\n"
-      }
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "\nconst item = $input.first().json;\nconst new_prs = item.prs || [];\nif (new_prs.length === 0) return [];\n\nconst keywords = $node[\"Config\"].json.keywords || [];\nconst workflowId = $workflow.id;\nconst workflowName = $workflow.name;\nconst executionId = $execution.id;\n\nconst escapeHtml = (unsafe) => (unsafe || \"\").toString().replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\").replace(/'/g, \"&#039;\");\nconst formatDate = (isoString) => {\n  if (!isoString) return \"N/A\";\n  const d = new Date(isoString);\n  const months = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  return `${months[d.getMonth()]} ${d.getDate()}`;\n};\n\nconst IMG_PR_OPEN = 'https://img.shields.io/static/v1.png?label=&message=%20&color=238636&logo=git-pull-request&logoColor=white&style=flat-square';\nconst IMG_PR_MERGED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=8957e5&logo=git-merge&logoColor=white&style=flat-square';\nconst IMG_PR_CLOSED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=cf222e&logo=git-pull-request&logoColor=white&style=flat-square';\n\nconst groupedPrs = {};\nfor (const kw of keywords) groupedPrs[kw] = [];\nfor (const pr of new_prs) {\n  const titleLower = pr.title.toLowerCase();\n  for (const kw of keywords) if (titleLower.includes(kw.toLowerCase())) groupedPrs[kw].push(pr);\n}\n\nfor (const kw of keywords) {\n  groupedPrs[kw].sort((a, b) => {\n    const aMerged = !!(a.pull_request && a.pull_request.merged_at);\n    const bMerged = !!(b.pull_request && b.pull_request.merged_at);\n    const aClosed = a.state === 'closed' && !aMerged;\n    const bClosed = b.state === 'closed' && !bMerged;\n    const aScore = aMerged ? 0 : (aClosed ? 2 : 1);\n    const bScore = bMerged ? 0 : (bClosed ? 2 : 1);\n    if (aScore !== bScore) return aScore - bScore;\n    const aDate = new Date(aMerged ? a.pull_request.merged_at : (aClosed ? a.closed_at : a.created_at));\n    const bDate = new Date(bMerged ? b.pull_request.merged_at : (bClosed ? b.closed_at : b.created_at));\n    return bDate - aDate;\n  });\n}\n\nlet html_body = `<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><style>\nbody { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial, sans-serif; line-height: 1.5; color: #24292f; background-color: #f6f8fa; margin: 0; padding: 10px; }\n.container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; overflow: hidden; }\n.header { padding: 16px 20px; background-color: #24292f; color: #ffffff; }\n.header h1 { margin: 0; font-size: 18px; font-weight: 600; }\n.content { padding: 20px; }\n.keyword-section { margin-bottom: 32px; }\n.keyword-title-link { font-size: 14px; font-weight: 600; color: #57606a; text-transform: uppercase; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; margin-bottom: 16px; display: block; text-decoration: none; }\n.keyword-title-link:hover { color: #0969da; border-bottom-color: #0969da; }\n.pr-item { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed #d0d7de; display: table; width: 100%; border-collapse: collapse; }\n.pr-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }\n.status-icon-cell { display: table-cell; width: 22px; vertical-align: top; padding-top: 4px; padding-right: 6px; }\n.pr-main-cell { display: table-cell; vertical-align: top; min-width: 0; }\n.pr-title { font-size: 16px; font-weight: 600; color: #0969da; text-decoration: none; display: block; margin-bottom: 2px; word-break: break-word; }\n.pr-title:hover { text-decoration: underline; }\n.pr-meta { font-size: 12px; color: #6e7781; display: block; line-height: 18px; }\n.avatar { border-radius: 50%; vertical-align: middle; margin: 0 4px; }\n.author-link { color: inherit; text-decoration: none; font-weight: 600; }\n.author-link:hover { text-decoration: underline; color: #0969da; }\n.footer { padding: 16px 20px; background-color: #f6f8fa; border-top: 1px solid #d0d7de; font-size: 12px; color: #57606a; }\n.keywords { margin-top: 8px; margin-bottom: 16px; }\n.keyword-tag { background-color: #ddf4ff; color: #0969da; padding: 2px 8px; border-radius: 12px; font-weight: 500; display: inline-block; margin: 2px; text-decoration: none; font-size: 11px; }\n.keyword-tag:hover { background-color: #0969da; color: #ffffff; }\n.debug-links { border-top: 1px solid #d0d7de; padding-top: 12px; margin-top: 12px; }\n.debug-links a { color: #0969da; text-decoration: none; margin-right: 12px; }\n@media (max-width: 480px) { body { padding: 5px; } .header h1 { font-size: 16px; } .content { padding: 15px; } .pr-title { font-size: 15px; } }\n</style></head><body><div class=\"container\"><div class=\"header\"><h1>📮 GitHub nixpkgs PR Digest</h1></div><div class=\"content\">`;\n\nfor (const kw of keywords) {\n  const prs = groupedPrs[kw];\n  if (prs.length === 0) continue;\n  const searchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<div class=\"keyword-section\"><a href=\"${searchUrl}\" class=\"keyword-title-link\">🔖 ${escapeHtml(kw)} (${prs.length})</a>`;\n  for (const pr of prs) {\n    const title = escapeHtml(pr.title);\n    const url = pr.html_url || \"#\";\n    const number = pr.number;\n    const user = pr.user?.login || \"unknown\";\n    const userAvatar = pr.user?.avatar_url || \"\";\n    const userUrl = pr.user?.html_url || \"#\";\n    const isMerged = !!(pr.pull_request && pr.pull_request.merged_at);\n    const isClosed = pr.state === 'closed' && !isMerged;\n    let actionText = 'opened';\n    let iconUrl = IMG_PR_OPEN;\n    let statusAlt = 'Open';\n    let dateStr = formatDate(pr.created_at);\n    if (isMerged) {\n      actionText = 'merged';\n      iconUrl = IMG_PR_MERGED;\n      statusAlt = 'Merged';\n      dateStr = formatDate(pr.pull_request.merged_at);\n    } else if (isClosed) {\n      actionText = 'closed';\n      iconUrl = IMG_PR_CLOSED;\n      statusAlt = 'Closed';\n      dateStr = formatDate(pr.closed_at);\n    }\n    const statusImg = `<img src=\"${iconUrl}\" height=\"20\" border=\"0\" style=\"display:block; border:0; height:20px; border-radius: 2px;\" alt=\"${statusAlt}\">`;\n    html_body += `<div class=\"pr-item\"><div class=\"status-icon-cell\">${statusImg}</div><div class=\"pr-main-cell\"><a href=\"${url}\" class=\"pr-title\">${title}</a><div class=\"pr-meta\">#${number} by <a href=\"${userUrl}\" class=\"author-link\"><img src=\"${userAvatar}\" width=\"14\" height=\"14\" class=\"avatar\" alt=\"\" border=\"0\" style=\"border-radius:50%;\">${user}</a> ${actionText} on ${dateStr}</div></div></div>`;\n  }\n  html_body += `</div>`;\n}\n\nhtml_body += `</div><div class=\"footer\"><div style=\"font-weight: 600; margin-bottom: 4px;\">Active Keywords:</div><div class=\"keywords\">`;\nfor (const kw of keywords) {\n  const tagSearchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<a href=\"${tagSearchUrl}\" class=\"keyword-tag\">${escapeHtml(kw)}</a>`;\n}\nhtml_body += `</div><div class=\"debug-links\"><div style=\"margin-bottom: 8px; font-weight: 600; color: #24292f;\">${escapeHtml(workflowName)}</div><a href=\"https://n8n.brkn.lol/workflow/${workflowId}\">📝 Edit Workflow</a><a href=\"https://n8n.brkn.lol/workflow/${workflowId}/executions/${executionId}\">🔍 View Execution</a></div><p style=\"margin-top: 16px; font-style: italic; opacity: 0.8;\">Automated digest from n8n.brkn.lol</p></div></div></body></html>`;\n\nreturn { emailBodyHtml: html_body, emailBodyText: \"PR Digest updated with merged/closed distinction.\" };\n"
+      },
       "id": "2a758fdf-54ce-43e6-b91c-7c6beb83f2f8",
       "name": "Create email body",
       "type": "n8n-nodes-base.code",
@@ -867,20 +858,9 @@
       "position": [
         1568,
         144
-      ],
-      "parameters": {
-        "jsCode": "\nconst item = $input.first().json;\nconst new_prs = item.prs || [];\nif (new_prs.length === 0) return [];\n\nconst keywords = $node[\"Config\"].json.keywords || [];\nconst workflowId = $workflow.id;\nconst workflowName = $workflow.name;\nconst executionId = $execution.id;\n\nconst escapeHtml = (unsafe) => (unsafe || \"\").toString().replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\").replace(/'/g, \"&#039;\");\nconst formatDate = (isoString) => {\n  if (!isoString) return \"N/A\";\n  const d = new Date(isoString);\n  const months = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  return `${months[d.getMonth()]} ${d.getDate()}`;\n};\n\nconst IMG_PR_OPEN = 'https://img.shields.io/static/v1.png?label=&message=%20&color=238636&logo=git-pull-request&logoColor=white&style=flat-square';\nconst IMG_PR_MERGED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=8957e5&logo=git-merge&logoColor=white&style=flat-square';\nconst IMG_PR_CLOSED = 'https://img.shields.io/static/v1.png?label=&message=%20&color=cf222e&logo=git-pull-request&logoColor=white&style=flat-square';\n\nconst groupedPrs = {};\nfor (const kw of keywords) groupedPrs[kw] = [];\nfor (const pr of new_prs) {\n  const titleLower = pr.title.toLowerCase();\n  for (const kw of keywords) if (titleLower.includes(kw.toLowerCase())) groupedPrs[kw].push(pr);\n}\n\nfor (const kw of keywords) {\n  groupedPrs[kw].sort((a, b) => {\n    const aMerged = !!(a.pull_request && a.pull_request.merged_at);\n    const bMerged = !!(b.pull_request && b.pull_request.merged_at);\n    const aClosed = a.state === 'closed' && !aMerged;\n    const bClosed = b.state === 'closed' && !bMerged;\n    const aScore = aMerged ? 0 : (aClosed ? 2 : 1);\n    const bScore = bMerged ? 0 : (bClosed ? 2 : 1);\n    if (aScore !== bScore) return aScore - bScore;\n    const aDate = new Date(aMerged ? a.pull_request.merged_at : (aClosed ? a.closed_at : a.created_at));\n    const bDate = new Date(bMerged ? b.pull_request.merged_at : (bClosed ? b.closed_at : b.created_at));\n    return bDate - aDate;\n  });\n}\n\nlet html_body = `<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><style>\nbody { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial, sans-serif; line-height: 1.5; color: #24292f; background-color: #f6f8fa; margin: 0; padding: 10px; }\n.container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #d0d7de; border-radius: 6px; overflow: hidden; }\n.header { padding: 16px 20px; background-color: #24292f; color: #ffffff; }\n.header h1 { margin: 0; font-size: 18px; font-weight: 600; }\n.content { padding: 20px; }\n.keyword-section { margin-bottom: 32px; }\n.keyword-title-link { font-size: 14px; font-weight: 600; color: #57606a; text-transform: uppercase; border-bottom: 1px solid #d0d7de; padding-bottom: 6px; margin-bottom: 16px; display: block; text-decoration: none; }\n.keyword-title-link:hover { color: #0969da; border-bottom-color: #0969da; }\n.pr-item { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px dashed #d0d7de; display: table; width: 100%; border-collapse: collapse; }\n.pr-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }\n.status-icon-cell { display: table-cell; width: 22px; vertical-align: top; padding-top: 4px; padding-right: 6px; }\n.pr-main-cell { display: table-cell; vertical-align: top; min-width: 0; }\n.pr-title { font-size: 16px; font-weight: 600; color: #0969da; text-decoration: none; display: block; margin-bottom: 2px; word-break: break-word; }\n.pr-title:hover { text-decoration: underline; }\n.pr-meta { font-size: 12px; color: #6e7781; display: block; line-height: 18px; }\n.avatar { border-radius: 50%; vertical-align: middle; margin: 0 4px; }\n.author-link { color: inherit; text-decoration: none; font-weight: 600; }\n.author-link:hover { text-decoration: underline; color: #0969da; }\n.footer { padding: 16px 20px; background-color: #f6f8fa; border-top: 1px solid #d0d7de; font-size: 12px; color: #57606a; }\n.keywords { margin-top: 8px; margin-bottom: 16px; }\n.keyword-tag { background-color: #ddf4ff; color: #0969da; padding: 2px 8px; border-radius: 12px; font-weight: 500; display: inline-block; margin: 2px; text-decoration: none; font-size: 11px; }\n.keyword-tag:hover { background-color: #0969da; color: #ffffff; }\n.debug-links { border-top: 1px solid #d0d7de; padding-top: 12px; margin-top: 12px; }\n.debug-links a { color: #0969da; text-decoration: none; margin-right: 12px; }\n@media (max-width: 480px) { body { padding: 5px; } .header h1 { font-size: 16px; } .content { padding: 15px; } .pr-title { font-size: 15px; } }\n</style></head><body><div class=\"container\"><div class=\"header\"><h1>📮 GitHub nixpkgs PR Digest</h1></div><div class=\"content\">`;\n\nfor (const kw of keywords) {\n  const prs = groupedPrs[kw];\n  if (prs.length === 0) continue;\n  const searchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<div class=\"keyword-section\"><a href=\"${searchUrl}\" class=\"keyword-title-link\">🔖 ${escapeHtml(kw)} (${prs.length})</a>`;\n  for (const pr of prs) {\n    const title = escapeHtml(pr.title);\n    const url = pr.html_url || \"#\";\n    const number = pr.number;\n    const user = pr.user?.login || \"unknown\";\n    const userAvatar = pr.user?.avatar_url || \"\";\n    const userUrl = pr.user?.html_url || \"#\";\n    const isMerged = !!(pr.pull_request && pr.pull_request.merged_at);\n    const isClosed = pr.state === 'closed' && !isMerged;\n    let actionText = 'opened';\n    let iconUrl = IMG_PR_OPEN;\n    let statusAlt = 'Open';\n    let dateStr = formatDate(pr.created_at);\n    if (isMerged) {\n      actionText = 'merged';\n      iconUrl = IMG_PR_MERGED;\n      statusAlt = 'Merged';\n      dateStr = formatDate(pr.pull_request.merged_at);\n    } else if (isClosed) {\n      actionText = 'closed';\n      iconUrl = IMG_PR_CLOSED;\n      statusAlt = 'Closed';\n      dateStr = formatDate(pr.closed_at);\n    }\n    const statusImg = `<img src=\"${iconUrl}\" height=\"20\" border=\"0\" style=\"display:block; border:0; height:20px; border-radius: 2px;\" alt=\"${statusAlt}\">`;\n    html_body += `<div class=\"pr-item\"><div class=\"status-icon-cell\">${statusImg}</div><div class=\"pr-main-cell\"><a href=\"${url}\" class=\"pr-title\">${title}</a><div class=\"pr-meta\">#${number} by <a href=\"${userUrl}\" class=\"author-link\"><img src=\"${userAvatar}\" width=\"14\" height=\"14\" class=\"avatar\" alt=\"\" border=\"0\" style=\"border-radius:50%;\">${user}</a> ${actionText} on ${dateStr}</div></div></div>`;\n  }\n  html_body += `</div>`;\n}\n\nhtml_body += `</div><div class=\"footer\"><div style=\"font-weight: 600; margin-bottom: 4px;\">Active Keywords:</div><div class=\"keywords\">`;\nfor (const kw of keywords) {\n  const tagSearchUrl = `https://github.com/NixOS/nixpkgs/pulls?q=is%3Aopen+created:>${new Date(Date.now() - 180 * 86400000).toISOString().split('T')[0]}+in:title%20${encodeURIComponent(kw)}`;\n  html_body += `<a href=\"${tagSearchUrl}\" class=\"keyword-tag\">${escapeHtml(kw)}</a>`;\n}\nhtml_body += `</div><div class=\"debug-links\"><div style=\"margin-bottom: 8px; font-weight: 600; color: #24292f;\">${escapeHtml(workflowName)}</div><a href=\"https://n8n.brkn.lol/workflow/${workflowId}\">📝 Edit Workflow</a><a href=\"https://n8n.brkn.lol/workflow/${workflowId}/executions/${executionId}\">🔍 View Execution</a></div><p style=\"margin-top: 16px; font-style: italic; opacity: 0.8;\">Automated digest from n8n.brkn.lol</p></div></div></body></html>`;\n\nreturn { emailBodyHtml: html_body, emailBodyText: \"PR Digest updated with merged/closed distinction.\" };\n"
-      }
+      ]
     },
     {
-      "id": "755f205b-5b1c-433e-a074-3d5d786de55c",
-      "name": "Send Email",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [
-        1792,
-        144
-      ],
       "parameters": {
         "fromEmail": "n8n <n8n@brkn.lol>",
         "toEmail": "philipp@schmitt.co",
@@ -892,6 +872,14 @@
           "appendAttribution": false
         }
       },
+      "id": "755f205b-5b1c-433e-a074-3d5d786de55c",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1792,
+        144
+      ],
       "webhookId": "b0598d4a-c8e9-4c2f-8db0-5cfb4f6501eb",
       "credentials": {
         "smtp": {
@@ -901,6 +889,9 @@
       }
     },
     {
+      "parameters": {
+        "jsCode": "\nconst prs = $json.prs || [];\nreturn prs.map(pr => ({ pr }));\n"
+      },
       "id": "9fdb09f3-b2b8-45ec-b84e-5cd54e5064f7",
       "name": "Convert new PR data to array",
       "type": "n8n-nodes-base.code",
@@ -908,20 +899,9 @@
       "position": [
         1568,
         336
-      ],
-      "parameters": {
-        "jsCode": "\nconst prs = $json.prs || [];\nreturn prs.map(pr => ({ pr }));\n"
-      }
+      ]
     },
     {
-      "id": "5387644a-4d80-41df-b582-2f97dd347eec",
-      "name": "Subscribe to PR",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1792,
-        336
-      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.github.com/graphql",
@@ -932,6 +912,14 @@
         "jsonBody": "={\n  \"variables\": {\n    \"nodeId\": \"{{ $json.pr.node_id }}\"\n  },\n  \"query\": \"mutation($nodeId: ID!) { updateSubscription(input: { subscribableId: $nodeId, state: SUBSCRIBED, clientMutationId: \\\"subscribe-me\\\" }) { clientMutationId } }\" \n}",
         "options": {}
       },
+      "id": "5387644a-4d80-41df-b582-2f97dd347eec",
+      "name": "Subscribe to PR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1792,
+        336
+      ],
       "credentials": {
         "githubOAuth2Api": {
           "id": "POqP3dfytXqTmZo3",
@@ -944,6 +932,9 @@
       }
     },
     {
+      "parameters": {
+        "jsCode": "return { json: $input.first().json.cache_payload };"
+      },
       "id": "70bc5f3f-065f-4728-973e-a828cfff24ff",
       "name": "Prepare Cache Write",
       "type": "n8n-nodes-base.code",
@@ -951,12 +942,7 @@
       "position": [
         1568,
         480
-      ],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "language": "javaScript",
-        "jsCode": "return { json: $input.first().json.cache_payload };"
-      }
+      ]
     }
   ],
   "pinData": {},
@@ -980,7 +966,7 @@
   "staticData": {
     "node:Schedule Trigger": {
       "recurrenceRules": [
-        12
+        16
       ],
       "recurrenceRuleSignatures": [
         "hours:4"
@@ -1005,6 +991,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-07-24T09:26:09.645Z",
-  "versionId": "44181554-0ae3-465e-9c40-a12b93966a71"
+  "updatedAt": "2026-07-29T14:14:21.596Z",
+  "versionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c"
 }
