@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-07-24T08:13:52.669Z",
-    "createdAt": "2026-07-24T08:13:52.669Z",
-    "versionId": "71bed803-59d9-47f6-be1e-a68e6ab2cd55",
+    "updatedAt": "2026-08-05T21:46:32.674Z",
+    "createdAt": "2026-08-05T21:46:32.674Z",
+    "versionId": "d1a4d986-095f-4ea0-b110-b4613a10345a",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -328,7 +328,7 @@
           "messages": {
             "messageValues": [
               {
-                "message": "Prepend 1 emoji + space to content. Context: 6Crcx5cJrWQ6w4cG=food, 6gfWcx5q832xJ6XJ=tech. DO NOT CHANGE TEXT. JSON ONLY."
+                "message": "Prepend exactly 1 emoji + a space to content. Context: 6Crcx5cJrWQ6w4cG=food/groceries, 6gfWcx5q832xJ6XJ=tech. Choose the MOST SPECIFIC emoji for the exact item named (e.g. the specific fruit, vegetable, drink, tool, or gadget) rather than a generic catch-all. Do NOT default to 🍴, 🛒, or 📦 unless no specific emoji could possibly apply. Do not repeat the same emoji across different items unless the items are genuinely the same thing. Only return the modified content string. DO NOT CHANGE THE TEXT itself, DO NOT include an id. JSON ONLY."
               }
             ]
           }
@@ -364,7 +364,7 @@
         ],
         "parameters": {
           "schemaType": "manual",
-          "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\"},\"content\":{\"type\":\"string\"}},\"required\":[\"id\",\"content\"]}}"
+          "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"content\":{\"type\":\"string\"}},\"required\":[\"content\"]}}"
         }
       },
       {
@@ -379,7 +379,7 @@
         "parameters": {
           "mode": "runOnceForAllItems",
           "language": "javaScript",
-          "jsCode": "return $input.item.json.output.map(i => ({ json: i }));"
+          "jsCode": "const items = $input.all();\nconst candidates = [];\ntry { candidates.push(...$('Switch 1').all()); } catch (e) {}\ntry { candidates.push(...$('Switch').all()); } catch (e) {}\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map(out => {\n    const match = candidates.find(c => typeof out.content === \"string\" && out.content.endsWith(c.json.content));\n    return { json: { id: match ? match.json.id : out.id, content: out.content } };\n  });\n});"
         }
       }
     ],
@@ -576,11 +576,11 @@
     },
     "nodeGroups": [],
     "authors": "Philipp Schmitt (via MCP)",
-    "name": "Fix static map JSON parsing (path fix)",
-    "description": "Previous update used the wrong JSON Pointer path (/parameters/jsCode) which nested a stray 'parameters' object inside the node's parameters instead of replacing jsCode directly. n8n kept running the old broken code. This corrects the path to /jsCode.",
+    "name": "Stop trusting LLM-echoed task IDs",
+    "description": "The Groq LLM occasionally mistranscribed long Todoist task IDs when echoing them back in its JSON output, causing 'Invalid ProjectUnitID' failures in Update Todoist. The LLM no longer needs to return the id at all — Flatten now re-derives the real id by matching the LLM's output content (which must end with the untouched original content) against the original items from the Switch/Switch 1 branches.",
     "autosaved": false
   },
-  "activeVersionId": "71bed803-59d9-47f6-be1e-a68e6ab2cd55",
+  "activeVersionId": "d1a4d986-095f-4ea0-b110-b4613a10345a",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1104,7 +1104,7 @@
         "messages": {
           "messageValues": [
             {
-              "message": "Prepend 1 emoji + space to content. Context: 6Crcx5cJrWQ6w4cG=food, 6gfWcx5q832xJ6XJ=tech. DO NOT CHANGE TEXT. JSON ONLY."
+              "message": "Prepend exactly 1 emoji + a space to content. Context: 6Crcx5cJrWQ6w4cG=food/groceries, 6gfWcx5q832xJ6XJ=tech. Choose the MOST SPECIFIC emoji for the exact item named (e.g. the specific fruit, vegetable, drink, tool, or gadget) rather than a generic catch-all. Do NOT default to 🍴, 🛒, or 📦 unless no specific emoji could possibly apply. Do not repeat the same emoji across different items unless the items are genuinely the same thing. Only return the modified content string. DO NOT CHANGE THE TEXT itself, DO NOT include an id. JSON ONLY."
             }
           ]
         }
@@ -1140,7 +1140,7 @@
       ],
       "parameters": {
         "schemaType": "manual",
-        "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\"},\"content\":{\"type\":\"string\"}},\"required\":[\"id\",\"content\"]}}"
+        "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"content\":{\"type\":\"string\"}},\"required\":[\"content\"]}}"
       }
     },
     {
@@ -1155,7 +1155,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "return $input.item.json.output.map(i => ({ json: i }));"
+        "jsCode": "const items = $input.all();\nconst candidates = [];\ntry { candidates.push(...$('Switch 1').all()); } catch (e) {}\ntry { candidates.push(...$('Switch').all()); } catch (e) {}\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map(out => {\n    const match = candidates.find(c => typeof out.content === \"string\" && out.content.endsWith(c.json.content));\n    return { json: { id: match ? match.json.id : out.id, content: out.content } };\n  });\n});"
       }
     }
   ],
@@ -1259,6 +1259,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-07-24T08:13:52.668Z",
-  "versionId": "71bed803-59d9-47f6-be1e-a68e6ab2cd55"
+  "updatedAt": "2026-08-05T21:46:32.673Z",
+  "versionId": "d1a4d986-095f-4ea0-b110-b4613a10345a"
 }
