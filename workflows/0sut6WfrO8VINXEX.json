@@ -716,6 +716,11 @@
             "node": "Update Todoist",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Prepare Image Query",
+            "type": "main",
+            "index": 0
           }
         ],
         [
@@ -765,6 +770,55 @@
         [
           {
             "node": "Update Todoist",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route By Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Category": {
+      "main": [
+        [
+          {
+            "node": "Prepare Image Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Image Query": {
+      "main": [
+        [
+          {
+            "node": "Search Product Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Product Image": {
+      "main": [
+        [
+          {
+            "node": "Extract Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image URL": {
+      "main": [
+        [
+          {
+            "node": "Add Product Photo Comment",
             "type": "main",
             "index": 0
           }
@@ -1157,6 +1211,150 @@
         "language": "javaScript",
         "jsCode": "const items = $input.all();\nconst candidates = [];\ntry { candidates.push(...$('Switch 1').all()); } catch (e) {}\ntry { candidates.push(...$('Switch').all()); } catch (e) {}\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map(out => {\n    const match = candidates.find(c => typeof out.content === \"string\" && out.content.endsWith(c.json.content));\n    return { json: { id: match ? match.json.id : out.id, content: out.content } };\n  });\n});"
       }
+    },
+    {
+      "id": "17b44a4a-8209-4a4f-91cd-6c7b7d50d32d",
+      "name": "Route By Category",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        600,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.is_groceries }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "1259741a-66fe-471f-92bf-2d624f1905d6",
+      "name": "Prepare Image Query",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        850,
+        100
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "content",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "query",
+              "name": "query",
+              "value": "={{ $json.content.replace(/^[\\p{Emoji} -㋿]+\\s*/u, '') + ' product' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "0f4050bb-19ca-470a-87fa-83a1910b5cbc",
+      "name": "Search Product Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1100,
+        100
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:7372/search",
+        "authentication": "none",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.query }}"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            },
+            {
+              "name": "categories",
+              "value": "images"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "9c946c93-dabb-4ec5-9082-b66ca3f82b6b",
+      "name": "Extract Image URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const res = $input.item.json;\nconst results = res.results || [];\nconst first = results.find(r => r.img_src || r.thumbnail_src);\nif (!first) return null;\nconst imageUrl = first.img_src || first.thumbnail_src;\nreturn { json: { id: $('Prepare Image Query').item.json.id, imageUrl } };"
+      }
+    },
+    {
+      "id": "e2f24477-e259-4d21-9622-91968bf5a733",
+      "name": "Add Product Photo Comment",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        100
+      ],
+      "parameters": {
+        "resource": "comment",
+        "operation": "create",
+        "commentTaskId": "={{ $json.id }}",
+        "commentContent": "={{ $json.imageUrl }}"
+      },
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
     }
   ],
   "pinData": {
@@ -1259,6 +1457,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-05T21:46:32.673Z",
-  "versionId": "d1a4d986-095f-4ea0-b110-b4613a10345a"
+  "updatedAt": "2026-08-05T22:21:40.487Z",
+  "versionId": "e1988f52-56ce-429d-a44b-72e0f654145a"
 }
