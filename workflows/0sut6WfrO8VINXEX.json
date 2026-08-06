@@ -1391,32 +1391,32 @@
   "nodeGroups": [],
   "nodes": [
     {
+      "parameters": {},
       "id": "87ae7ce6-3d01-4751-a654-26b903a5cca0",
       "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
         -2000,
-        0
+        -256
       ]
     },
     {
-      "id": "7d4add93-1ae8-49f9-be32-9f95f22adc4b",
-      "name": "Fetch Nerdery",
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.2,
-      "position": [
-        -1750,
-        50
-      ],
       "parameters": {
-        "resource": "task",
         "operation": "getAll",
         "returnAll": true,
         "filters": {
           "projectId": "6gfWcx5q832xJ6XJ"
         }
       },
+      "id": "7d4add93-1ae8-49f9-be32-9f95f22adc4b",
+      "name": "Fetch Nerdery",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.2,
+      "position": [
+        -1776,
+        -208
+      ],
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -1425,16 +1425,7 @@
       }
     },
     {
-      "id": "90b10ca4-31ac-4e8f-943b-eaff68258df7",
-      "name": "Normalize Task",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1500,
-        -100
-      ],
       "parameters": {
-        "mode": "manual",
         "assignments": {
           "assignments": [
             {
@@ -1462,26 +1453,34 @@
               "type": "string"
             }
           ]
-        }
-      }
+        },
+        "options": {}
+      },
+      "id": "90b10ca4-31ac-4e8f-943b-eaff68258df7",
+      "name": "Normalize Task",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1552,
+        -16
+      ]
     },
     {
-      "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
-      "name": "Fetch Groceries",
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.2,
-      "position": [
-        -1750,
-        150
-      ],
       "parameters": {
-        "resource": "task",
         "operation": "getAll",
         "returnAll": true,
         "filters": {
           "projectId": "6Crcx5cJrWQ6w4cG"
         }
       },
+      "id": "79fce2c6-4a4e-4a3e-958c-e24be984753d",
+      "name": "Fetch Groceries",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.2,
+      "position": [
+        -1776,
+        -16
+      ],
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -1490,14 +1489,6 @@
       }
     },
     {
-      "id": "2d949aeb-085f-4fe0-a155-6bedb8c57fcf",
-      "name": "Schedule Trigger",
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.3,
-      "position": [
-        -2000,
-        200
-      ],
       "parameters": {
         "rule": {
           "interval": [
@@ -1507,55 +1498,56 @@
             }
           ]
         }
-      }
+      },
+      "id": "2d949aeb-085f-4fe0-a155-6bedb8c57fcf",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2000,
+        32
+      ]
     },
     {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7",
+        "options": {}
+      },
       "id": "12ed3cf4-cb1d-4e9d-9405-cdfe1b640a30",
       "name": "Task added/updated",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -2000,
-        -200
+        -1776,
+        176
       ],
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "ac02e75a-9cc7-4d93-ae4b-754efc4b72a7"
-      },
       "webhookId": "90bcdf24-649c-4e0c-9418-49bed6ec90a3"
     },
     {
+      "parameters": {
+        "jsCode": "const G = \"6Crcx5cJrWQ6w4cG\";\nconst N = \"6gfWcx5q832xJ6XJ\";\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);"
+      },
       "id": "6e5bce62-5665-4d8a-abbc-e66a6de874f1",
       "name": "Identify Task",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1300,
-        -100
-      ],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "language": "javaScript",
-        "jsCode": "const G = \"6Crcx5cJrWQ6w4cG\";\nconst N = \"6gfWcx5q832xJ6XJ\";\nconst eRegex = /^[\\p{Emoji}\\u2000-\\u32FF]/u;\nconst matched = $input.all().filter(i => {\n  const t = i.json;\n  const pid = String(t.project_id);\n  const matchProject = (pid === G || pid === N);\n  const noEmoji = !eRegex.test(String(t.content || \"\").trim());\n  return matchProject && noEmoji;\n}).map(i => ({ json: { ...i.json, is_groceries: String(i.json.project_id) === G } }));\n\n// LIMIT TO 2 ITEMS TO AVOID RATE LIMITS DURING BACKLOG PROCESSING\nreturn matched.slice(0, 2);"
-      }
+        -1328,
+        -160
+      ]
     },
     {
-      "id": "052d0a03-4e22-475d-a90b-033704424a46",
-      "name": "Switch",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
-      "position": [
-        -1000,
-        -100
-      ],
       "parameters": {
-        "mode": "rules",
         "rules": {
           "values": [
             {
               "conditions": {
                 "options": {
-                  "caseSensitive": true
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
                 },
                 "combinator": "and",
                 "conditions": [
@@ -1572,7 +1564,10 @@
             {
               "conditions": {
                 "options": {
-                  "caseSensitive": true
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
                 },
                 "combinator": "and",
                 "conditions": [
@@ -1587,61 +1582,57 @@
               }
             }
           ]
-        }
-      }
+        },
+        "options": {}
+      },
+      "id": "052d0a03-4e22-475d-a90b-033704424a46",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        -160
+      ]
     },
     {
+      "parameters": {
+        "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
+        "options": {}
+      },
       "id": "d3b89066-5ad0-40d8-8fe1-bc7bd126f34b",
       "name": "Get Static Mappings",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -750,
-        -250
+        -880,
+        -240
       ],
-      "parameters": {
-        "url": "https://gist.github.com/pschmitt/b5ce05407e6bcaf457923845f6f550c2/raw/emoji-mapping.json",
-        "response": {
-          "response": {
-            "responseFormat": "json"
-          }
-        }
-      },
       "executeOnce": true
     },
     {
+      "parameters": {
+        "jsCode": "const rawItems = $input.all().map(i => i.json);\nlet mappings;\nif (rawItems.length === 1 && typeof rawItems[0].data === \"string\") {\n  mappings = JSON.parse(rawItems[0].data);\n} else if (rawItems.length === 1 && Array.isArray(rawItems[0].data)) {\n  mappings = rawItems[0].data;\n} else {\n  mappings = rawItems;\n}\nmappings = mappings.filter(m => m.emoji && m.patterns);\n\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});"
+      },
       "id": "1eeb186b-023d-4057-be06-7807d6f85766",
       "name": "Apply Static Map",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -500,
-        -250
-      ],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "language": "javaScript",
-        "jsCode": "const rawItems = $input.all().map(i => i.json);\nlet mappings;\nif (rawItems.length === 1 && typeof rawItems[0].data === \"string\") {\n  mappings = JSON.parse(rawItems[0].data);\n} else if (rawItems.length === 1 && Array.isArray(rawItems[0].data)) {\n  mappings = rawItems[0].data;\n} else {\n  mappings = rawItems;\n}\nmappings = mappings.filter(m => m.emoji && m.patterns);\n\nconst tasks = $(\"Identify Task\").all().map(i => i.json);\nconst groceryTasks = tasks.filter(t => t.is_groceries === true);\n\nreturn groceryTasks.map(t => {\n  let matched = false;\n  for (const m of mappings) {\n    const regex = new RegExp(\"^\\\\s*(\" + m.patterns.join(\"|\") + \")\", \"i\");\n    if (regex.test(t.content)) {\n      t.content = `${m.emoji} ${t.content}`;\n      matched = true;\n      break;\n    }\n  }\n  return { json: { ...t, is_matched: matched ? \"yes\" : \"no\" } };\n});",
-        "parameters": null
-      }
+        -656,
+        -240
+      ]
     },
     {
-      "id": "22937f17-831f-4ca1-8e63-d9a003121499",
-      "name": "Switch 1",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
-      "position": [
-        -300,
-        -250
-      ],
       "parameters": {
-        "mode": "rules",
         "rules": {
           "values": [
             {
               "conditions": {
                 "options": {
-                  "caseSensitive": true
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
                 },
                 "combinator": "and",
                 "conditions": [
@@ -1659,7 +1650,10 @@
             {
               "conditions": {
                 "options": {
-                  "caseSensitive": true
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
                 },
                 "combinator": "and",
                 "conditions": [
@@ -1675,26 +1669,34 @@
               }
             }
           ]
-        }
-      }
+        },
+        "options": {}
+      },
+      "id": "22937f17-831f-4ca1-8e63-d9a003121499",
+      "name": "Switch 1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -432,
+        -240
+      ]
     },
     {
-      "id": "dc4f5376-8209-4a08-95f8-5bd5a8f3fc26",
-      "name": "Update Todoist",
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.2,
-      "position": [
-        600,
-        -100
-      ],
       "parameters": {
-        "resource": "task",
         "operation": "update",
         "taskId": "={{ $json.id }}",
         "updateFields": {
           "content": "={{ $json.content }}"
         }
       },
+      "id": "dc4f5376-8209-4a08-95f8-5bd5a8f3fc26",
+      "name": "Update Todoist",
+      "type": "n8n-nodes-base.todoist",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        -160
+      ],
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -1703,14 +1705,6 @@
       }
     },
     {
-      "id": "1f8397f8-f05f-436f-bf9a-35c962422b05",
-      "name": "LLM Emojify",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.9,
-      "position": [
-        100,
-        50
-      ],
       "parameters": {
         "promptType": "define",
         "text": "={{ [$json] }}",
@@ -1721,21 +1715,31 @@
               "message": "Prepend exactly 1 emoji + a space to content. Context: 6Crcx5cJrWQ6w4cG=food/groceries, 6gfWcx5q832xJ6XJ=tech. Choose the MOST SPECIFIC emoji for the exact item named (e.g. the specific fruit, vegetable, drink, tool, or gadget) rather than a generic catch-all. Do NOT default to 🍴, 🛒, or 📦 unless no specific emoji could possibly apply. Do not repeat the same emoji across different items unless the items are genuinely the same thing. Only return the modified content string. DO NOT CHANGE THE TEXT itself, DO NOT include an id. JSON ONLY."
             }
           ]
-        }
-      }
+        },
+        "batching": {}
+      },
+      "id": "1f8397f8-f05f-436f-bf9a-35c962422b05",
+      "name": "LLM Emojify",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -208,
+        -144
+      ]
     },
     {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
       "id": "47173af0-c2c8-4f7a-83f7-9e4d20f237e8",
       "name": "Groq",
       "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
       "typeVersion": 1,
       "position": [
-        1808,
-        592
+        -200,
+        88
       ],
-      "parameters": {
-        "model": "llama-3.3-70b-versatile"
-      },
       "credentials": {
         "groqApi": {
           "id": "2nL6WC5EPVPT4o0B",
@@ -1744,45 +1748,34 @@
       }
     },
     {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"content\":{\"type\":\"string\"}},\"required\":[\"content\"]}}"
+      },
       "id": "d8e27bf0-5397-4088-be4e-d7cd730f3d8b",
       "name": "Parser",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1936,
-        592
-      ],
-      "parameters": {
-        "schemaType": "manual",
-        "inputSchema": "{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"content\":{\"type\":\"string\"}},\"required\":[\"content\"]}}"
-      }
+        -72,
+        88
+      ]
     },
     {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
+      },
       "id": "6ff7e94e-6949-4944-8356-a053510d6ac8",
       "name": "Flatten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        350,
-        50
-      ],
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "language": "javaScript",
-        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
-      }
+        144,
+        -32
+      ]
     },
     {
-      "id": "1259741a-66fe-471f-92bf-2d624f1905d6",
-      "name": "Prepare Image Query",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        850,
-        100
-      ],
       "parameters": {
-        "mode": "manual",
         "assignments": {
           "assignments": [
             {
@@ -1804,24 +1797,22 @@
               "type": "string"
             }
           ]
-        }
-      }
+        },
+        "options": {}
+      },
+      "id": "1259741a-66fe-471f-92bf-2d624f1905d6",
+      "name": "Prepare Image Query",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        144,
+        256
+      ]
     },
     {
-      "id": "0f4050bb-19ca-470a-87fa-83a1910b5cbc",
-      "name": "Search Product Image",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        1100,
-        100
-      ],
       "parameters": {
-        "method": "GET",
         "url": "http://host.docker.internal:7372/search",
-        "authentication": "none",
         "sendQuery": true,
-        "specifyQuery": "keypair",
         "queryParameters": {
           "parameters": [
             {
@@ -1838,21 +1829,7 @@
             }
           ]
         },
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "json"
-            }
-          },
-          "batching": {
-            "batch": {
-              "batchSize": 1,
-              "batchInterval": 3000
-            }
-          }
-        },
         "sendHeaders": true,
-        "specifyHeaders": "keypair",
         "headerParameters": {
           "parameters": [
             {
@@ -1868,38 +1845,50 @@
               "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36"
             }
           ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 3000
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
         }
       },
-      "onError": "continueRegularOutput",
+      "id": "0f4050bb-19ca-470a-87fa-83a1910b5cbc",
+      "name": "Search Product Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        368,
+        256
+      ],
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000,
-      "alwaysOutputData": true
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
     },
     {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const res = $input.item.json;\nconst results = res.results || [];\nconst first = results.find(r => r.img_src || r.thumbnail_src);\nif (!first) return null;\nconst imageUrl = first.img_src || first.thumbnail_src;\n\nconst extMatch = imageUrl.split('?')[0].match(/\\.([a-zA-Z0-9]+)$/);\nconst ext = (extMatch ? extMatch[1] : 'jpg').toLowerCase();\nconst mimeByExt = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif' };\nconst fileType = mimeByExt[ext] || 'image/jpeg';\nconst fileName = `product.${ext === 'jpeg' ? 'jpg' : ext}`;\n\nreturn { json: { id: $('Prepare Image Query').item.json.id, imageUrl, fileName, fileType } };"
+      },
       "id": "9c946c93-dabb-4ec5-9082-b66ca3f82b6b",
       "name": "Extract Image URL",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1350,
-        100
-      ],
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "language": "javaScript",
-        "jsCode": "const res = $input.item.json;\nconst results = res.results || [];\nconst first = results.find(r => r.img_src || r.thumbnail_src);\nif (!first) return null;\nconst imageUrl = first.img_src || first.thumbnail_src;\n\nconst extMatch = imageUrl.split('?')[0].match(/\\.([a-zA-Z0-9]+)$/);\nconst ext = (extMatch ? extMatch[1] : 'jpg').toLowerCase();\nconst mimeByExt = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif' };\nconst fileType = mimeByExt[ext] || 'image/jpeg';\nconst fileName = `product.${ext === 'jpeg' ? 'jpg' : ext}`;\n\nreturn { json: { id: $('Prepare Image Query').item.json.id, imageUrl, fileName, fileType } };"
-      }
+        592,
+        256
+      ]
     },
     {
-      "id": "e2f24477-e259-4d21-9622-91968bf5a733",
-      "name": "Add Product Photo Comment",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1600,
-        100
-      ],
       "parameters": {
         "method": "POST",
         "url": "https://api.todoist.com/api/v1/comments",
@@ -1910,6 +1899,14 @@
         "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"*Source: https://n8n.brkn.lol/workflow/\" + $workflow.id + \"/executions/\" + $execution.id + \"*\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
         "options": {}
       },
+      "id": "e2f24477-e259-4d21-9622-91968bf5a733",
+      "name": "Add Product Photo Comment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1264,
+        256
+      ],
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -1918,14 +1915,6 @@
       }
     },
     {
-      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a01",
-      "name": "Is Groceries Task",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -1300,
-        200
-      ],
       "parameters": {
         "conditions": {
           "options": {
@@ -1947,47 +1936,53 @@
           "combinator": "and"
         },
         "options": {}
-      }
+      },
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a01",
+      "name": "Is Groceries Task",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -880,
+        256
+      ]
     },
     {
+      "parameters": {
+        "maxItems": 3
+      },
       "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a02",
       "name": "Limit Photo Checks",
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        -1050,
-        200
-      ],
-      "parameters": {
-        "maxItems": 3
-      }
+        -656,
+        256
+      ]
     },
     {
+      "parameters": {
+        "url": "https://api.todoist.com/api/v1/comments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "todoistApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "task_id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
       "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a04",
       "name": "Get Task Comments",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -800,
-        200
+        -432,
+        256
       ],
-      "parameters": {
-        "method": "GET",
-        "url": "https://api.todoist.com/api/v1/comments",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "todoistApi",
-        "sendQuery": true,
-        "specifyQuery": "keypair",
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "task_id",
-              "value": "={{ $json.id }}"
-            }
-          ]
-        },
-        "options": {}
-      },
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -1996,36 +1991,25 @@
       }
     },
     {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
+      },
       "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a05",
       "name": "Filter Needs Photo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -550,
-        200
-      ],
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "language": "javaScript",
-        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
-      }
+        -144,
+        256
+      ]
     },
     {
-      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a06",
-      "name": "Recheck Task Comments",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1475,
-        250
-      ],
       "parameters": {
-        "method": "GET",
         "url": "https://api.todoist.com/api/v1/comments",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "todoistApi",
         "sendQuery": true,
-        "specifyQuery": "keypair",
         "queryParameters": {
           "parameters": [
             {
@@ -2036,6 +2020,14 @@
         },
         "options": {}
       },
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a06",
+      "name": "Recheck Task Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        816,
+        256
+      ],
       "credentials": {
         "todoistApi": {
           "id": "7jDBSQS5HIVX5LSR",
@@ -2044,29 +2036,20 @@
       }
     },
     {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
+      },
       "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a07",
       "name": "Confirm Still Needs Photo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1600,
-        250
-      ],
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "language": "javaScript",
-        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
-      }
+        1040,
+        256
+      ]
     },
     {
-      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a08",
-      "name": "Is Self-Triggered Update",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -1400,
-        100
-      ],
       "parameters": {
         "conditions": {
           "options": {
@@ -2088,23 +2071,29 @@
           "combinator": "and"
         },
         "options": {}
-      }
+      },
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a08",
+      "name": "Is Self-Triggered Update",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1328,
+        256
+      ]
     },
     {
+      "parameters": {
+        "amount": 12
+      },
       "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a09",
       "name": "Wait For Emoji Echo",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -1400,
-        250
+        -1104,
+        336
       ],
-      "webhookId": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a10",
-      "parameters": {
-        "resume": "timeInterval",
-        "amount": 12,
-        "unit": "seconds"
-      }
+      "webhookId": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a10"
     }
   ],
   "pinData": {
@@ -2184,7 +2173,8 @@
   "repo_path": "workflows",
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": true
+    "availableInMCP": true,
+    "binaryMode": "separate"
   },
   "shared": [
     {
@@ -2207,6 +2197,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-06T16:28:29.951Z",
-  "versionId": "d26d2180-9a14-43c4-81e1-0e283c9943e7"
+  "updatedAt": "2026-08-06T16:31:59.356Z",
+  "versionId": "5bf60d3c-fc16-4f43-97e3-49cd74e9140d"
 }
