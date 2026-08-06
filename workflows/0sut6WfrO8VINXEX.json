@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-06T14:51:29.259Z",
-    "createdAt": "2026-08-06T14:51:29.259Z",
-    "versionId": "5d0bf1fb-a8c9-43d2-a4a2-dc34455dc6ab",
+    "updatedAt": "2026-08-06T15:29:20.791Z",
+    "createdAt": "2026-08-06T15:29:20.791Z",
+    "versionId": "f174ad77-5442-4bfa-b221-6d7821bd7937",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -853,7 +853,7 @@
         "main": [
           [
             {
-              "node": "Limit Photo Checks",
+              "node": "Prepare Image Query",
               "type": "main",
               "index": 0
             }
@@ -901,7 +901,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "5d0bf1fb-a8c9-43d2-a4a2-dc34455dc6ab",
+  "activeVersionId": "f174ad77-5442-4bfa-b221-6d7821bd7937",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1134,7 +1134,7 @@
       "main": [
         [
           {
-            "node": "Limit Photo Checks",
+            "node": "Prepare Image Query",
             "type": "main",
             "index": 0
           }
@@ -1901,6 +1901,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-06T14:51:29.258Z",
-  "versionId": "5d0bf1fb-a8c9-43d2-a4a2-dc34455dc6ab"
+  "updatedAt": "2026-08-06T15:29:20.786Z",
+  "versionId": "f174ad77-5442-4bfa-b221-6d7821bd7937"
 }
