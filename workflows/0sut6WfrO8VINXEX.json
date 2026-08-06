@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-06T14:22:01.875Z",
-    "createdAt": "2026-08-06T14:22:01.875Z",
-    "versionId": "4188832f-1045-4b8d-92c6-ebd6d637cf0c",
+    "updatedAt": "2026-08-06T14:51:29.259Z",
+    "createdAt": "2026-08-06T14:51:29.259Z",
+    "versionId": "5d0bf1fb-a8c9-43d2-a4a2-dc34455dc6ab",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -379,39 +379,7 @@
         "parameters": {
           "mode": "runOnceForAllItems",
           "language": "javaScript",
-          "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n        is_groceries: source?.json?.is_groceries,\n      },\n    };\n  });\n});"
-        }
-      },
-      {
-        "id": "17b44a4a-8209-4a4f-91cd-6c7b7d50d32d",
-        "name": "Route By Category",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 2.3,
-        "position": [
-          600,
-          200
-        ],
-        "parameters": {
-          "conditions": {
-            "combinator": "and",
-            "options": {
-              "caseSensitive": true,
-              "leftValue": "",
-              "typeValidation": "strict",
-              "version": 2
-            },
-            "conditions": [
-              {
-                "leftValue": "={{ $json.is_groceries }}",
-                "rightValue": true,
-                "operator": {
-                  "type": "boolean",
-                  "operation": "true",
-                  "singleValue": true
-                }
-              }
-            ]
-          }
+          "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
         }
       },
       {
@@ -558,6 +526,99 @@
             "name": "Todoist account (API Key)"
           }
         }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a01",
+        "name": "Is Groceries Task",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -1300,
+          200
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "leftValue": "={{ $json.project_id }}",
+                "rightValue": "6Crcx5cJrWQ6w4cG",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a02",
+        "name": "Limit Photo Checks",
+        "type": "n8n-nodes-base.limit",
+        "typeVersion": 1,
+        "position": [
+          -1050,
+          200
+        ],
+        "parameters": {
+          "maxItems": 3
+        }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a04",
+        "name": "Get Task Comments",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -800,
+          200
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.todoist.com/api/v1/comments",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "todoistApi",
+          "sendQuery": true,
+          "specifyQuery": "keypair",
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "task_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "credentials": {
+          "todoistApi": {
+            "id": "7jDBSQS5HIVX5LSR",
+            "name": "Todoist account (API Key)"
+          }
+        }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a05",
+        "name": "Filter Needs Photo",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -550,
+          200
+        ],
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "language": "javaScript",
+          "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
+        }
       }
     ],
     "connections": {
@@ -593,6 +654,11 @@
           [
             {
               "node": "Identify Task",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Is Groceries Task",
               "type": "main",
               "index": 0
             }
@@ -695,11 +761,6 @@
               "node": "Update Todoist",
               "type": "main",
               "index": 0
-            },
-            {
-              "node": "Prepare Image Query",
-              "type": "main",
-              "index": 0
             }
           ],
           [
@@ -751,22 +812,6 @@
               "node": "Update Todoist",
               "type": "main",
               "index": 0
-            },
-            {
-              "node": "Route By Category",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Route By Category": {
-        "main": [
-          [
-            {
-              "node": "Prepare Image Query",
-              "type": "main",
-              "index": 0
             }
           ]
         ]
@@ -803,6 +848,51 @@
             }
           ]
         ]
+      },
+      "Is Groceries Task": {
+        "main": [
+          [
+            {
+              "node": "Limit Photo Checks",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "Limit Photo Checks": {
+        "main": [
+          [
+            {
+              "node": "Get Task Comments",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Task Comments": {
+        "main": [
+          [
+            {
+              "node": "Filter Needs Photo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Needs Photo": {
+        "main": [
+          [
+            {
+              "node": "Prepare Image Query",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "nodeGroups": [],
@@ -811,7 +901,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "4188832f-1045-4b8d-92c6-ebd6d637cf0c",
+  "activeVersionId": "5d0bf1fb-a8c9-43d2-a4a2-dc34455dc6ab",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -845,6 +935,11 @@
         [
           {
             "node": "Identify Task",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Groceries Task",
             "type": "main",
             "index": 0
           }
@@ -947,11 +1042,6 @@
             "node": "Update Todoist",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Prepare Image Query",
-            "type": "main",
-            "index": 0
           }
         ],
         [
@@ -1003,22 +1093,6 @@
             "node": "Update Todoist",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Route By Category",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Route By Category": {
-      "main": [
-        [
-          {
-            "node": "Prepare Image Query",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -1050,6 +1124,51 @@
         [
           {
             "node": "Add Product Photo Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Groceries Task": {
+      "main": [
+        [
+          {
+            "node": "Limit Photo Checks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Limit Photo Checks": {
+      "main": [
+        [
+          {
+            "node": "Get Task Comments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Task Comments": {
+      "main": [
+        [
+          {
+            "node": "Filter Needs Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Needs Photo": {
+      "main": [
+        [
+          {
+            "node": "Prepare Image Query",
             "type": "main",
             "index": 0
           }
@@ -1440,39 +1559,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n        is_groceries: source?.json?.is_groceries,\n      },\n    };\n  });\n});"
-      }
-    },
-    {
-      "id": "17b44a4a-8209-4a4f-91cd-6c7b7d50d32d",
-      "name": "Route By Category",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        600,
-        200
-      ],
-      "parameters": {
-        "conditions": {
-          "combinator": "and",
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "leftValue": "={{ $json.is_groceries }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ]
-        }
+        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
       }
     },
     {
@@ -1619,6 +1706,99 @@
           "name": "Todoist account (API Key)"
         }
       }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a01",
+      "name": "Is Groceries Task",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1300,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.project_id }}",
+              "rightValue": "6Crcx5cJrWQ6w4cG",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a02",
+      "name": "Limit Photo Checks",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1050,
+        200
+      ],
+      "parameters": {
+        "maxItems": 3
+      }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a04",
+      "name": "Get Task Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -800,
+        200
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.todoist.com/api/v1/comments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "todoistApi",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "task_id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a05",
+      "name": "Filter Needs Photo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -550,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
+      }
     }
   ],
   "pinData": {
@@ -1721,6 +1901,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-06T14:22:01.871Z",
-  "versionId": "4188832f-1045-4b8d-92c6-ebd6d637cf0c"
+  "updatedAt": "2026-08-06T14:51:29.258Z",
+  "versionId": "5d0bf1fb-a8c9-43d2-a4a2-dc34455dc6ab"
 }
