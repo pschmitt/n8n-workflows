@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-06T15:58:56.121Z",
-    "createdAt": "2026-08-06T15:58:56.121Z",
-    "versionId": "d83a4da5-ebcd-4fa4-bdac-c85355b6774a",
+    "updatedAt": "2026-08-06T16:28:29.952Z",
+    "createdAt": "2026-08-06T16:28:29.952Z",
+    "versionId": "d26d2180-9a14-43c4-81e1-0e283c9943e7",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -69,6 +69,12 @@
                 "id": "project_id",
                 "name": "project_id",
                 "value": "={{ $json.body?.event_data?.project_id || $json.project_id || $json.projectId }}",
+                "type": "string"
+              },
+              {
+                "id": "event_name",
+                "name": "event_name",
+                "value": "={{ $json.body?.event_name || '' }}",
                 "type": "string"
               }
             ]
@@ -517,7 +523,7 @@
           "nodeCredentialType": "todoistApi",
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\\n\\n*Source: https://n8n.brkn.lol/workflow/\" + $workflow.id + \"/executions/\" + $execution.id + \"*\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
+          "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"*Source: https://n8n.brkn.lol/workflow/\" + $workflow.id + \"/executions/\" + $execution.id + \"*\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
           "options": {}
         },
         "credentials": {
@@ -617,7 +623,7 @@
         "parameters": {
           "mode": "runOnceForEachItem",
           "language": "javaScript",
-          "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
+          "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
         }
       },
       {
@@ -665,7 +671,55 @@
         "parameters": {
           "mode": "runOnceForEachItem",
           "language": "javaScript",
-          "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
+          "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
+        }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a08",
+        "name": "Is Self-Triggered Update",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          -1400,
+          100
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "leftValue": "={{ $json.event_name }}",
+                "rightValue": "item:updated",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a09",
+        "name": "Wait For Emoji Echo",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          -1400,
+          250
+        ],
+        "webhookId": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a10",
+        "parameters": {
+          "resume": "timeInterval",
+          "amount": 12,
+          "unit": "seconds"
         }
       }
     ],
@@ -706,7 +760,7 @@
               "index": 0
             },
             {
-              "node": "Is Groceries Task",
+              "node": "Is Self-Triggered Update",
               "type": "main",
               "index": 0
             }
@@ -963,6 +1017,35 @@
             }
           ]
         ]
+      },
+      "Is Self-Triggered Update": {
+        "main": [
+          [
+            {
+              "node": "Wait For Emoji Echo",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Is Groceries Task",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait For Emoji Echo": {
+        "main": [
+          [
+            {
+              "node": "Is Groceries Task",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "nodeGroups": [],
@@ -971,7 +1054,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "d83a4da5-ebcd-4fa4-bdac-c85355b6774a",
+  "activeVersionId": "d26d2180-9a14-43c4-81e1-0e283c9943e7",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1009,7 +1092,7 @@
             "index": 0
           },
           {
-            "node": "Is Groceries Task",
+            "node": "Is Self-Triggered Update",
             "type": "main",
             "index": 0
           }
@@ -1266,6 +1349,35 @@
           }
         ]
       ]
+    },
+    "Is Self-Triggered Update": {
+      "main": [
+        [
+          {
+            "node": "Wait For Emoji Echo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Groceries Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Emoji Echo": {
+      "main": [
+        [
+          {
+            "node": "Is Groceries Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-02-20T13:52:03.090Z",
@@ -1341,6 +1453,12 @@
               "id": "project_id",
               "name": "project_id",
               "value": "={{ $json.body?.event_data?.project_id || $json.project_id || $json.projectId }}",
+              "type": "string"
+            },
+            {
+              "id": "event_name",
+              "name": "event_name",
+              "value": "={{ $json.body?.event_name || '' }}",
               "type": "string"
             }
           ]
@@ -1789,7 +1907,7 @@
         "nodeCredentialType": "todoistApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\\n\\n*Source: https://n8n.brkn.lol/workflow/\" + $workflow.id + \"/executions/\" + $execution.id + \"*\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
+        "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"*Source: https://n8n.brkn.lol/workflow/\" + $workflow.id + \"/executions/\" + $execution.id + \"*\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
         "options": {}
       },
       "credentials": {
@@ -1889,7 +2007,7 @@
       "parameters": {
         "mode": "runOnceForEachItem",
         "language": "javaScript",
-        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
+        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
       }
     },
     {
@@ -1937,7 +2055,55 @@
       "parameters": {
         "mode": "runOnceForEachItem",
         "language": "javaScript",
-        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
+        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.file_attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
+      }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a08",
+      "name": "Is Self-Triggered Update",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1400,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.event_name }}",
+              "rightValue": "item:updated",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a09",
+      "name": "Wait For Emoji Echo",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1400,
+        250
+      ],
+      "webhookId": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a10",
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 12,
+        "unit": "seconds"
       }
     }
   ],
@@ -2041,6 +2207,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-06T15:58:56.120Z",
-  "versionId": "d83a4da5-ebcd-4fa4-bdac-c85355b6774a"
+  "updatedAt": "2026-08-06T16:28:29.951Z",
+  "versionId": "d26d2180-9a14-43c4-81e1-0e283c9943e7"
 }
