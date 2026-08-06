@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-06T13:54:02.462Z",
-    "createdAt": "2026-08-06T13:54:02.462Z",
-    "versionId": "363eabb2-e944-4511-954c-591fb2df26d5",
+    "updatedAt": "2026-08-06T14:22:01.875Z",
+    "createdAt": "2026-08-06T14:22:01.875Z",
+    "versionId": "4188832f-1045-4b8d-92c6-ebd6d637cf0c",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -379,7 +379,7 @@
         "parameters": {
           "mode": "runOnceForAllItems",
           "language": "javaScript",
-          "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
+          "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n        is_groceries: source?.json?.is_groceries,\n      },\n    };\n  });\n});"
         }
       },
       {
@@ -492,6 +492,24 @@
                 "batchInterval": 3000
               }
             }
+          },
+          "sendHeaders": true,
+          "specifyHeaders": "keypair",
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Accept",
+                "value": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8"
+              },
+              {
+                "name": "Accept-Language",
+                "value": "en-US,en;q=0.9,de;q=0.8"
+              },
+              {
+                "name": "User-Agent",
+                "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36"
+              }
+            ]
           }
         },
         "onError": "continueRegularOutput",
@@ -512,23 +530,27 @@
         "parameters": {
           "mode": "runOnceForEachItem",
           "language": "javaScript",
-          "jsCode": "const res = $input.item.json;\nconst results = res.results || [];\nconst first = results.find(r => r.img_src || r.thumbnail_src);\nif (!first) return null;\nconst imageUrl = first.img_src || first.thumbnail_src;\nreturn { json: { id: $('Prepare Image Query').item.json.id, imageUrl } };"
+          "jsCode": "const res = $input.item.json;\nconst results = res.results || [];\nconst first = results.find(r => r.img_src || r.thumbnail_src);\nif (!first) return null;\nconst imageUrl = first.img_src || first.thumbnail_src;\n\nconst extMatch = imageUrl.split('?')[0].match(/\\.([a-zA-Z0-9]+)$/);\nconst ext = (extMatch ? extMatch[1] : 'jpg').toLowerCase();\nconst mimeByExt = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif' };\nconst fileType = mimeByExt[ext] || 'image/jpeg';\nconst fileName = `product.${ext === 'jpeg' ? 'jpg' : ext}`;\n\nreturn { json: { id: $('Prepare Image Query').item.json.id, imageUrl, fileName, fileType } };"
         }
       },
       {
         "id": "e2f24477-e259-4d21-9622-91968bf5a733",
         "name": "Add Product Photo Comment",
-        "type": "n8n-nodes-base.todoist",
-        "typeVersion": 2.2,
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
         "position": [
           1600,
           100
         ],
         "parameters": {
-          "resource": "comment",
-          "operation": "create",
-          "commentTaskId": "={{ $json.id }}",
-          "commentContent": "={{ $json.imageUrl }}"
+          "method": "POST",
+          "url": "https://api.todoist.com/api/v1/comments",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "todoistApi",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
+          "options": {}
         },
         "credentials": {
           "todoistApi": {
@@ -784,12 +806,12 @@
       }
     },
     "nodeGroups": [],
-    "authors": "Philipp Schmitt (via MCP)",
-    "name": "Use canonical internal SearXNG hostname",
-    "description": "Route the image search through the host gateway using search.brkn.lol so SearXNG receives its canonical Host header and n8n SSRF protection remains scoped.",
+    "authors": "Philipp Schmitt",
+    "name": null,
+    "description": null,
     "autosaved": false
   },
-  "activeVersionId": "363eabb2-e944-4511-954c-591fb2df26d5",
+  "activeVersionId": "4188832f-1045-4b8d-92c6-ebd6d637cf0c",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1418,7 +1440,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
+        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n        is_groceries: source?.json?.is_groceries,\n      },\n    };\n  });\n});"
       }
     },
     {
@@ -1531,6 +1553,24 @@
               "batchInterval": 3000
             }
           }
+        },
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9,de;q=0.8"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36"
+            }
+          ]
         }
       },
       "onError": "continueRegularOutput",
@@ -1551,23 +1591,27 @@
       "parameters": {
         "mode": "runOnceForEachItem",
         "language": "javaScript",
-        "jsCode": "const res = $input.item.json;\nconst results = res.results || [];\nconst first = results.find(r => r.img_src || r.thumbnail_src);\nif (!first) return null;\nconst imageUrl = first.img_src || first.thumbnail_src;\nreturn { json: { id: $('Prepare Image Query').item.json.id, imageUrl } };"
+        "jsCode": "const res = $input.item.json;\nconst results = res.results || [];\nconst first = results.find(r => r.img_src || r.thumbnail_src);\nif (!first) return null;\nconst imageUrl = first.img_src || first.thumbnail_src;\n\nconst extMatch = imageUrl.split('?')[0].match(/\\.([a-zA-Z0-9]+)$/);\nconst ext = (extMatch ? extMatch[1] : 'jpg').toLowerCase();\nconst mimeByExt = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif' };\nconst fileType = mimeByExt[ext] || 'image/jpeg';\nconst fileName = `product.${ext === 'jpeg' ? 'jpg' : ext}`;\n\nreturn { json: { id: $('Prepare Image Query').item.json.id, imageUrl, fileName, fileType } };"
       }
     },
     {
       "id": "e2f24477-e259-4d21-9622-91968bf5a733",
       "name": "Add Product Photo Comment",
-      "type": "n8n-nodes-base.todoist",
-      "typeVersion": 2.2,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1600,
         100
       ],
       "parameters": {
-        "resource": "comment",
-        "operation": "create",
-        "commentTaskId": "={{ $json.id }}",
-        "commentContent": "={{ $json.imageUrl }}"
+        "method": "POST",
+        "url": "https://api.todoist.com/api/v1/comments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "todoistApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
+        "options": {}
       },
       "credentials": {
         "todoistApi": {
@@ -1677,6 +1721,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-06T13:54:02.458Z",
-  "versionId": "363eabb2-e944-4511-954c-591fb2df26d5"
+  "updatedAt": "2026-08-06T14:22:01.871Z",
+  "versionId": "4188832f-1045-4b8d-92c6-ebd6d637cf0c"
 }
