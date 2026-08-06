@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-06T15:29:20.791Z",
-    "createdAt": "2026-08-06T15:29:20.791Z",
-    "versionId": "f174ad77-5442-4bfa-b221-6d7821bd7937",
+    "updatedAt": "2026-08-06T15:58:56.121Z",
+    "createdAt": "2026-08-06T15:58:56.121Z",
+    "versionId": "d83a4da5-ebcd-4fa4-bdac-c85355b6774a",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -410,7 +410,7 @@
               {
                 "id": "query",
                 "name": "query",
-                "value": "={{ $json.content.replace(/^[\\p{Emoji} -㋿]+\\s*/u, '') + ' product' }}",
+                "value": "={{ $json.content.replace(/^[\\p{Emoji} -㋿]+\\s*/u, '') + ' grocery product' }}",
                 "type": "string"
               }
             ]
@@ -428,7 +428,7 @@
         ],
         "parameters": {
           "method": "GET",
-          "url": "http://search.brkn.lol:7372/search",
+          "url": "http://host.docker.internal:7372/search",
           "authentication": "none",
           "sendQuery": true,
           "specifyQuery": "keypair",
@@ -517,7 +517,7 @@
           "nodeCredentialType": "todoistApi",
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
+          "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\\n\\n*Source: https://n8n.brkn.lol/workflow/\" + $workflow.id + \"/executions/\" + $execution.id + \"*\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
           "options": {}
         },
         "credentials": {
@@ -618,6 +618,54 @@
           "mode": "runOnceForEachItem",
           "language": "javaScript",
           "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
+        }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a06",
+        "name": "Recheck Task Comments",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1475,
+          250
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "https://api.todoist.com/api/v1/comments",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "todoistApi",
+          "sendQuery": true,
+          "specifyQuery": "keypair",
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "task_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "credentials": {
+          "todoistApi": {
+            "id": "7jDBSQS5HIVX5LSR",
+            "name": "Todoist account (API Key)"
+          }
+        }
+      },
+      {
+        "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a07",
+        "name": "Confirm Still Needs Photo",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1600,
+          250
+        ],
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "language": "javaScript",
+          "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
         }
       }
     ],
@@ -842,7 +890,7 @@
         "main": [
           [
             {
-              "node": "Add Product Photo Comment",
+              "node": "Recheck Task Comments",
               "type": "main",
               "index": 0
             }
@@ -853,7 +901,7 @@
         "main": [
           [
             {
-              "node": "Prepare Image Query",
+              "node": "Limit Photo Checks",
               "type": "main",
               "index": 0
             }
@@ -893,6 +941,28 @@
             }
           ]
         ]
+      },
+      "Recheck Task Comments": {
+        "main": [
+          [
+            {
+              "node": "Confirm Still Needs Photo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Confirm Still Needs Photo": {
+        "main": [
+          [
+            {
+              "node": "Add Product Photo Comment",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "nodeGroups": [],
@@ -901,7 +971,7 @@
     "description": null,
     "autosaved": false
   },
-  "activeVersionId": "f174ad77-5442-4bfa-b221-6d7821bd7937",
+  "activeVersionId": "d83a4da5-ebcd-4fa4-bdac-c85355b6774a",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1123,7 +1193,7 @@
       "main": [
         [
           {
-            "node": "Add Product Photo Comment",
+            "node": "Recheck Task Comments",
             "type": "main",
             "index": 0
           }
@@ -1134,7 +1204,7 @@
       "main": [
         [
           {
-            "node": "Prepare Image Query",
+            "node": "Limit Photo Checks",
             "type": "main",
             "index": 0
           }
@@ -1169,6 +1239,28 @@
         [
           {
             "node": "Prepare Image Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recheck Task Comments": {
+      "main": [
+        [
+          {
+            "node": "Confirm Still Needs Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Still Needs Photo": {
+      "main": [
+        [
+          {
+            "node": "Add Product Photo Comment",
             "type": "main",
             "index": 0
           }
@@ -1590,7 +1682,7 @@
             {
               "id": "query",
               "name": "query",
-              "value": "={{ $json.content.replace(/^[\\p{Emoji} -㋿]+\\s*/u, '') + ' product' }}",
+              "value": "={{ $json.content.replace(/^[\\p{Emoji} -㋿]+\\s*/u, '') + ' grocery product' }}",
               "type": "string"
             }
           ]
@@ -1608,7 +1700,7 @@
       ],
       "parameters": {
         "method": "GET",
-        "url": "http://search.brkn.lol:7372/search",
+        "url": "http://host.docker.internal:7372/search",
         "authentication": "none",
         "sendQuery": true,
         "specifyQuery": "keypair",
@@ -1697,7 +1789,7 @@
         "nodeCredentialType": "todoistApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
+        "jsonBody": "={{ JSON.stringify({ task_id: $json.id, content: \"\\ud83d\\uddbc\\ufe0f Product photo\\n\\n*Source: https://n8n.brkn.lol/workflow/\" + $workflow.id + \"/executions/\" + $execution.id + \"*\", attachment: { resource_type: \"image\", file_url: $json.imageUrl, file_name: $json.fileName, file_type: $json.fileType } }) }}",
         "options": {}
       },
       "credentials": {
@@ -1798,6 +1890,54 @@
         "mode": "runOnceForEachItem",
         "language": "javaScript",
         "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Limit Photo Checks').item.json;\nreturn { json: { id: source.id, content: source.content } };"
+      }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a06",
+      "name": "Recheck Task Comments",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1475,
+        250
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.todoist.com/api/v1/comments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "todoistApi",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "task_id",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "todoistApi": {
+          "id": "7jDBSQS5HIVX5LSR",
+          "name": "Todoist account (API Key)"
+        }
+      }
+    },
+    {
+      "id": "b1e6f2b0-6a3b-4e77-9b2a-6a6f2a8f1a07",
+      "name": "Confirm Still Needs Photo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        250
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "const res = $input.item.json;\nconst hasPhoto = (res.results || []).some(c => c.attachment?.resource_type === 'image');\nif (hasPhoto) return null;\nconst source = $('Extract Image URL').item.json;\nreturn { json: source };"
       }
     }
   ],
@@ -1901,6 +2041,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-06T15:29:20.786Z",
-  "versionId": "f174ad77-5442-4bfa-b221-6d7821bd7937"
+  "updatedAt": "2026-08-06T15:58:56.120Z",
+  "versionId": "d83a4da5-ebcd-4fa4-bdac-c85355b6774a"
 }
