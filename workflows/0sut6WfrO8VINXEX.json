@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-15T07:13:09.023Z",
-    "createdAt": "2026-08-15T07:13:09.023Z",
-    "versionId": "bd0cdaa4-05cf-4d13-9505-7b1281cee107",
+    "updatedAt": "2026-08-15T08:12:34.292Z",
+    "createdAt": "2026-08-15T08:12:34.292Z",
+    "versionId": "bbeea3be-28fd-4259-bae9-f8e966902077",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -547,6 +547,13 @@
                   "type": "string",
                   "operation": "equals"
                 }
+              },
+              {
+                "leftValue": "={{ !/^[\\p{Emoji}\\u2000-\\u32FF]/u.test(String($json.content || '').trim()) }}",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true"
+                }
               }
             ],
             "combinator": "and"
@@ -1038,12 +1045,12 @@
       }
     },
     "nodeGroups": [],
-    "authors": "Philipp Schmitt",
-    "name": null,
-    "description": null,
+    "authors": "Philipp Schmitt (via MCP)",
+    "name": "Gate emoji echo photo branch",
+    "description": "Only photo-process unemoji-prefixed grocery tasks; suppress the workflow-generated emoji echo.",
     "autosaved": false
   },
-  "activeVersionId": "bd0cdaa4-05cf-4d13-9505-7b1281cee107",
+  "activeVersionId": "bbeea3be-28fd-4259-bae9-f8e966902077",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1920,6 +1927,13 @@
                 "type": "string",
                 "operation": "equals"
               }
+            },
+            {
+              "leftValue": "={{ !/^[\\p{Emoji}\\u2000-\\u32FF]/u.test(String($json.content || '').trim()) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
             }
           ],
           "combinator": "and"
@@ -2186,6 +2200,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-15T07:13:09.020Z",
-  "versionId": "bd0cdaa4-05cf-4d13-9505-7b1281cee107"
+  "updatedAt": "2026-08-15T08:12:34.289Z",
+  "versionId": "bbeea3be-28fd-4259-bae9-f8e966902077"
 }
