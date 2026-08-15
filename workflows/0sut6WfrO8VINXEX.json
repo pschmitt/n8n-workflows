@@ -1,9 +1,9 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-15T08:12:34.292Z",
-    "createdAt": "2026-08-15T08:12:34.292Z",
-    "versionId": "bbeea3be-28fd-4259-bae9-f8e966902077",
+    "updatedAt": "2026-08-15T08:38:58.311Z",
+    "createdAt": "2026-08-15T08:38:58.311Z",
+    "versionId": "80a92934-7219-4ba8-aeca-d7fea4305e8c",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
       {
@@ -379,7 +379,7 @@
       },
       {
         "parameters": {
-          "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
+          "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').isExecuted ? $('Switch 1').all() : [];\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
         },
         "id": "6ff7e94e-6949-4944-8356-a053510d6ac8",
         "name": "Flatten",
@@ -1046,11 +1046,11 @@
     },
     "nodeGroups": [],
     "authors": "Philipp Schmitt (via MCP)",
-    "name": "Gate emoji echo photo branch",
-    "description": "Only photo-process unemoji-prefixed grocery tasks; suppress the workflow-generated emoji echo.",
+    "name": "Fix Nerdery LLM flattening",
+    "description": "Guard the Switch 1 lookup in Flatten so the direct Nerdery LLM branch can reach Update Todoist.",
     "autosaved": false
   },
-  "activeVersionId": "bbeea3be-28fd-4259-bae9-f8e966902077",
+  "activeVersionId": "80a92934-7219-4ba8-aeca-d7fea4305e8c",
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -1759,7 +1759,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').all();\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
+        "jsCode": "const items = $input.all();\nconst candidates = $('Switch 1').isExecuted ? $('Switch 1').all() : [];\nconst fallbackTasks = $('Identify Task').all();\n\nreturn items.flatMap(item => {\n  const outputs = item.json.output || [item.json];\n  return outputs.map((out, index) => {\n    const match = candidates.find(c =>\n      out.id && String(c.json.id) === String(out.id)\n    );\n    const source = match || candidates[index] || fallbackTasks[index];\n    return {\n      json: {\n        id: out.id || source?.json?.id,\n        content: out.content,\n      },\n    };\n  });\n});"
       },
       "id": "6ff7e94e-6949-4944-8356-a053510d6ac8",
       "name": "Flatten",
@@ -2200,6 +2200,6 @@
   },
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-08-15T08:12:34.289Z",
-  "versionId": "bbeea3be-28fd-4259-bae9-f8e966902077"
+  "updatedAt": "2026-08-15T08:38:58.308Z",
+  "versionId": "80a92934-7219-4ba8-aeca-d7fea4305e8c"
 }
