@@ -1,8 +1,6 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2025-11-25T10:59:07.559Z",
-    "createdAt": "2025-11-25T10:59:07.559Z",
     "versionId": "cbeecb05-2280-4b85-b811-0a32a76cf784",
     "workflowId": "kFCw4yxOFaqTJcBX",
     "nodes": [
@@ -689,7 +687,9 @@
     "authors": "system migration",
     "name": null,
     "description": null,
-    "autosaved": false
+    "autosaved": false,
+    "createdAt": "2025-11-25T10:59:07.559Z",
+    "updatedAt": "2025-11-25T10:59:07.559Z"
   },
   "activeVersionId": "cbeecb05-2280-4b85-b811-0a32a76cf784",
   "connections": {
@@ -1874,11 +1874,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2025-02-26T21:06:15.322Z",
-      "createdAt": "2025-02-26T21:06:15.322Z",
       "role": "workflow:owner",
       "workflowId": "kFCw4yxOFaqTJcBX",
-      "projectId": "DeJsGrmui3Dbhpxg"
+      "projectId": "DeJsGrmui3Dbhpxg",
+      "createdAt": "2025-02-26T21:06:15.322Z",
+      "updatedAt": "2025-02-26T21:06:15.322Z"
     }
   ],
   "staticData": {
@@ -1893,16 +1893,16 @@
   },
   "tags": [
     {
-      "updatedAt": "2025-03-01T10:08:40.646Z",
-      "createdAt": "2025-03-01T10:08:40.646Z",
       "id": "OyteJf99vPShklOw",
-      "name": "backup"
+      "name": "backup",
+      "createdAt": "2025-03-01T10:08:40.646Z",
+      "updatedAt": "2025-03-01T10:08:40.646Z"
     },
     {
-      "updatedAt": "2025-03-01T10:08:32.875Z",
-      "createdAt": "2025-03-01T10:08:32.875Z",
       "id": "ZImYrfZ29jOrOJYu",
-      "name": "github"
+      "name": "github",
+      "createdAt": "2025-03-01T10:08:32.875Z",
+      "updatedAt": "2025-03-01T10:08:32.875Z"
     }
   ],
   "triggerCount": 1,
