@@ -1,8 +1,6 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-02-11T19:40:29.000Z",
-    "createdAt": "2026-02-11T19:40:13.244Z",
     "versionId": "0bcdc636-5f90-415f-a4a5-7723791bf895",
     "workflowId": "19pwlUJok6EXe0uu",
     "nodes": [
@@ -594,7 +592,9 @@
     "authors": "Philipp Schmitt",
     "name": "Version 0bcdc636",
     "description": "",
-    "autosaved": true
+    "autosaved": true,
+    "createdAt": "2026-02-11T19:40:13.244Z",
+    "updatedAt": "2026-02-11T19:40:29.000Z"
   },
   "activeVersionId": "0bcdc636-5f90-415f-a4a5-7723791bf895",
   "connections": {
@@ -1273,11 +1273,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2025-09-26T19:31:19.374Z",
-      "createdAt": "2025-09-26T19:31:19.374Z",
       "role": "workflow:owner",
       "workflowId": "19pwlUJok6EXe0uu",
-      "projectId": "DeJsGrmui3Dbhpxg"
+      "projectId": "DeJsGrmui3Dbhpxg",
+      "createdAt": "2025-09-26T19:31:19.374Z",
+      "updatedAt": "2025-09-26T19:31:19.374Z"
     }
   ],
   "staticData": {
@@ -1310,10 +1310,10 @@
   },
   "tags": [
     {
-      "updatedAt": "2025-03-01T06:50:52.672Z",
-      "createdAt": "2025-03-01T06:50:52.672Z",
       "id": "mjfF2OqntfnQP15x",
-      "name": "todoist"
+      "name": "todoist",
+      "createdAt": "2025-03-01T06:50:52.672Z",
+      "updatedAt": "2025-03-01T06:50:52.672Z"
     }
   ],
   "triggerCount": 1,
