@@ -1,8 +1,6 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-07-29T14:14:28.000Z",
-    "createdAt": "2026-07-29T14:14:21.597Z",
     "versionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c",
     "workflowId": "Yv1UPh7jKlfO7u9g",
     "nodes": [
@@ -471,7 +469,9 @@
     "authors": "Philipp Schmitt",
     "name": "Version 5fdd16a8",
     "description": "",
-    "autosaved": true
+    "autosaved": true,
+    "createdAt": "2026-07-29T14:14:21.597Z",
+    "updatedAt": "2026-07-29T14:14:28.000Z"
   },
   "activeVersionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c",
   "connections": {
@@ -956,11 +956,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2025-02-20T15:49:00.774Z",
-      "createdAt": "2025-02-20T15:49:00.774Z",
       "role": "workflow:owner",
       "workflowId": "Yv1UPh7jKlfO7u9g",
-      "projectId": "DeJsGrmui3Dbhpxg"
+      "projectId": "DeJsGrmui3Dbhpxg",
+      "createdAt": "2025-02-20T15:49:00.774Z",
+      "updatedAt": "2025-02-20T15:49:00.774Z"
     }
   ],
   "staticData": {
@@ -978,16 +978,16 @@
   },
   "tags": [
     {
-      "updatedAt": "2025-03-01T10:08:28.997Z",
-      "createdAt": "2025-03-01T10:08:28.997Z",
       "id": "XtnD4IrqWWI0nMgl",
-      "name": "mail"
+      "name": "mail",
+      "createdAt": "2025-03-01T10:08:28.997Z",
+      "updatedAt": "2025-03-01T10:08:28.997Z"
     },
     {
-      "updatedAt": "2025-03-01T10:08:32.875Z",
-      "createdAt": "2025-03-01T10:08:32.875Z",
       "id": "ZImYrfZ29jOrOJYu",
-      "name": "github"
+      "name": "github",
+      "createdAt": "2025-03-01T10:08:32.875Z",
+      "updatedAt": "2025-03-01T10:08:32.875Z"
     }
   ],
   "triggerCount": 1,
