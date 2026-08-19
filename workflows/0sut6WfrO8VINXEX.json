@@ -1,8 +1,6 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-08-15T08:38:58.311Z",
-    "createdAt": "2026-08-15T08:38:58.311Z",
     "versionId": "80a92934-7219-4ba8-aeca-d7fea4305e8c",
     "workflowId": "0sut6WfrO8VINXEX",
     "nodes": [
@@ -1048,7 +1046,9 @@
     "authors": "Philipp Schmitt (via MCP)",
     "name": "Fix Nerdery LLM flattening",
     "description": "Guard the Switch 1 lookup in Flatten so the direct Nerdery LLM branch can reach Update Todoist.",
-    "autosaved": false
+    "autosaved": false,
+    "createdAt": "2026-08-15T08:38:58.311Z",
+    "updatedAt": "2026-08-15T08:38:58.311Z"
   },
   "activeVersionId": "80a92934-7219-4ba8-aeca-d7fea4305e8c",
   "connections": {
@@ -2181,11 +2181,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2025-02-20T13:52:03.095Z",
-      "createdAt": "2025-02-20T13:52:03.095Z",
       "role": "workflow:owner",
       "workflowId": "0sut6WfrO8VINXEX",
-      "projectId": "DeJsGrmui3Dbhpxg"
+      "projectId": "DeJsGrmui3Dbhpxg",
+      "createdAt": "2025-02-20T13:52:03.095Z",
+      "updatedAt": "2025-02-20T13:52:03.095Z"
     }
   ],
   "staticData": {
