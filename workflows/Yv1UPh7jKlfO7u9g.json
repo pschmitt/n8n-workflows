@@ -1,7 +1,7 @@
 {
   "active": true,
   "activeVersion": {
-    "versionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c",
+    "versionId": "406769b8-5754-4c25-991d-898d363e4536",
     "workflowId": "Yv1UPh7jKlfO7u9g",
     "nodes": [
       {
@@ -28,7 +28,16 @@
               {
                 "id": "keywords-id",
                 "name": "keywords",
-                "value": "immich,mealie,netbird,netbox,paperless-ngx,tailscale,waybar,vaultwarden",
+                "value": [
+                  "immich",
+                  "mealie",
+                  "netbird",
+                  "netbox",
+                  "paperless-ngx",
+                  "tailscale",
+                  "waybar",
+                  "vaultwarden"
+                ],
                 "type": "array"
               }
             ]
@@ -466,14 +475,14 @@
       }
     },
     "nodeGroups": [],
-    "authors": "Philipp Schmitt",
-    "name": "Version 5fdd16a8",
-    "description": "",
-    "autosaved": true,
-    "createdAt": "2026-07-29T14:14:21.597Z",
-    "updatedAt": "2026-07-29T14:14:28.000Z"
+    "authors": "Philipp Schmitt (via MCP)",
+    "name": "Fix nixpkgs digest keywords",
+    "description": "Store Config.keywords as an actual array so scheduled runs can proceed.",
+    "autosaved": false,
+    "createdAt": "2026-08-22T07:34:16.899Z",
+    "updatedAt": "2026-08-22T07:34:16.899Z"
   },
-  "activeVersionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c",
+  "activeVersionId": "406769b8-5754-4c25-991d-898d363e4536",
   "connections": {
     "When clicking ‘Test workflow’": {
       "main": [
@@ -684,7 +693,16 @@
             {
               "id": "keywords-id",
               "name": "keywords",
-              "value": "immich,mealie,netbird,netbox,paperless-ngx,tailscale,waybar,vaultwarden",
+              "value": [
+                "immich",
+                "mealie",
+                "netbird",
+                "netbox",
+                "paperless-ngx",
+                "tailscale",
+                "waybar",
+                "vaultwarden"
+              ],
               "type": "array"
             }
           ]
@@ -991,6 +1009,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2026-07-29T14:14:21.596Z",
-  "versionId": "5fdd16a8-4e5b-4dcc-8bc2-78cab6d78b0c"
+  "updatedAt": "2026-08-22T07:34:16.870Z",
+  "versionId": "406769b8-5754-4c25-991d-898d363e4536"
 }
